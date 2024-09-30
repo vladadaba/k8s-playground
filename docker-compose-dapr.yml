@@ -35,9 +35,7 @@ services:
         "--app-id",
         "app1",
         "--app-port",
-        "50000",
-        "--app-protocol",
-        "grpc",
+        "3000",
         "--placement-host-address",
         "placement:50006", # Dapr's placement service can be reach via the docker DNS entry
         "--config",

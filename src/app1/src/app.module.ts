@@ -19,7 +19,6 @@ import { OrderProcessingService } from './order-processing.service';
     {
       provide: DaprClient,
       useValue: new DaprClient({
-        communicationProtocol: CommunicationProtocolEnum.GRPC,
         actor: {
           actorIdleTimeout: '1h',
           actorScanInterval: '30s',
@@ -31,12 +30,6 @@ import { OrderProcessingService } from './order-processing.service';
           },
           remindersStoragePartitions: 0,
         },
-      }),
-    },
-    {
-      provide: DaprServer,
-      useValue: new DaprServer({
-        communicationProtocol: CommunicationProtocolEnum.GRPC,
       }),
     },
     {

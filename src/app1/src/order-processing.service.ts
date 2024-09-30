@@ -5,7 +5,6 @@ import {
   DaprClient,
   DaprWorkflowClient,
   WorkflowRuntime,
-  DaprServer,
 } from '@dapr/dapr';
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import {
@@ -23,7 +22,6 @@ const storeName = 'statestore'; // same as in redis-state.yaml
 export class OrderProcessingService implements OnModuleInit {
   constructor(
     private readonly daprClient: DaprClient,
-    private readonly daprServer: DaprServer,
     private readonly daprWorkflowClient: DaprWorkflowClient,
     private readonly daprWorkflowRuntime: WorkflowRuntime,
   ) {}
@@ -59,14 +57,12 @@ export class OrderProcessingService implements OnModuleInit {
     } catch (error) {
       console.error('Error starting workflow runtime:', error);
     }
-
-    await this.daprServer.start();
   }
 
   start = async (order: OrderPayload) => {
     try {
       const id = await this.daprWorkflowClient.scheduleNewWorkflow(
-        this.orderProcessingWorkflow,
+        'orderProcessingWorkflow',
         order,
       );
       console.log(`Orchestration scheduled with ID: ${id}`);
@@ -187,7 +183,7 @@ export class OrderProcessingService implements OnModuleInit {
     const orderNotification: OrderNotification = {
       message: `Received order ${orderId} for ${orderPayLoad.quantity} ${orderPayLoad.itemName} at a total cost of ${orderPayLoad.totalCost}`,
     };
-    yield ctx.callActivity(this.notifyActivity, orderNotification);
+    yield ctx.callActivity('notifyActivity', orderNotification);
 
     const inventoryRequest = new InventoryRequest(
       orderId,
@@ -195,7 +191,7 @@ export class OrderProcessingService implements OnModuleInit {
       orderPayLoad.quantity,
     );
     const inventoryResult = yield ctx.callActivity(
-      this.reserveInventoryActivity,
+      'reserveInventoryActivity',
       inventoryRequest,
     );
 
@@ -203,20 +199,20 @@ export class OrderProcessingService implements OnModuleInit {
       const orderNotification: OrderNotification = {
         message: `Insufficient inventory for order ${orderId}`,
       };
-      yield ctx.callActivity(this.notifyActivity, orderNotification);
+      yield ctx.callActivity('notifyActivity', orderNotification);
       return;
     }
 
     if (orderPayLoad.totalCost > 5000) {
       const approvalResult = yield ctx.callActivity(
-        this.requestApprovalActivity,
+        'requestApprovalActivity',
         orderPayLoad,
       );
       if (!approvalResult) {
         const orderNotification: OrderNotification = {
           message: `Order ${orderId} approval denied`,
         };
-        yield ctx.callActivity(this.notifyActivity, orderNotification);
+        yield ctx.callActivity('notifyActivity', orderNotification);
         return;
       }
     }
@@ -228,7 +224,7 @@ export class OrderProcessingService implements OnModuleInit {
       orderPayLoad.quantity,
     );
     const paymentResult = yield ctx.callActivity(
-      this.processPaymentActivity,
+      'processPaymentActivity',
       orderPaymentRequest,
     );
 
@@ -241,21 +237,21 @@ export class OrderProcessingService implements OnModuleInit {
     }
 
     const updatedResult = yield ctx.callActivity(
-      this.updateInventoryActivity,
+      'updateInventoryActivity',
       inventoryRequest,
     );
     if (!updatedResult.success) {
       const orderNotification: OrderNotification = {
         message: `Failed to update inventory for order ${orderId}`,
       };
-      yield ctx.callActivity(this.notifyActivity, orderNotification);
+      yield ctx.callActivity('notifyActivity', orderNotification);
       return;
     }
 
     const orderCompletedNotification: OrderNotification = {
       message: `order ${orderId} processed successfully!`,
     };
-    yield ctx.callActivity(this.notifyActivity, orderCompletedNotification);
+    yield ctx.callActivity('notifyActivity', orderCompletedNotification);
 
     console.log(`Order ${orderId} processed successfully!`);
   };
