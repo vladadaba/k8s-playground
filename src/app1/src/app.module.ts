@@ -1,13 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import {
-  CommunicationProtocolEnum,
-  DaprClient,
-  DaprServer,
-  DaprWorkflowClient,
-  WorkflowRuntime,
-} from '@dapr/dapr';
+import { DaprClient, DaprWorkflowClient, WorkflowRuntime } from '@dapr/dapr';
 import { OrderProcessingService } from './order-processing.service';
 
 @Module({

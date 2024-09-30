@@ -232,7 +232,7 @@ export class OrderProcessingService implements OnModuleInit {
       const orderNotification: OrderNotification = {
         message: `Payment for order ${orderId} failed`,
       };
-      yield ctx.callActivity(this.notifyActivity, orderNotification);
+      yield ctx.callActivity('notifyActivity', orderNotification);
       return;
     }
 
