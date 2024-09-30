@@ -1,0 +1,16 @@
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: actorbackend
+spec:
+  type: workflowbackend.actor
+  version: v1
+  metadata:
+    - name: actorIdleTimeout
+      value: "5m"
+    - name: actorScanInterval
+      value: "30s"
+    - name: drainOngoingCallTimeout
+      value: "1m"
+    - name: drainRebalancedActors
+      value: true

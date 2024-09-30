@@ -1,9 +1,14 @@
 import { DaprClient, HttpMethod } from '@dapr/dapr';
 import { Injectable } from '@nestjs/common';
+import { OrderProcessingService } from './order-processing.service';
+import { OrderPayload } from './model';
 
 @Injectable()
 export class AppService {
-  constructor(private readonly daprClient: DaprClient) {}
+  constructor(
+    private readonly daprClient: DaprClient,
+    private readonly orderProcessingWorkflow: OrderProcessingService,
+  ) {}
 
   async hello(): Promise<{
     service: string;
@@ -56,5 +61,9 @@ export class AppService {
 
   getState(key: string) {
     return this.daprClient.state.get('statestore', key);
+  }
+
+  startWorkflow(order: OrderPayload) {
+    return this.orderProcessingWorkflow.start(order);
   }
 }

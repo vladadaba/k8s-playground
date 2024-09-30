@@ -6,6 +6,12 @@ x-logging: &default-logging
     tag: "{{.Name}}-{{.ID}}"
 
 services:
+  placement: # this is needed for workflow engine to work
+    image: "daprio/dapr"
+    command: ["./placement", "--port", "50006"]
+    ports:
+      - "50006:50006"
+
   ##### App1 & DAPR Sidecar #####
   app1:
     build:
@@ -24,16 +30,19 @@ services:
 
   app1_dapr:
     image: "daprio/daprd:1.14.4"
-    command:
-      [
+    command: [
         "./daprd",
-        "-app-id",
+        "--app-id",
         "app1",
-        "-app-port",
-        "3000",
-        "-config",
+        "--app-port",
+        "50000",
+        "--app-protocol",
+        "grpc",
+        "--placement-host-address",
+        "placement:50006", # Dapr's placement service can be reach via the docker DNS entry
+        "--config",
         "/dapr/config.yaml",
-        "-components-path",
+        "--resources-path",
         "/dapr/local",
       ]
     volumes:

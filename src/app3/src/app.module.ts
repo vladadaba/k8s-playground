@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { DaprClient, DaprServer } from '@dapr/dapr';
+import { DaprClient } from '@dapr/dapr';
 
 @Module({
   imports: [],
@@ -11,10 +11,6 @@ import { DaprClient, DaprServer } from '@dapr/dapr';
     {
       provide: DaprClient,
       useValue: new DaprClient(),
-    },
-    {
-      provide: DaprServer,
-      useValue: new DaprServer(),
     },
   ],
 })

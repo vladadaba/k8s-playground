@@ -12,5 +12,7 @@ spec:
       secretKeyRef:
         name: redisPassword
         key: redisPassword
+    - name: actorStateStore # Required for workflow engine
+      value: "true"
 auth:
   secretStore: localsecrets

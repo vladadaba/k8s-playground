@@ -1,4 +1,4 @@
-FROM node:18-alpine As installer
+FROM node:18-alpine AS installer
 
 RUN apk add g++ make py3-pip
 
@@ -8,7 +8,7 @@ COPY --chown=node:node yarn.lock ./
 RUN yarn install --immutable
 USER node
 
-FROM node:18-alpine As builder
+FROM node:18-alpine AS builder
 
 WORKDIR /usr/src/app
 COPY --from=installer --chown=node:node /usr/src/app/node_modules ./node_modules
@@ -17,7 +17,7 @@ RUN yarn build
 RUN yarn install --immutable --production && yarn cache clean
 USER node
 
-FROM node:18-alpine As production
+FROM node:18-alpine AS production
 
 ENV NODE_ENV production
 COPY --chown=node:node --from=build /usr/src/app/node_modules ./node_modules
