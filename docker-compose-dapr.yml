@@ -1,0 +1,129 @@
+x-logging: &default-logging
+  driver: "fluentd"
+  options:
+    fluentd-address: "localhost:24224"
+    fluentd-async-connect: "true"
+    tag: "{{.Name}}-{{.ID}}"
+
+services:
+  ##### App1 & DAPR Sidecar #####
+  app1:
+    build:
+      context: ./src/app1
+      dockerfile: ./Dockerfile
+      target: installer
+    env_file:
+      - .env
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./src/app1:/usr/src/app
+      - /usr/src/app/node_modules # dont overwrite node_modules inside container (some packages need to be built for specific platform, so they might be broken if they are mounted, more info on this syntax - https://stackoverflow.com/questions/29181032/add-a-volume-to-docker-but-exclude-a-sub-folder/37898591#37898591)
+    command: ["yarn", "start:dev"]
+    logging: *default-logging
+
+  app1_dapr:
+    image: "daprio/daprd:1.14.4"
+    command:
+      [
+        "./daprd",
+        "-app-id",
+        "app1",
+        "-app-port",
+        "3000",
+        "-config",
+        "/dapr/config.yaml",
+        "-components-path",
+        "/dapr/local",
+      ]
+    volumes:
+      - "./volumes/components:/dapr"
+    depends_on:
+      - app1
+    network_mode: "service:app1"
+    env_file:
+      - .env
+    logging: *default-logging
+
+  ##### App2 & DAPR Sidecar #####
+  app2:
+    build:
+      context: ./src/app2
+      dockerfile: ./Dockerfile
+      target: installer
+    env_file:
+      - .env
+    ports:
+      - "3001:3000"
+    volumes:
+      - ./src/app2:/usr/src/app
+      - /usr/src/app/node_modules # dont overwrite node_modules inside container (some packages need to be built for specific platform, so they might be broken if they are mounted, more info on this syntax - https://stackoverflow.com/questions/29181032/add-a-volume-to-docker-but-exclude-a-sub-folder/37898591#37898591)
+    command: ["yarn", "start:dev"]
+    logging: *default-logging
+
+  app2_dapr:
+    image: "daprio/daprd:1.14.4"
+    command:
+      [
+        "./daprd",
+        "-app-id",
+        "app2",
+        "-app-port",
+        "3000",
+        "-config",
+        "/dapr/config.yaml",
+        "-components-path",
+        "/dapr/local",
+      ]
+    volumes:
+      - "./volumes/components:/dapr"
+    depends_on:
+      - app2
+    network_mode: "service:app2"
+    env_file:
+      - .env
+    logging: *default-logging
+
+  ##### App3 & DAPR Sidecar #####
+  app3:
+    build:
+      context: ./src/app3
+      dockerfile: ./Dockerfile
+      target: installer
+    env_file:
+      - .env
+    ports:
+      - "3002:3000"
+    volumes:
+      - ./src/app3:/usr/src/app
+      - /usr/src/app/node_modules # dont overwrite node_modules inside container (some packages need to be built for specific platform, so they might be broken if they are mounted, more info on this syntax - https://stackoverflow.com/questions/29181032/add-a-volume-to-docker-but-exclude-a-sub-folder/37898591#37898591)
+    command: ["yarn", "start:dev"]
+    logging: *default-logging
+
+  app3_dapr:
+    image: "daprio/daprd:1.14.4"
+    command:
+      [
+        "./daprd",
+        "-app-id",
+        "app3",
+        "-app-port",
+        "3000",
+        "-config",
+        "/dapr/config.yaml",
+        "-components-path",
+        "/dapr/local",
+      ]
+    volumes:
+      - "./volumes/components:/dapr"
+    depends_on:
+      - app3
+    network_mode: "service:app3"
+    env_file:
+      - .env
+    logging: *default-logging
+
+networks:
+  default:
+    name: dapr_network
+    external: true
