@@ -20,7 +20,7 @@ services:
     ports:
       - "6379:6379"
     volumes:
-      - ./volumes/redis.conf:/usr/local/etc/redis/redis.conf
+      - ./volumes/infra/redis/redis.conf:/usr/local/etc/redis/redis.conf
 
   ##### Zipkin #####
   zipkin:
@@ -40,7 +40,7 @@ services:
       - 24224:24224 # Forward input plugin
       - 24220:24220 # built-in HTTP Server
     volumes:
-      - "./volumes/fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf:ro"
+      - "./volumes/infra/fluentbit/fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf:ro"
 
   ##### Seq #####
   seq:
@@ -49,7 +49,7 @@ services:
     environment:
       - ACCEPT_EULA=Y
     volumes:
-      - ./volumes/dapr_playground/seq/data:/data
+      - ./volumes/data/seq/data:/data
     ports:
       - "8191:80"
 
@@ -63,6 +63,34 @@ services:
     environment:
       SEQ_ADDRESS: "http://seq_service:5341"
     restart: unless-stopped
+
+  keycloak:
+    image: keycloak/keycloak:25.0
+    container_name: keycloak
+    ports:
+      - 8080:8080
+    environment:
+      - KEYCLOAK_USER=admin
+      - KEYCLOAK_PASSWORD=admin
+      - DB_VENDOR=postgres
+      - DB_ADDR=postgres
+      - DB_DATABASE=keycloak
+      - DB_USER=keycloak
+      - DB_PASSWORD=keycloak
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:16.4-alpine
+    container_name: postgres
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - ./volumes/data/postgres:/var/lib/postgresql/data
+      - ./infra/postgres:/docker-entrypoint-initdb.d
 
 networks:
   default:

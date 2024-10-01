@@ -44,7 +44,7 @@ services:
         "/dapr/local",
       ]
     volumes:
-      - "./volumes/components:/dapr"
+      - "./volumes/infra/dapr/components:/dapr"
     depends_on:
       - app1
     network_mode: "service:app1"
@@ -83,7 +83,7 @@ services:
         "/dapr/local",
       ]
     volumes:
-      - "./volumes/components:/dapr"
+      - "./volumes/infra/dapr/components:/dapr"
     depends_on:
       - app2
     network_mode: "service:app2"
@@ -122,7 +122,7 @@ services:
         "/dapr/local",
       ]
     volumes:
-      - "./volumes/components:/dapr"
+      - "./volumes/infra/dapr/components:/dapr"
     depends_on:
       - app3
     network_mode: "service:app3"
