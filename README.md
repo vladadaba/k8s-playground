@@ -28,3 +28,5 @@ docker run --rm -v redisinsight:/db -p 5540:5540 --network dapr_network redislab
 3. Host: `redis_service`
 4. Port: 6379
 5. Password: `S0m3P@$$w0rd`
+
+Keycloak - http://localhost:8080/admin/master/console/
