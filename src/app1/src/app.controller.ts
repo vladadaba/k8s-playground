@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { AppService } from './app.service';
-import { InventoryItem, OrderPayload } from './model';
+import { ApproveOrderDto, OrderDto } from './model';
 
 @Controller()
 export class AppController {
@@ -37,9 +37,12 @@ export class AppController {
   }
 
   @Post('start-workflow')
-  startWorkflow(@Body() { itemName, quantity, totalCost }: OrderPayload) {
-    return this.appService.startWorkflow(
-      new OrderPayload(itemName, quantity, totalCost),
-    );
+  startWorkflow(@Body() { productId, quantity }: OrderDto) {
+    return this.appService.startWorkflow(productId, quantity);
+  }
+
+  @Post('approve-order')
+  approveOrder(@Body() { orderId, approverId, isApproved }: ApproveOrderDto) {
+    return this.appService.approve(orderId, approverId, isApproved);
   }
 }

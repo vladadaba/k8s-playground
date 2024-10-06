@@ -23,8 +23,8 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./src/app1:/usr/src/app
       - /usr/src/app/node_modules # dont overwrite node_modules inside container (some packages need to be built for specific platform, so they might be broken if they are mounted, more info on this syntax - https://stackoverflow.com/questions/29181032/add-a-volume-to-docker-but-exclude-a-sub-folder/37898591#37898591)
+      - ./src/app1:/usr/src/app
     command: ["yarn", "start:dev"]
     logging: *default-logging
 
@@ -63,8 +63,8 @@ services:
     ports:
       - "3001:3000"
     volumes:
-      - ./src/app2:/usr/src/app
       - /usr/src/app/node_modules # dont overwrite node_modules inside container (some packages need to be built for specific platform, so they might be broken if they are mounted, more info on this syntax - https://stackoverflow.com/questions/29181032/add-a-volume-to-docker-but-exclude-a-sub-folder/37898591#37898591)
+      - ./src/app2:/usr/src/app
     command: ["yarn", "start:dev"]
     logging: *default-logging
 
@@ -102,8 +102,8 @@ services:
     ports:
       - "3002:3000"
     volumes:
-      - ./src/app3:/usr/src/app
       - /usr/src/app/node_modules # dont overwrite node_modules inside container (some packages need to be built for specific platform, so they might be broken if they are mounted, more info on this syntax - https://stackoverflow.com/questions/29181032/add-a-volume-to-docker-but-exclude-a-sub-folder/37898591#37898591)
+      - ./src/app3:/usr/src/app
     command: ["yarn", "start:dev"]
     logging: *default-logging
 

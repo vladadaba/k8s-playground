@@ -1,13 +1,14 @@
 import { DaprClient, HttpMethod } from '@dapr/dapr';
 import { Injectable } from '@nestjs/common';
 import { OrderProcessingService } from './order-processing.service';
-import { OrderPayload } from './model';
+import { PrismaService } from './prisma.service';
 
 @Injectable()
 export class AppService {
   constructor(
     private readonly daprClient: DaprClient,
     private readonly orderProcessingWorkflow: OrderProcessingService,
+    private readonly prisma: PrismaService,
   ) {}
 
   async hello(): Promise<{
@@ -63,7 +64,33 @@ export class AppService {
     return this.daprClient.state.get('statestore', key);
   }
 
-  startWorkflow(order: OrderPayload) {
+  async startWorkflow(productId: string, quantity: number) {
+    const { cost } = await this.prisma.inventoryItem.findFirst({
+      where: {
+        id: productId,
+      },
+      select: {
+        cost: true,
+      },
+    });
+
+    const order = await this.prisma.order.create({
+      data: {
+        quantity,
+        status: 'WAITING_FOR_APPROVAL',
+        productId,
+        totalCost: cost.mul(quantity),
+      },
+    });
+
     return this.orderProcessingWorkflow.start(order);
+  }
+
+  approve(orderId: string, approvedId: string, isApproved: boolean) {
+    return this.orderProcessingWorkflow.approve(
+      orderId,
+      approvedId,
+      isApproved,
+    );
   }
 }

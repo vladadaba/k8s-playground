@@ -3,6 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DaprClient, DaprWorkflowClient, WorkflowRuntime } from '@dapr/dapr';
 import { OrderProcessingService } from './order-processing.service';
+import { PrismaService } from './prisma.service';
 
 @Module({
   imports: [],
@@ -10,6 +11,7 @@ import { OrderProcessingService } from './order-processing.service';
   providers: [
     AppService,
     OrderProcessingService,
+    PrismaService,
     {
       provide: DaprClient,
       useValue: new DaprClient({

@@ -6,6 +6,8 @@ WORKDIR /usr/src/app
 COPY --chown=node:node package.json ./
 COPY --chown=node:node yarn.lock ./
 RUN yarn install --immutable
+COPY --chown=node:node prisma ./
+RUN npx prisma generate
 USER node
 
 FROM node:18-alpine AS builder
