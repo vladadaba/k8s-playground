@@ -30,7 +30,7 @@ export class OrderProcessingService implements OnModuleInit {
     // Wrap the worker startup in a try-catch block to handle any errors during startup
     try {
       await this.daprWorkflowRuntime.start();
-      console.log('Workflow runtime started successfullyy');
+      console.log('Workflow runtime started successfully');
     } catch (error) {
       console.error('Error starting workflow runtime:', error);
     }
@@ -73,7 +73,8 @@ export class OrderProcessingService implements OnModuleInit {
   ): any {
     // Orders under 1000 are auto-approved
     if (new Decimal(order.totalCost).lessThan(1000)) {
-      yield ctx.callActivity('approveOrder', order);
+      yield ctx.callActivity('approveOrder', { order });
+      return;
     }
 
     // Orders of $1000 or more require manager approval

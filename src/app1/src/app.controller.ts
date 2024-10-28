@@ -1,6 +1,12 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { AppService } from './app.service';
-import { ApproveOrderDto, OrderDto } from './model';
+import { ApproveOrderDto, OrderDto, PurchaseDto } from './model';
+import {
+  AuthenticatedUser,
+  AuthGuard,
+  Public,
+  Roles,
+} from 'nest-keycloak-connect';
 
 @Controller()
 export class AppController {
@@ -9,6 +15,16 @@ export class AppController {
   @Get('hello')
   hello() {
     return this.appService.hello();
+  }
+
+  @Get('test')
+  test() {
+    return 'test';
+  }
+
+  @Get('app1/test')
+  test2() {
+    return 'app1/test';
   }
 
   @Get('hello_with_failures')
@@ -42,7 +58,32 @@ export class AppController {
   }
 
   @Post('approve-order')
-  approveOrder(@Body() { orderId, approverId, isApproved }: ApproveOrderDto) {
+  @Roles({ roles: ['realm:admin'] }) // https://stackoverflow.com/questions/73653840/keycloak-and-nodejs-nestjs-wrong-role-mismatch
+  approveOrder(
+    @AuthenticatedUser() userInfo,
+    @Body() { orderId, isApproved }: ApproveOrderDto,
+  ) {
+    const approverId = userInfo.sub;
     return this.appService.approve(orderId, approverId, isApproved);
+  }
+
+  @Get('orders')
+  @Roles({ roles: ['realm:admin'] })
+  getOrders() {
+    return this.appService.getOrders();
+  }
+
+  @Get('products')
+  @Public()
+  getProducts() {
+    return this.appService.getProducts();
+  }
+
+  @Post('purchase')
+  purchase(
+    @AuthenticatedUser() userInfo,
+    @Body() { productId, quantity }: PurchaseDto,
+  ) {
+    return this.appService.startWorkflow(productId, quantity);
   }
 }

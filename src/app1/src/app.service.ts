@@ -93,4 +93,33 @@ export class AppService {
       isApproved,
     );
   }
+
+  async getOrders() {
+    const orders = await this.prisma.order.findMany({
+      where: {
+        status: 'WAITING_FOR_APPROVAL',
+      },
+      include: {
+        product: true,
+      },
+    });
+
+    return orders.map((o) => ({
+      id: o.id,
+      name: o.product.name,
+      quantity: o.quantity,
+      total: o.totalCost,
+    }));
+  }
+
+  async getProducts() {
+    const products = await this.prisma.inventoryItem.findMany();
+
+    return products.map((o) => ({
+      id: o.id,
+      name: o.name,
+      cost: o.cost,
+      quantity: o.quantity,
+    }));
+  }
 }

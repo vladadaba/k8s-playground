@@ -27,6 +27,18 @@ services:
       - ./src/app1:/usr/src/app
     command: ["yarn", "start:dev"]
     logging: *default-logging
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.app1.rule=Host(`myapp.localhost`) && PathPrefix(`/app1`)"
+      - "traefik.http.services.app1.loadbalancer.server.port=3000"
+      - "traefik.http.middlewares.app1-stripprefix.stripprefix.prefixes=/app1"
+      - "traefik.http.middlewares.app1-stripprefix.stripprefix.forceslash=false"
+      - "traefik.http.middlewares.cors.headers.accesscontrolallowmethods=*"
+      - "traefik.http.middlewares.cors.headers.accesscontrolalloworiginlist=*"
+      - "traefik.http.middlewares.cors.headers.accessControlAllowHeaders=*"
+      - "traefik.http.middlewares.cors.headers.accesscontrolmaxage=100"
+      - "traefik.http.middlewares.cors.headers.addvaryheader=true"
+      - "traefik.http.routers.app1.middlewares=cors,app1-stripprefix"
 
   app1_dapr:
     image: "daprio/daprd:1.14.4"
@@ -67,6 +79,13 @@ services:
       - ./src/app2:/usr/src/app
     command: ["yarn", "start:dev"]
     logging: *default-logging
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.app2.rule=Host(`myapp.localhost`) && PathPrefix(`/app2`)"
+      - "traefik.http.services.app2.loadbalancer.server.port=3000"
+      - "traefik.http.middlewares.app2-stripprefix.stripprefix.prefixes=/app2"
+      - "traefik.http.middlewares.app2-stripprefix.stripprefix.forceslash=false"
+      - "traefik.http.routers.app2.middlewares=app2-stripprefix"
 
   app2_dapr:
     image: "daprio/daprd:1.14.4"
@@ -106,6 +125,13 @@ services:
       - ./src/app3:/usr/src/app
     command: ["yarn", "start:dev"]
     logging: *default-logging
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.app3.rule=Host(`myapp.localhost`) && PathPrefix(`/app3`)"
+      - "traefik.http.services.app3.loadbalancer.server.port=3000"
+      - "traefik.http.middlewares.app3-stripprefix.stripprefix.prefixes=/app3"
+      - "traefik.http.middlewares.app3-stripprefix.stripprefix.forceslash=false"
+      - "traefik.http.routers.app3.middlewares=app3-stripprefix"
 
   app3_dapr:
     image: "daprio/daprd:1.14.4"
