@@ -6,27 +6,21 @@ x-logging: &default-logging
     tag: "{{.Name}}-{{.ID}}"
 
 services:
-  placement: # this is needed for workflow engine to work
-    image: "daprio/dapr"
-    command: ["./placement", "--port", "50006"]
-    ports:
-      - "50006:50006"
-
   ##### App1 & DAPR Sidecar #####
   app1:
     build:
       context: .
       dockerfile: ./apps/app1/Dockerfile
-      # target: installer
+      target: installer
     env_file:
       - .env
     ports:
       - "3000:3000"
-    # volumes:
-    #   - /usr/src/app/node_modules # dont overwrite node_modules inside container (some packages need to be built for specific platform, so they might be broken if they are mounted, more info on this syntax - https://stackoverflow.com/questions/29181032/add-a-volume-to-docker-but-exclude-a-sub-folder/37898591#37898591)
-    #   - ./apps/app1:/usr/src/app
+    volumes:
+      - /usr/src/app/apps/app1/node_modules # dont overwrite node_modules inside container (some packages need to be built for specific platform, so they might be broken if they are mounted, more info on this syntax - https://stackoverflow.com/questions/29181032/add-a-volume-to-docker-but-exclude-a-sub-folder/37898591#37898591)
+      - ./apps/app1:/usr/src/app/apps/app1
+    command: ["yarn", "start:dev"]
     # command: "tail -f /dev/null"
-    # command: ["yarn", "start:dev"]
     logging: *default-logging
     labels:
       - "traefik.enable=true"
@@ -70,15 +64,15 @@ services:
     build:
       context: .
       dockerfile: ./apps/app2/Dockerfile
-      # target: installer
+      target: installer
     env_file:
       - .env
     ports:
       - "3001:3000"
-    # volumes:
-    #   - /usr/src/app/node_modules # dont overwrite node_modules inside container (some packages need to be built for specific platform, so they might be broken if they are mounted, more info on this syntax - https://stackoverflow.com/questions/29181032/add-a-volume-to-docker-but-exclude-a-sub-folder/37898591#37898591)
-    #   - ./apps/app2:/usr/src/app
-    # command: ["yarn", "start:dev"]
+    volumes:
+      - /usr/src/app/apps/app2/node_modules # dont overwrite node_modules inside container (some packages need to be built for specific platform, so they might be broken if they are mounted, more info on this syntax - https://stackoverflow.com/questions/29181032/add-a-volume-to-docker-but-exclude-a-sub-folder/37898591#37898591)
+      - ./apps/app2:/usr/src/app/apps/app2
+    command: ["yarn", "start:dev"]
     logging: *default-logging
     labels:
       - "traefik.enable=true"
@@ -116,15 +110,15 @@ services:
     build:
       context: .
       dockerfile: ./apps/app3/Dockerfile
-      # target: installer
+      target: installer
     env_file:
       - .env
     ports:
       - "3002:3000"
-    # volumes:
-    #   - /usr/src/app/node_modules # dont overwrite node_modules inside container (some packages need to be built for specific platform, so they might be broken if they are mounted, more info on this syntax - https://stackoverflow.com/questions/29181032/add-a-volume-to-docker-but-exclude-a-sub-folder/37898591#37898591)
-    #   - ./apps/app3:/usr/src/app
-    # command: ["yarn", "start:dev"]
+    volumes:
+      - /usr/src/app/apps/app3/node_modules # dont overwrite node_modules inside container (some packages need to be built for specific platform, so they might be broken if they are mounted, more info on this syntax - https://stackoverflow.com/questions/29181032/add-a-volume-to-docker-but-exclude-a-sub-folder/37898591#37898591)
+      - ./apps/app3:/usr/src/app/apps/app3
+    command: ["yarn", "start:dev"]
     logging: *default-logging
     labels:
       - "traefik.enable=true"
