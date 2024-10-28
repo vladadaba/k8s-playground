@@ -1,18 +1,14 @@
 import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { AppService } from './app.service';
 import { ApproveOrderDto, OrderDto, PurchaseDto } from './model';
-import {
-  AuthenticatedUser,
-  AuthGuard,
-  Public,
-  Roles,
-} from 'nest-keycloak-connect';
+import { AuthenticatedUser, Public, Roles } from 'nest-keycloak-connect';
 
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Get('hello')
+  @Public()
   hello() {
     return this.appService.hello();
   }
