@@ -84,16 +84,17 @@ services:
 
   app2_dapr:
     image: "daprio/daprd:1.14.4"
-    command:
-      [
+    command: [
         "./daprd",
-        "-app-id",
+        "--app-id",
         "app2",
-        "-app-port",
+        "--app-port",
         "3000",
-        "-config",
+        "--placement-host-address",
+        "placement:50006", # Dapr's placement service can be reach via the docker DNS entry
+        "--config",
         "/dapr/config.yaml",
-        "-components-path",
+        "--resources-path",
         "/dapr/local",
       ]
     volumes:
@@ -130,16 +131,17 @@ services:
 
   app3_dapr:
     image: "daprio/daprd:1.14.4"
-    command:
-      [
+    command: [
         "./daprd",
-        "-app-id",
+        "--app-id",
         "app3",
-        "-app-port",
+        "--app-port",
         "3000",
-        "-config",
+        "--placement-host-address",
+        "placement:50006", # Dapr's placement service can be reach via the docker DNS entry
+        "--config",
         "/dapr/config.yaml",
-        "-components-path",
+        "--resources-path",
         "/dapr/local",
       ]
     volumes:

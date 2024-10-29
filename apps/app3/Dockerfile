@@ -23,9 +23,9 @@ WORKDIR /usr/src/app
 COPY --from=installer /usr/src/app/ .
 COPY --from=builder /usr/src/app/out/full/ .
 COPY .gitignore .gitignore
-RUN yarn turbo run build --filter=app3
+RUN yarn build --filter=app3
 
-FROM node:20-alpine as runner
+FROM node:20-alpine AS runner
 WORKDIR /usr/src/app
 COPY --from=sourcer /usr/src/app/ .
 CMD [ "node", "apps/app3/dist/main.js" ]

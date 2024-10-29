@@ -8,7 +8,6 @@ services:
   ##### Traefik #####
   traefik:
     image: "traefik:v3.1"
-    container_name: "traefik"
     command:
       # - "--log.level=DEBUG"
       - "--api.insecure=true"
@@ -24,8 +23,6 @@ services:
   ##### Rabbitmq #####
   rabbitmq:
     image: "rabbitmq:3.9-management"
-    container_name: "rabbitmq_server"
-    hostname: "rabbitmq_server"
     environment:
       - RABBITMQ_DEFAULT_USER=demo
       - RABBITMQ_DEFAULT_PASS=demo
@@ -36,7 +33,6 @@ services:
 
   ##### Redis #####
   redis:
-    container_name: "redis_service"
     image: "redis:6.2-alpine"
     command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
     ports:
@@ -46,7 +42,6 @@ services:
 
   ##### Zipkin #####
   zipkin:
-    container_name: "zipkin_service"
     image: "openzipkin/zipkin:2.23.2"
     ports:
       - 9411:9411
@@ -54,8 +49,6 @@ services:
   ##### fluent-bit #####
   fluent-bit:
     image: fluent/fluent-bit:1.7.2
-    container_name: "fluentbit_service"
-    hostname: "fluentbit_service"
     depends_on:
       - seq-input-gelf
     ports:
@@ -66,7 +59,6 @@ services:
 
   ##### Seq #####
   seq:
-    container_name: "seq_service"
     image: datalust/seq:2021.2
     environment:
       - ACCEPT_EULA=Y
@@ -77,18 +69,16 @@ services:
 
   seq-input-gelf:
     image: datalust/seq-input-gelf:latest
-    container_name: "seq-input-gelf"
     depends_on:
       - seq
     ports:
       - "12201:12201/udp"
     environment:
-      SEQ_ADDRESS: "http://seq_service:5341"
+      SEQ_ADDRESS: "http://seq:5341"
     restart: unless-stopped
 
   keycloak:
     image: quay.io/keycloak/keycloak:25.0
-    container_name: keycloak
     ports:
       - 8080:8080
     command: start-dev
@@ -111,7 +101,6 @@ services:
 
   postgres:
     image: postgres:16.4-alpine
-    container_name: postgres
     ports:
       - 5432:5432
     environment:

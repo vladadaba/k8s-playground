@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq # this is name by which the service can be reached (ClusterIP) within cluster
+  labels:
+    name: rabbitmq-internal-service
+    app: myapp
+    type: infra
+spec:
+  selector:
+    name: rabbitmq-pod
+    app: myapp
+    type: infra
+  ports:
+    - port: 5672
+      targetPort: 5672

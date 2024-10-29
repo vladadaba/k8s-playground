@@ -1,0 +1,64 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: myapp-app3-pod
+  labels:
+    name: myapp-app3-pod
+    app: myapp
+    type: backend
+spec:
+  containers:
+    - name: myapp-app3
+      # build with `docker build -t k8s_playground-app3 . -f apps/app3/Dockerfile` followed by `minikube image load k8s_playground-app3`
+      # https://stackoverflow.com/a/42564211/3697384 (build image with Minikube's docker daemon)
+      image: k8s_playground-app3
+      imagePullPolicy: Never
+      # resources:
+      #   limits:
+      #     memory: "128Mi"
+      #     cpu: "500m"
+      ports:
+        - containerPort: 3000
+    - name: myapp-app3-dapr
+      image: daprio/daprd:1.14.4
+      # resources:
+      #   limits:
+      #     memory: "128Mi"
+      #     cpu: "500m"
+      command: [
+          "./daprd",
+          "--app-id",
+          "app3",
+          "--app-port",
+          "3000",
+          "--placement-host-address",
+          "placement:50006", # Dapr's placement service can be reach via the docker DNS entry
+          "--config",
+          "/dapr/config.yaml",
+          "--resources-path",
+          "/dapr/local",
+        ]
+      env:
+        - name: APP_API_TOKEN
+          value: "ig/Qqa+atihYJYVbeZgUqQ"
+      volumeMounts:
+        - name: dapr-local-volume
+          mountPath: /dapr/local
+        - name: dapr-volume
+          mountPath: /dapr/config.yaml
+          subPath: config.yaml
+      # annotations:
+      #   dapr.io/enabled: "true"
+      #   dapr.io/app-id: "myapp"
+      #   dapr.io/app-protocol: "grpc"
+      #   dapr.io/app-port: "5005"
+  volumes:
+    - name: dapr-volume
+      configMap:
+        name: dapr-configmap
+        items:
+          - key: config.yaml
+            path: config.yaml
+    - name: dapr-local-volume
+      configMap:
+        name: dapr-local-configmap

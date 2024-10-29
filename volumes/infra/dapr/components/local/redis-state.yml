@@ -7,7 +7,7 @@ spec:
   type: state.redis
   metadata:
     - name: redisHost
-      value: redis_service:6379
+      value: redis:6379
     - name: redisPassword
       secretKeyRef:
         name: redisPassword
