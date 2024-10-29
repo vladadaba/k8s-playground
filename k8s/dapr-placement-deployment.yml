@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dapr-placement-deploy
+  labels:
+    name: dapr-placement-deploy
+    app: myapp
+    type: infra
+spec:
+  selector:
+    matchLabels:
+      name: dapr-placement-pod
+      app: myapp
+      type: infra
+  template:
+    metadata:
+      name: dapr-placement-pod
+      labels:
+        name: dapr-placement-pod
+        app: myapp
+        type: infra
+    spec:
+      containers:
+        - name: dapr-placement
+          image: daprio/dapr
+          command: ["./placement", "--port", "50006"]
+          # resources:
+          #   limits:
+          #     memory: "128Mi"
+          #     cpu: "500m"
+          ports:
+            - containerPort: 50006
