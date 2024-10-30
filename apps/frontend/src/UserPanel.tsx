@@ -15,7 +15,7 @@ const UserPanel = () => {
 
   const fetchProducts = async () => {
     const { data: products } = await axios.get<Product[]>(
-      "http://myapp.localhost/app1/products",
+      "http://192.168.105.2:30894/app1/products",
       {
         headers: {
           Authorization: `Bearer ${keycloak.token}`,
@@ -32,7 +32,7 @@ const UserPanel = () => {
 
   const purchase = async (productId: string, quantity: number) => {
     await axios.post(
-      "http://myapp.localhost/app1/purchase",
+      "http://192.168.105.2:30894/app1/purchase",
       {
         productId,
         quantity,

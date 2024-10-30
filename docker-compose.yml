@@ -12,10 +12,15 @@ services:
       context: .
       dockerfile: ./apps/app1/Dockerfile
       target: installer
-    env_file:
-      - .env
     ports:
       - "3000:3000"
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - APP_API_TOKEN=${APP_API_TOKEN}
+      - KEYCLOAK_SECRET=${KEYCLOAK_SECRET}
+      - KEYCLOAK_URL=${KEYCLOAK_URL}
+      - KEYCLOAK_REALM=${KEYCLOAK_REALM}
+      - KEYCLOAK_CLIENTID=${KEYCLOAK_CLIENTID}
     volumes:
       - /usr/src/app/apps/app1/node_modules # dont overwrite node_modules inside container (some packages need to be built for specific platform, so they might be broken if they are mounted, more info on this syntax - https://stackoverflow.com/questions/29181032/add-a-volume-to-docker-but-exclude-a-sub-folder/37898591#37898591)
       - ./apps/app1:/usr/src/app/apps/app1
@@ -55,8 +60,8 @@ services:
     depends_on:
       - app1
     network_mode: "service:app1"
-    env_file:
-      - .env
+    environment:
+      - APP_API_TOKEN=${APP_API_TOKEN}
     logging: *default-logging
 
   ##### App2 & DAPR Sidecar #####
@@ -65,14 +70,14 @@ services:
       context: .
       dockerfile: ./apps/app2/Dockerfile
       target: installer
-    env_file:
-      - .env
     ports:
       - "3001:3000"
     volumes:
       - /usr/src/app/apps/app2/node_modules # dont overwrite node_modules inside container (some packages need to be built for specific platform, so they might be broken if they are mounted, more info on this syntax - https://stackoverflow.com/questions/29181032/add-a-volume-to-docker-but-exclude-a-sub-folder/37898591#37898591)
       - ./apps/app2:/usr/src/app/apps/app2
     command: ["yarn", "start:dev"]
+    environment:
+      - APP_API_TOKEN=${APP_API_TOKEN}
     logging: *default-logging
     labels:
       - "traefik.enable=true"
@@ -102,8 +107,8 @@ services:
     depends_on:
       - app2
     network_mode: "service:app2"
-    env_file:
-      - .env
+    environment:
+      - APP_API_TOKEN=${APP_API_TOKEN}
     logging: *default-logging
 
   ##### App3 & DAPR Sidecar #####
@@ -112,8 +117,6 @@ services:
       context: .
       dockerfile: ./apps/app3/Dockerfile
       target: installer
-    env_file:
-      - .env
     ports:
       - "3002:3000"
     volumes:
@@ -149,8 +152,8 @@ services:
     depends_on:
       - app3
     network_mode: "service:app3"
-    env_file:
-      - .env
+    environment:
+      - APP_API_TOKEN=${APP_API_TOKEN}
     logging: *default-logging
 
 networks:

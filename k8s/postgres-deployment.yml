@@ -20,9 +20,16 @@ spec:
         app: myapp
         type: infra
     spec:
+      volumes:
+        - name: postgres-pv-storage
+          persistentVolumeClaim:
+            claimName: postgres-pv-claim
       containers:
         - name: postgres
           image: postgres
+          volumeMounts:
+            - mountPath: "/var/lib/postgresql/data"
+              name: postgres-pv-storage
           # resources:
           #   limits:
           #     memory: "128Mi"

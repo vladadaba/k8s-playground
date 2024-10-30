@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DaprClient, DaprWorkflowClient, WorkflowRuntime } from '@dapr/dapr';
@@ -16,13 +17,20 @@ import { ClsModule } from 'nestjs-cls';
 
 @Module({
   imports: [
-    KeycloakConnectModule.register({
-      authServerUrl: 'http://keycloak:8080', // might be http://localhost:8080/auth for older keycloak versions
-      realm: 'test_realm',
-      clientId: 'test_client_confidential',
-      secret: 'fyYdyshuKYJIhOL3KP2Gsk60KX3Cmwcg',
-      tokenValidation: TokenValidation.ONLINE, // optional
-      // policyEnforcement: PolicyEnforcementMode.PERMISSIVE, // optional
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    KeycloakConnectModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (config: ConfigService) => ({
+        authServerUrl: config.get('KEYCLOAK_URL'),
+        realm: config.get('KEYCLOAK_REALM'),
+        clientId: config.get('KEYCLOAK_CLIENTID'),
+        secret: config.get('KEYCLOAK_SECRET'),
+        tokenValidation: TokenValidation.ONLINE, // optional
+        // policyEnforcement: PolicyEnforcementMode.PERMISSIVE, // optional
+      }),
     }),
     ClsModule.forRoot({
       // https://papooch.github.io/nestjs-cls/introduction/quick-start

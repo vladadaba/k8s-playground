@@ -15,7 +15,7 @@ const AdminPanel = () => {
 
   const fetchOrders = async () => {
     const { data: orders } = await axios.get<Order[]>(
-      "http://myapp.localhost/app1/orders",
+      "http://192.168.105.2:30894/app1/orders",
       {
         headers: {
           Authorization: `Bearer ${keycloak.token}`,
@@ -32,7 +32,7 @@ const AdminPanel = () => {
   const approve = async (orderId: string, isApproved: boolean) => {
     await axios
       .post(
-        "http://myapp.localhost/app1/approve-order",
+        "http://192.168.105.2:30894/app1/approve-order",
         {
           orderId,
           isApproved,

@@ -12,7 +12,7 @@ spec:
     app: myapp
     type: infra
   ports:
-    - port: 8080
+    - port: 30808 # make it same outside and inside cluster to avoid `Invalid token (wrong ISS)` error
       targetPort: 8080
 ---
 apiVersion: v1

@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: envvar-configmap
+  labels:
+    name: envvar-configmap
+    app: myapp
+    type: backend
+data:
+  APP_API_TOKEN: ig/Qqa+atihYJYVbeZgUqQ
+  DATABASE_URL: postgresql://postgres:postgres@postgres:5432/postgres?schema=public
+  KEYCLOAK_SECRET: 6GicPnKZTddK6z80G2rNSqLg8hskg33d
+  KEYCLOAK_URL: http://keycloak:30808
+  KEYCLOAK_REALM: test_realm
+  KEYCLOAK_CLIENTID: test_client_confidential

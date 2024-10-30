@@ -32,9 +32,9 @@ spec:
           #     cpu: "500m"
           ports:
             - containerPort: 3000
-          env:
-            - name: DATABASE_URL
-              value: "postgresql://postgres:postgres@postgres:5432/postgres?schema=public"
+          envFrom:
+            - configMapRef:
+                name: envvar-configmap
         - name: app1-dapr
           image: daprio/daprd:1.14.4
           # resources:
@@ -56,7 +56,10 @@ spec:
             ]
           env:
             - name: APP_API_TOKEN
-              value: "ig/Qqa+atihYJYVbeZgUqQ"
+              valueFrom:
+                configMapKeyRef:
+                  name: envvar-configmap
+                  key: APP_API_TOKEN
           volumeMounts:
             - name: dapr-local-volume
               mountPath: /dapr/local
