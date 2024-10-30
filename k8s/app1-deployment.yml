@@ -9,19 +9,19 @@ metadata:
 spec:
   selector:
     matchLabels:
-      name: myapp-app1-pod
+      name: app1-pod
       app: myapp
       type: backend
   template:
     metadata:
-      name: myapp-app1-pod
+      name: app1-pod
       labels:
-        name: myapp-app1-pod
+        name: app1-pod
         app: myapp
         type: backend
     spec:
       containers:
-        - name: myapp-app1
+        - name: app1
           # build with `docker build -t k8s_playground-app1 . -f apps/app1/Dockerfile` followed by `minikube image load k8s_playground-app1`
           # https://stackoverflow.com/a/42564211/3697384 (build image with Minikube's docker daemon)
           image: k8s_playground-app1
@@ -35,7 +35,7 @@ spec:
           env:
             - name: DATABASE_URL
               value: "postgresql://postgres:postgres@postgres:5432/postgres?schema=public"
-        - name: myapp-app1-dapr
+        - name: app1-dapr
           image: daprio/daprd:1.14.4
           # resources:
           #   limits:

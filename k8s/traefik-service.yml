@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: traefik-dashboard-service
+  labels:
+    name: traefik-dashboard-service
+    app: myapp
+    type: infra
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 8080
+      targetPort: dashboard
+  selector:
+    app: traefik
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: traefik-web-service
+  labels:
+    name: traefik-web-service
+    app: myapp
+    type: infra
+spec:
+  type: LoadBalancer
+  ports:
+    - targetPort: web
+      port: 80
+  selector:
+    app: traefik

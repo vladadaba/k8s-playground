@@ -1,14 +1,14 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: myapp-app1
+  name: app1
   labels:
-    name: myapp-app1-service
+    name: app1-service
     app: myapp
     type: backend
 spec:
   selector:
-    name: myapp-app1-pod
+    name: app1-pod
     app: myapp
     type: backend
   ports:

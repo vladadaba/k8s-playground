@@ -9,19 +9,19 @@ metadata:
 spec:
   selector:
     matchLabels:
-      name: myapp-app3-pod
+      name: app3-pod
       app: myapp
       type: backend
   template:
     metadata:
-      name: myapp-app3-pod
+      name: app3-pod
       labels:
-        name: myapp-app3-pod
+        name: app3-pod
         app: myapp
         type: backend
     spec:
       containers:
-        - name: myapp-app3
+        - name: app3
           # build with `docker build -t k8s_playground-app3 . -f apps/app3/Dockerfile` followed by `minikube image load k8s_playground-app3`
           # https://stackoverflow.com/a/42564211/3697384 (build image with Minikube's docker daemon)
           image: k8s_playground-app3
@@ -32,7 +32,7 @@ spec:
           #     cpu: "500m"
           ports:
             - containerPort: 3000
-        - name: myapp-app3-dapr
+        - name: app3-dapr
           image: daprio/daprd:1.14.4
           # resources:
           #   limits:
