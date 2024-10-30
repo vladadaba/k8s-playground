@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keycloak-deploy
+  labels:
+    name: keycloak-deploy
+    app: myapp
+    type: infra
+spec:
+  selector:
+    matchLabels:
+      name: keycloak-pod
+      app: myapp
+      type: infra
+  template:
+    metadata:
+      name: keycloak-pod
+      labels:
+        name: keycloak-pod
+        app: myapp
+        type: infra
+    spec:
+      containers:
+        - name: keycloak
+          image: quay.io/keycloak/keycloak:25.0
+          args: ["start-dev"]
+          env:
+            - name: KC_DB
+              value: postgres
+            - name: KC_DB_URL
+              value: jdbc:postgresql://postgres:5432/keycloak
+            - name: KC_DB_USERNAME
+              value: keycloak
+            - name: KC_DB_PASSWORD
+              value: password
+            - name: KC_HOSTNAME
+              value: keycloak # have to add `127.0.0.1 keycloak` to /etc/hosts to make this work ("wrong ISS" error from nest-keycloak-connect)
+            - name: KC_HOSTNAME_PORT
+              value: "8080"
+            - name: KC_HOSTNAME_STRICT
+              value: "false"
+            - name: KC_HOSTNAME_STRICT_HTTPS
+              value: "false"
+            - name: KC_LOG_LEVEL
+              value: info
+            - name: KC_METRICS_ENABLED
+              value: "true"
+            - name: KC_HEALTH_ENABLED
+              value: "true"
+            - name: KEYCLOAK_ADMIN
+              value: admin
+            - name: KEYCLOAK_ADMIN_PASSWORD
+              value: admin
+          # resources:
+          #   limits:
+          #     memory: "128Mi"
+          #     cpu: "500m"
+          ports:
+            - containerPort: 8080

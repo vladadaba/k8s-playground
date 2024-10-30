@@ -13,3 +13,9 @@ kubectl apply -f https://raw.githubusercontent.com/traefik/traefik/v3.1/docs/con
 ```
 kubectl apply -f https://raw.githubusercontent.com/traefik/traefik/v3.1/docs/content/reference/dynamic-configuration/kubernetes-crd-rbac.yml
 ```
+
+# Keycloak
+
+1. Have to run `000_keycloak_user.sql` in postgres to create `keycloak` user and DB.
+2. Have to update `/etc/hosts` file with nodeport url mapped to `keycloak` (because Keycloak redirects to that hostname)
+3. Import realm
