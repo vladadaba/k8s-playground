@@ -12,7 +12,9 @@ spec:
     - port: 8080
       targetPort: dashboard
   selector:
-    app: traefik
+    name: traefik-pod
+    app: myapp
+    type: infra
 ---
 apiVersion: v1
 kind: Service
@@ -28,4 +30,6 @@ spec:
     - targetPort: web
       port: 80
   selector:
-    app: traefik
+    name: traefik-pod
+    app: myapp
+    type: infra

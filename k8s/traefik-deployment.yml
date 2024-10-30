@@ -26,7 +26,10 @@ spec:
           image: traefik:v3.1
           args:
             - --api.insecure
-            - --providers.kubernetesingress
+            - --providers.kubernetescrd
+            # - --providers.kubernetesingress # this works with Ingress resources, above provider works with IngressRoute (Traefik's CRD)
+            # - --entryPoints.web.address=:80 # not needed, there is `http` created by default
+            # - --log.level=DEBUG
           ports:
             - name: web
               containerPort: 80

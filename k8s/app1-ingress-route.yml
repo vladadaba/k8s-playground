@@ -8,9 +8,9 @@ metadata:
     type: infra
 spec:
   entryPoints:
-    - web
+    - http # same as args in traefik deployment, but there is default one called http which maps to port 80 (can be seen in staticConfiguration in DEBUG logs)
   routes:
-    - match: Host(`myapp.localhost`) && PathPrefix(`/app1`)
+    - match: PathPrefix(`/app1`)
       kind: Rule
       services:
         - name: app1

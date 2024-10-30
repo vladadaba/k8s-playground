@@ -8,9 +8,9 @@ metadata:
     type: infra
 spec:
   entryPoints:
-    - web
+    - http
   routes:
-    - match: Host(`myapp.localhost`) && PathPrefix(`/app3`)
+    - match: PathPrefix(`/app3`)
       kind: Rule
       services:
         - name: app3
