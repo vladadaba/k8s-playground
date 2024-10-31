@@ -26,6 +26,7 @@ kubectl apply -f https://raw.githubusercontent.com/traefik/traefik/v3.1/docs/con
 1. Run migrations
 
 ```
+minikube service postgres-nodeport --url
 DATABASE_URL="postgresql://postgres:postgres@192.168.105.2:32345/postgres?schema=public" npx prisma db pus
 ```
 
