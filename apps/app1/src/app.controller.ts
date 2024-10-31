@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Req } from '@nestjs/common';
 import { AuthenticatedUser, Public, Roles } from 'nest-keycloak-connect';
 import { AppService } from './app.service';
 import { ApproveOrderDto, OrderDto, PurchaseDto } from './model';
@@ -6,6 +6,29 @@ import { ApproveOrderDto, OrderDto, PurchaseDto } from './model';
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
+
+  @Post('dapr/users')
+  @Public()
+  //@DaprApiTokenGuard()
+  syncUsersFromKeycloak(@Req() req) {
+    const body = req.body;
+    const {
+      payload: {
+        before,
+        after,
+        source: { schema, table },
+        op,
+      },
+    } = body;
+
+    console.log(
+      schema,
+      table,
+      op,
+      JSON.stringify(before, null, 2),
+      JSON.stringify(after, null, 2),
+    );
+  }
 
   @Get('hello')
   @Public()

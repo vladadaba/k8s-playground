@@ -4,7 +4,6 @@ metadata:
   name: app1_to_app2-resiliency
 scopes:
   - app1
-
 spec:
   policies:
     retries:
@@ -12,13 +11,11 @@ spec:
         policy: constant
         duration: 1s
         maxRetries: -1
-
     circuitBreakers:
       simpleCB:
         maxRequests: 1
         timeout: 5s
         trip: consecutiveFailures >= 3
-
   targets:
     apps:
       app2:

@@ -15,6 +15,18 @@ debezium:
       class: io.debezium.connector.postgresql.PostgresConnector
     plugin:
       name: pgoutput
+    # schema:
+    #   include:
+    #     list:
+    #       - public # TODO: maybe change this to keycloak
+    table:
+      include:
+        list:
+          - public.user_entity
+          - public.federated_identity
+          - public.user_group_membership
+          - public.keycloak_group
+          - public.realm
     offset:
       storage:
         file:
