@@ -8,7 +8,7 @@ import { DaprClient } from '@dapr/dapr';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-    })
+    }),
   ],
   controllers: [AppController],
   providers: [

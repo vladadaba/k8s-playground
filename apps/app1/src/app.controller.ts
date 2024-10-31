@@ -1,7 +1,7 @@
-import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { AuthenticatedUser, Public, Roles } from 'nest-keycloak-connect';
 import { AppService } from './app.service';
 import { ApproveOrderDto, OrderDto, PurchaseDto } from './model';
-import { AuthenticatedUser, Public, Roles } from 'nest-keycloak-connect';
 
 @Controller()
 export class AppController {
