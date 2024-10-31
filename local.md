@@ -30,3 +30,8 @@ docker run --rm -v redisinsight:/db -p 5540:5540 --network dapr_network redislab
 5. Password: `S0m3P@$$w0rd`
 
 Keycloak - http://localhost:8080/admin/master/console/
+
+# Debezium log trailing Keycloak
+
+1. Run `ALTER SYSTEM SET wal_level = logical;` with superuser (`postgres:postgres`) on keycloak database and restart the db (stop and start `postgres` service in docker compose)
+   - Debezium must run with superuser, otherwise `permission denied to start WAL sender` error appears
