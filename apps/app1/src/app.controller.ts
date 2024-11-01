@@ -1,4 +1,5 @@
-import { Body, Controller, Get, Post, Query, Req } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { Ctx, EventPattern, Payload, RmqContext } from '@nestjs/microservices';
 import { AuthenticatedUser, Public, Roles } from 'nest-keycloak-connect';
 import { AppService } from './app.service';
 import { ApproveOrderDto, OrderDto, PurchaseDto } from './model';
@@ -7,27 +8,14 @@ import { ApproveOrderDto, OrderDto, PurchaseDto } from './model';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @Post('dapr/users')
-  @Public()
-  //@DaprApiTokenGuard()
-  syncUsersFromKeycloak(@Req() req) {
-    const body = req.body;
-    const {
-      payload: {
-        before,
-        after,
-        source: { schema, table },
-        op,
-      },
-    } = body;
-
-    console.log(
-      schema,
-      table,
-      op,
-      JSON.stringify(before, null, 2),
-      JSON.stringify(after, null, 2),
-    );
+  @EventPattern()
+  syncUsersFromKeycloak(@Payload() data: any, @Ctx() context: RmqContext) {
+    try {
+      console.log(data);
+      context.getChannelRef().ack(context.getMessage());
+    } catch (err) {
+      context.getChannelRef().reject(context.getMessage(), false); // this will dlq our message
+    }
   }
 
   @Get('hello')
