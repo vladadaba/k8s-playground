@@ -27,6 +27,7 @@ spec:
       containers:
         - name: postgres
           image: postgres
+          args: ["--wal_level=logical"]
           volumeMounts:
             - mountPath: "/var/lib/postgresql/data"
               name: postgres-pv-storage

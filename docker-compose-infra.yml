@@ -109,8 +109,9 @@ services:
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+    command: "--wal_level=logical"
     volumes:
-      - ./volumes/data/postgres:/var/lib/postgresql/data
+      - ./volumes/data/postgres2:/var/lib/postgresql/data
       - ./volumes/infra/postgres:/docker-entrypoint-initdb.d:ro
 
   debezium:

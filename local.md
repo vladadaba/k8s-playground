@@ -33,14 +33,17 @@ Keycloak - http://localhost:8080/admin/master/console/
 
 # Debezium log trailing Keycloak
 
-1. Run `ALTER SYSTEM SET wal_level = logical;` with superuser (`postgres:postgres`) on keycloak database and restart the db (stop and start `postgres` service in docker compose)
+1. Postgres `wal_level` has to be logical for Debezium to work
+   - start porgres with `postgress --wal_level=logical`
+   - or run `ALTER SYSTEM SET wal_level = logical;` (might need to run it on specific database e.g. `keycloak` -> "Set as default") and **restart the db (stop and start `postgres` service in docker compose)**
+   - run `show wal_level;` to check
    - Debezium must run with superuser, otherwise `permission denied to start WAL sender` error appears
 
 ~~RabbitMQ Dapr **Binding** only supports `classic` queue type (non-replicated). RabbitMQ Dapr **PubSub** supports `quorum` as well, but not `stream`.~~
 
 ~~UPDATE: Ran into a dead-end due to input bindings not being able to reject a message, so went with NestJS Hybrid Application approach for RabbitMQ subscribers. It supports `stream` queue.~~
 
-UPDATE 2: It doesn't support `stream` queue. Also, not sure if it is possible to listen to multiple topics/queues. Pattern in `EventPattern` is only added by `emit` when using Nest's microservices client. Should look into `@golevelup/nestjs-rabbitmq`.
+UPDATE 2: It doesn't support `stream` queue. Also, not sure if it is possible to listen to multiple topics/queues. For `EventPattern`, payload has to be `{"patern": "...", "data":{...}}` (added by `emit` when using Nest's microservices client). Should look into `@golevelup/nestjs-rabbitmq`.
 
 # Keycloak Social login (Google & Github)
 

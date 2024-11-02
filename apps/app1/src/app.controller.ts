@@ -24,16 +24,6 @@ export class AppController {
     return this.appService.hello();
   }
 
-  @Get('test')
-  test() {
-    return 'test';
-  }
-
-  @Get('app1/test')
-  test2() {
-    return 'app1/test';
-  }
-
   @Get('hello_with_failures')
   helloWithFailures() {
     return this.appService.helloWithFailures();

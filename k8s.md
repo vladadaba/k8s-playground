@@ -26,8 +26,14 @@ kubectl apply -f https://raw.githubusercontent.com/traefik/traefik/v3.1/docs/con
 1. Run migrations
 
 ```
-minikube service postgres-nodeport --url
-DATABASE_URL="postgresql://postgres:postgres@192.168.105.2:32345/postgres?schema=public" npx prisma db pus
+minikube service postgres-nodeport-service --url
+DATABASE_URL="postgresql://postgres:postgres@192.168.105.2:32345/postgres?schema=public" npx prisma db push
 ```
 
 2. Create users with id being `sub` from jwt (keycloak id?)
+
+# How to fresh start a deployment that uses PersistentVolumeClaim (like when deleting volume in docker compose when we want fresh start)
+
+https://www.reddit.com/r/kubernetes/comments/ujjwil/persistent_volume_data_not_getting_deleted_post/
+
+> Minikube saves your PV data in the Minikube Docker container at /data/minikube/PVC-name. Deleting a PV does not delete these folders, and Minikube will not attempt to clear them before using them again. Use a different PV / PVC name or manually delete these folders to get a fresh slate.
