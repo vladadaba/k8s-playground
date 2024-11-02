@@ -9,55 +9,31 @@ metadata:
 # generated using `kubectl create configmap --dry-run=client somename --from-file=./volumes/infra/debezium --output yaml`
 # TODO: use Helm to generate this
 data:
-  application.yaml: |
-    debezium:
-      sink:
-        type: rabbitmq
-        rabbitmq:
-          connection:
-            host: rabbitmq
-            port: 5672
-            username: demo
-            password: demo
-          ackTimeout: 3000
-          exchange: users
-          routingKey: users
-      source:
-        connector:
-          class: io.debezium.connector.postgresql.PostgresConnector
-        plugin:
-          name: pgoutput
-        # schema:
-        #   include:
-        #     list:
-        #       - public # TODO: maybe change this to keycloak
-        table:
-          include:
-            list:
-              - public.user_entity
-              - public.federated_identity
-              - public.user_group_membership
-              - public.keycloak_group
-              - public.realm
-        offset:
-          storage:
-            file:
-              filename: data/offsets.dat
-          flush:
-            interval:
-              ms: 0
-        database:
-          hostname: postgres
-          port: 5432
-          user: postgres
-          password: postgres
-          dbname: keycloak
-        topic:
-          prefix: users
-      format:
-        key: json
-        value: json
-    quarkus:
-      log:
-        console:
-          json: false
+  application.properties: |
+    debezium.sink.type=rabbitmq
+    debezium.sink.rabbitmq.connection.host=rabbitmq
+    debezium.sink.rabbitmq.connection.port=5672
+    debezium.sink.rabbitmq.connection.username=demo
+    debezium.sink.rabbitmq.connection.password=demo
+    debezium.sink.rabbitmq.ackTimeout=3000
+    debezium.sink.rabbitmq.exchange=users
+    debezium.sink.rabbitmq.routingKey=users
+    debezium.source.connector.class=io.debezium.connector.postgresql.PostgresConnector
+    debezium.source.plugin.name=pgoutput
+    debezium.source.table.include.list=public.user_entity, public.federated_identity, public.user_group_membership, public.keycloak_group, public.realm
+    debezium.source.offset.storage=io.debezium.storage.redis.offset.RedisOffsetBackingStore
+    debezium.source.offset.storage.redis.address=redis:6379
+    debezium.source.offset.storage.redis.user=default
+    debezium.source.offset.storage.redis.password=somepassword
+    debezium.source.offset.storage.redis.key=metadata:debezium:offsets
+    debezium.source.offset.storage.redis.ssl.enabled=false
+    debezium.source.offset.flush.interval.ms=0
+    debezium.source.database.hostname=postgres
+    debezium.source.database.port=5432
+    debezium.source.database.user=postgres
+    debezium.source.database.password=postgres
+    debezium.source.database.dbname=keycloak
+    debezium.source.topic.prefix=users
+    debezium.format.key=json
+    debezium.format.value=json
+    quarkus.log.console.json=false

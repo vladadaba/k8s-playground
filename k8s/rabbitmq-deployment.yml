@@ -44,7 +44,12 @@ spec:
             - name: rabbitmq-volume
               mountPath: /etc/rabbitmq/definitions.json
               subPath: definitions.json
+            - name: rabbitmq-pv-storage
+              mountPath: /var/lib/rabbitmq
       volumes:
         - name: rabbitmq-volume
           configMap:
             name: rabbitmq-configmap
+        - name: rabbitmq-pv-storage
+          persistentVolumeClaim:
+            claimName: rabbitmq-pv-claim

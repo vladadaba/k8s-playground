@@ -30,6 +30,7 @@ services:
     volumes:
       - ./volumes/infra/rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
       - ./volumes/infra/rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro
+      - ./volumes/data/rabbitmq:/var/lib/rabbitmq
     ports:
       - 5672:5672
       - 15672:15672
@@ -42,6 +43,7 @@ services:
       - "6379:6379"
     volumes:
       - ./volumes/infra/redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+      - ./volumes/data/infra/redis:/data
 
   ##### Zipkin #####
   zipkin:

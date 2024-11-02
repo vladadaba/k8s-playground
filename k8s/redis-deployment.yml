@@ -33,7 +33,12 @@ spec:
             - name: redis-volume
               mountPath: /usr/local/etc/redis/redis.conf
               subPath: redis.conf
+            - name: redis-pv-storage
+              mountPath: "/data"
       volumes:
         - name: redis-volume
           configMap:
             name: redis-configmap
+        - name: redis-pv-storage
+          persistentVolumeClaim:
+            claimName: redis-pv-claim

@@ -134,7 +134,7 @@ data:
             # circuitBreaker: simpleCB
   secrets.json: |
     {
-      "redisPassword": "S0m3P@$$w0rd"
+      "redisPassword": "somepassword"
     }
   workflow-actor.yml: |
     apiVersion: dapr.io/v1alpha1

@@ -27,14 +27,14 @@ docker run --rm -v redisinsight:/db -p 5540:5540 --network dapr_network redislab
 2. Add Redis Database
 3. Host: `redis`
 4. Port: 6379
-5. Password: `S0m3P@$$w0rd`
+5. Password: `somepassword`
 
 Keycloak - http://localhost:8080/admin/master/console/
 
 # Debezium log trailing Keycloak
 
 1. Postgres `wal_level` has to be logical for Debezium to work
-   - start porgres with `postgress --wal_level=logical`
+   - start postgres with `postgress --wal_level=logical`
    - or run `ALTER SYSTEM SET wal_level = logical;` (might need to run it on specific database e.g. `keycloak` -> "Set as default") and **restart the db (stop and start `postgres` service in docker compose)**
    - run `show wal_level;` to check
    - Debezium must run with superuser, otherwise `permission denied to start WAL sender` error appears

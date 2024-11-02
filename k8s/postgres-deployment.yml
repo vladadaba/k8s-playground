@@ -20,10 +20,6 @@ spec:
         app: myapp
         type: infra
     spec:
-      volumes:
-        - name: postgres-pv-storage
-          persistentVolumeClaim:
-            claimName: postgres-pv-claim
       containers:
         - name: postgres
           image: postgres
@@ -42,4 +38,8 @@ spec:
               value: "postgres"
             - name: POSTGRES_PASSWORD
               value: "postgres"
-    # TODO: mount init db files?
+      # TODO: mount init db files?
+      volumes:
+        - name: postgres-pv-storage
+          persistentVolumeClaim:
+            claimName: postgres-pv-claim
