@@ -1,0 +1,33 @@
+{{- define "app.ingressroute" }}
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ .Values.serviceName }}-ingress-route
+  labels:
+    name: {{ .Values.serviceName }}-ingress-route
+{{- include "backend-app.labels" . | indent 4 }}
+spec:
+  entryPoints:
+    - web # same as args in traefik deployment
+  routes:
+    - match: PathPrefix(`/{{ .Values.serviceName }}`)
+      kind: Rule
+      services:
+        - name: {{ .Values.serviceName }}
+          port: {{ .Values.port }}
+      middlewares:
+        - name: {{ .Values.serviceName }}-stripprefix-middleware
+          namespace: default
+        - name: cors-middleware
+          namespace: default
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: {{ .Values.serviceName }}-stripprefix-middleware
+  namespace: default
+spec:
+  stripPrefix:
+    prefixes:
+      - /{{ .Values.serviceName }}
+{{- end }}

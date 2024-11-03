@@ -1,54 +1,42 @@
+{{- define "dapr-app.deployment" }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: app2-deploy
+  name: {{ .Values.serviceName }}-deploy
   labels:
-    name: app2-deploy
-    app: myapp
-    type: backend
+    name: {{ .Values.serviceName }}-deploy
+{{- include "backend-app.labels" . | indent 4 }}
 spec:
   selector:
     matchLabels:
-      name: app2-pod
-      app: myapp
-      type: backend
+      name: {{ .Values.serviceName }}-pod
+{{- include "backend-app.labels" . | indent 6 }}
   template:
     metadata:
-      name: app2-pod
+      name: {{ .Values.serviceName }}-pod
       labels:
-        name: app2-pod
-        app: myapp
-        type: backend
+        name: {{ .Values.serviceName }}-pod
+{{- include "backend-app.labels" . | indent 8 }}
     spec:
       containers:
-        - name: app2
-          # build with `docker build -t k8s_playground-app2 . -f apps/app2/Dockerfile` followed by `minikube image load k8s_playground-app2`
-          # https://stackoverflow.com/a/42564211/3697384 (build image with Minikube's docker daemon)
-          image: k8s_playground-app2
+        - name: {{ .Values.serviceName }}
+          image: k8s_playground-{{ .Values.serviceName }}
           imagePullPolicy: Never
-          # resources:
-          #   limits:
-          #     memory: "128Mi"
-          #     cpu: "500m"
           ports:
             - containerPort: 3000
           envFrom:
             - configMapRef:
                 name: envvar-configmap
-        - name: app2-dapr
+        - name: {{ .Values.serviceName }}-dapr
           image: daprio/daprd:1.14.4
-          # resources:
-          #   limits:
-          #     memory: "128Mi"
-          #     cpu: "500m"
           command: [
               "./daprd",
               "--app-id",
-              "app2",
+              {{ .Values.serviceName | quote }},
               "--app-port",
-              "3000",
+              {{ .Values.port | quote }},
               "--placement-host-address",
-              "placement:50006", # Dapr's placement service can be reach via the docker DNS entry
+              "placement:50006",
               "--config",
               "/dapr/config.yaml",
               "--resources-path",
@@ -66,11 +54,6 @@ spec:
             - name: dapr-volume
               mountPath: /dapr/config.yaml
               subPath: config.yaml
-          # annotations:
-          #   dapr.io/enabled: "true"
-          #   dapr.io/app-id: "myapp"
-          #   dapr.io/app-protocol: "grpc"
-          #   dapr.io/app-port: "5005"
       volumes:
         - name: dapr-volume
           configMap:
@@ -81,3 +64,4 @@ spec:
         - name: dapr-local-volume
           configMap:
             name: dapr-local-configmap
+{{- end }}
