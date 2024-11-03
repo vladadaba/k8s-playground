@@ -30,7 +30,6 @@
     "@prisma/client": "5.20.0",
     "amqp-connection-manager": "^4.1.14",
     "amqplib": "^0.10.4",
-    "axios": "^1.7.7",
     "keycloak-connect": "^26.0.1",
     "nest-keycloak-connect": "^1.10.1",
     "nestjs-cls": "^4.4.1",

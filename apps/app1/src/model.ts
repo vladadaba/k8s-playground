@@ -1,7 +1,7 @@
 export class OrderDto {
   productId: string;
   quantity: number;
-  constructor(productId: string, quantity: number, cost: number) {
+  constructor(productId: string, quantity: number) {
     this.productId = productId;
     this.quantity = quantity;
   }
