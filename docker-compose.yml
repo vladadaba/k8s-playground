@@ -156,6 +156,28 @@ services:
       - APP_API_TOKEN=${APP_API_TOKEN}
     logging: *default-logging
 
+  ##### App3 & DAPR Sidecar #####
+  notifications:
+    build:
+      context: .
+      dockerfile: ./apps/notifications/Dockerfile
+      target: installer
+    ports:
+      - "3003:3000"
+    volumes:
+      - /usr/src/app/apps/notifications/node_modules # dont overwrite node_modules inside container (some packages need to be built for specific platform, so they might be broken if they are mounted, more info on this syntax - https://stackoverflow.com/questions/29181032/add-a-volume-to-docker-but-exclude-a-sub-folder/37898591#37898591)
+      - ./apps/notifications:/usr/src/app/apps/notifications
+    command: ["yarn", "start:dev"]
+    # logging: *default-logging
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.notifications.entrypoints=ws"
+      - "traefik.http.routers.notifications.rule=Host(`myapp.localhost`)"
+      - "traefik.http.services.notifications.loadbalancer.server.port=3000"
+      # - "traefik.http.middlewares.notifications-stripprefix.stripprefix.prefixes=/notifications"
+      # - "traefik.http.middlewares.notifications-stripprefix.stripprefix.forceslash=false"
+      # - "traefik.http.routers.notifications.middlewares=notifications-stripprefix"
+
 networks:
   default:
     name: dapr_network
