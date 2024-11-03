@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: notifications
+  labels:
+    name: notifications-service
+    app: myapp
+    type: backend
+spec:
+  selector:
+    name: notifications-pod
+    app: myapp
+    type: backend
+  ports:
+    - port: 3000
+      targetPort: 3000

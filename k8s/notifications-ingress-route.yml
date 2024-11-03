@@ -1,0 +1,17 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: notifications-ingress-route
+  labels:
+    name: notifications-ingress-route
+    app: myapp
+    type: infra
+spec:
+  entryPoints:
+    - ws
+  routes:
+    - match: PathPrefix("/") # match everything
+      kind: Rule
+      services:
+        - name: notifications
+          port: 3000

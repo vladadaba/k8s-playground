@@ -28,10 +28,13 @@ spec:
             - --api.insecure
             - --providers.kubernetescrd
             # - --providers.kubernetesingress # this works with Ingress resources, above provider works with IngressRoute (Traefik's CRD)
-            # - --entryPoints.web.address=:80 # not needed, there is `http` created by default
-            # - --log.level=DEBUG
+            - --entryPoints.web.address=:80
+            - --entryPoints.ws.address=:3000
+            - --log.level=DEBUG
           ports:
             - name: web
               containerPort: 80
             - name: dashboard
               containerPort: 8080
+            - name: ws
+              containerPort: 3000

@@ -33,3 +33,21 @@ spec:
     name: traefik-pod
     app: myapp
     type: infra
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: traefik-ws-service
+  labels:
+    name: traefik-ws-service
+    app: myapp
+    type: infra
+spec:
+  type: LoadBalancer
+  ports:
+    - targetPort: ws
+      port: 3000
+  selector:
+    name: traefik-pod
+    app: myapp
+    type: infra

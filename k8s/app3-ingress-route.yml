@@ -8,7 +8,7 @@ metadata:
     type: infra
 spec:
   entryPoints:
-    - http
+    - web
   routes:
     - match: PathPrefix(`/app3`)
       kind: Rule
@@ -30,4 +30,3 @@ spec:
   stripPrefix:
     prefixes:
       - /app3
-    forceSlash: false

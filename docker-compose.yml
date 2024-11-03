@@ -32,7 +32,6 @@ services:
       - "traefik.http.routers.app1.rule=Host(`myapp.localhost`) && PathPrefix(`/app1`)"
       - "traefik.http.services.app1.loadbalancer.server.port=3000"
       - "traefik.http.middlewares.app1-stripprefix.stripprefix.prefixes=/app1"
-      - "traefik.http.middlewares.app1-stripprefix.stripprefix.forceslash=false"
       - "traefik.http.middlewares.cors.headers.accesscontrolallowmethods=*"
       - "traefik.http.middlewares.cors.headers.accesscontrolalloworiginlist=*"
       - "traefik.http.middlewares.cors.headers.accessControlAllowHeaders=*"
@@ -84,7 +83,6 @@ services:
       - "traefik.http.routers.app2.rule=Host(`myapp.localhost`) && PathPrefix(`/app2`)"
       - "traefik.http.services.app2.loadbalancer.server.port=3000"
       - "traefik.http.middlewares.app2-stripprefix.stripprefix.prefixes=/app2"
-      - "traefik.http.middlewares.app2-stripprefix.stripprefix.forceslash=false"
       - "traefik.http.routers.app2.middlewares=app2-stripprefix"
 
   app2_dapr:
@@ -129,7 +127,6 @@ services:
       - "traefik.http.routers.app3.rule=Host(`myapp.localhost`) && PathPrefix(`/app3`)"
       - "traefik.http.services.app3.loadbalancer.server.port=3000"
       - "traefik.http.middlewares.app3-stripprefix.stripprefix.prefixes=/app3"
-      - "traefik.http.middlewares.app3-stripprefix.stripprefix.forceslash=false"
       - "traefik.http.routers.app3.middlewares=app3-stripprefix"
 
   app3_dapr:
@@ -175,7 +172,6 @@ services:
       - "traefik.http.routers.notifications.rule=Host(`myapp.localhost`)"
       - "traefik.http.services.notifications.loadbalancer.server.port=3000"
       # - "traefik.http.middlewares.notifications-stripprefix.stripprefix.prefixes=/notifications"
-      # - "traefik.http.middlewares.notifications-stripprefix.stripprefix.forceslash=false"
       # - "traefik.http.routers.notifications.middlewares=notifications-stripprefix"
 
 networks:
