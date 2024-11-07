@@ -42,7 +42,7 @@ spec:
         sslEnabled: false
     config:
       plugin.name: pgoutput
-      table.include.list: public.user_entity,public.federated_identity,public.user_group_membership,public.keycloak_group,public.realm
+      table.include.list: keycloak.user_entity,keycloak.federated_identity,keycloak.user_group_membership,keycloak.keycloak_group,keycloak.realm
       database.hostname: postgres
       database.port: 5432
       database.user: postgres

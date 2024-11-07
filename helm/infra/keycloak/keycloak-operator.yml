@@ -1,6 +1,9 @@
 # Copied from:
 # https://raw.githubusercontent.com/keycloak/keycloak-k8s-resources/26.0.5/kubernetes/kubernetes.yml
 # overriden resource limits because it wouldn't start in minikube
+# added env var QUARKUS_OPERATOR_SDK_NAMESPACES for `myapp` namespace (this can be comma separated list of namespaces)
+# but we have to add correct clusterrole to operator's serviceaccount
+# this way we can deploy operator to `keycloak` namespace while having keycloak instance in `myapp` namespace
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -126,129 +129,7 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: keycloak-operator
-    namespace: keycloak
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  name: keycloak-operator-role
-rules:
-  - apiGroups:
-      - apps
-    resources:
-      - statefulsets
-    verbs:
-      - get
-      - list
-      - watch
-      - create
-      - delete
-      - patch
-      - update
-  - apiGroups:
-      - ""
-    resources:
-      - configmaps
-    verbs:
-      - get
-      - list
-      - watch
-  - apiGroups:
-      - ""
-    resources:
-      - secrets
-      - services
-    verbs:
-      - get
-      - list
-      - watch
-      - create
-      - delete
-      - patch
-      - update
-  - apiGroups:
-      - ""
-    resources:
-      - pods
-    verbs:
-      - list
-  - apiGroups:
-      - batch
-    resources:
-      - jobs
-    verbs:
-      - get
-      - list
-      - watch
-      - create
-      - delete
-      - patch
-      - update
-  - apiGroups:
-      - networking.k8s.io
-    resources:
-      - ingresses
-    verbs:
-      - get
-      - list
-      - watch
-      - create
-      - delete
-      - patch
-      - update
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  labels:
-    app.kubernetes.io/name: keycloak-operator
-  name: keycloak-operator-role-binding
-roleRef:
-  kind: Role
-  apiGroup: rbac.authorization.k8s.io
-  name: keycloak-operator-role
-subjects:
-  - kind: ServiceAccount
-    name: keycloak-operator
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: keycloakrealmimportcontroller-role-binding
-roleRef:
-  kind: ClusterRole
-  apiGroup: rbac.authorization.k8s.io
-  name: keycloakrealmimportcontroller-cluster-role
-subjects:
-  - kind: ServiceAccount
-    name: keycloak-operator
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: keycloakcontroller-role-binding
-roleRef:
-  kind: ClusterRole
-  apiGroup: rbac.authorization.k8s.io
-  name: keycloakcontroller-cluster-role
-subjects:
-  - kind: ServiceAccount
-    name: keycloak-operator
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  labels:
-    app.kubernetes.io/name: keycloak-operator
-    app.kubernetes.io/version: 26.0.5
-  name: keycloak-operator-view
-roleRef:
-  kind: ClusterRole
-  apiGroup: rbac.authorization.k8s.io
-  name: view
-subjects:
-  - kind: ServiceAccount
-    name: keycloak-operator
+    namespace: myapp
 ---
 apiVersion: v1
 kind: Service
@@ -308,6 +189,8 @@ spec:
                   fieldPath: metadata.namespace
             - name: RELATED_IMAGE_KEYCLOAK
               value: quay.io/keycloak/keycloak:26.0.5
+            - name: QUARKUS_OPERATOR_SDK_NAMESPACES
+              value: myapp
           image: quay.io/keycloak/keycloak-operator:26.0.5
           imagePullPolicy: Always
           livenessProbe:

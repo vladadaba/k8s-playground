@@ -17,6 +17,11 @@ spec:
   #databases: name->owner
   databases:
     postgres: postgres
+  preparedDatabases:
+    postgres:
+      schemas:
+        keycloak: {}
+        # TODO: add schemas for microservices
   postgresql:
     version: "16"
     parameters:

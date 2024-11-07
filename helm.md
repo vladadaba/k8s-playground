@@ -138,7 +138,7 @@ https://github.com/traefik/traefik-helm-chart/blob/master/EXAMPLES.md#use-traefi
 Access dashboard
 
 ```
-kubectl port-forward $(kubectl -n traefik get pods --selector "app.kubernetes.io/name=traefik" --output=name) 8080:8080
+kubectl -n traefik port-forward $(kubectl -n traefik get pods --selector "app.kubernetes.io/name=traefik" --output=name) 8080:8080
 ```
 
 http://127.0.0.1:8080/dashboard/#/
@@ -165,6 +165,17 @@ kubectl apply -f ./helm/infra/keycloak-operator.yml
 3. Deployment
 
 https://www.keycloak.org/operator/basic-deployment
+
+```
+openssl req -subj '/CN=keycloak/O=Test Keycloak./C=US' -newkey rsa:2048 -nodes -keyout ./helm/infra/keycloak/key.pem -x509 -days 365 -out ./helm/infra/keycloak/certificate.pem
+kubectl -n myapp create secret tls keycloak-tls-secret --cert ./helm/infra/keycloak/certificate.pem --key ./helm/infra/keycloak/key.pem
+```
+
+Admin credentials
+
+https://www.keycloak.org/operator/advanced-configuration
+
+> When you create a new instance the Keycloak CR `spec.bootstrapAdmin` stanza may be used to configure the bootstrap user and/or service account. If you do not specify anything for the `spec.bootstrapAdmin`, the operator will create a Secret named "metadata.name"-initial-admin with a username **temp-admin** and a generated password. If you specify a Secret name for bootstrap admin user, then the Secret will need to contain username and password key value pairs. If you specify a Secret name for bootstrap admin service account, then the Secret will need to contain client-id and client-secret key value pairs.
 
 ### Dapr Placement
 

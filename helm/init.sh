@@ -52,6 +52,8 @@ kubectl -n myapp create secret generic debezium-secret \
   --from-literal=PG_PASSWORD="$PG_PASSWORD" \
   --from-literal=REDIS_PASSWORD="$REDIS_PASSWORD"
 
+kubectl -n myapp create secret tls keycloak-tls-secret --cert ./helm/infra/keycloak/certificate.pem --key ./helm/infra/keycloak/key.pem
+
 # deploying infra
 kubectl -n myapp apply -f ./helm/infra/secrets.yml
 kubectl -n myapp apply -f ./helm/infra/dapr.yml
@@ -59,6 +61,9 @@ kubectl -n myapp apply -f ./helm/infra/postgres.yml
 kubectl -n myapp apply -f ./helm/infra/rabbitmq.yml
 kubectl -n myapp apply -f ./helm/infra/redis.yml
 kubectl -n myapp apply -f ./helm/infra/debezium.yml
+
+kubectl -n keycloak apply -f ./helm/infra/keycloak/keycloak-operator.yml
+kubectl -n myapp apply -f ./helm/infra/keycloak/keycloak-operator-role-bindings.yml
 kubectl -n myapp apply -f ./helm/infra/keycloak.yml
 
 # TODO: deploy apps
