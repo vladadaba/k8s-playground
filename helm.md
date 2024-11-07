@@ -38,7 +38,7 @@ helm upgrade --install kubernetes-dashboard kubernetes-dashboard/kubernetes-dash
 To open
 
 ```
-kubectl -n default port-forward svc/kubernetes-dashboard-kong-proxy 8443:443
+kubectl -n kubernetes-dashboard port-forward svc/kubernetes-dashboard-kong-proxy 8443:443
 ```
 
 https://localhost:8443/#/login
@@ -118,13 +118,30 @@ https://ot-container-kit.github.io/redis-operator/guide/setup.html#redis-cluster
 
 ### Traefik
 
-https://github.com/oracle/weblogic-kubernetes-operator/blob/main/kubernetes/samples/charts/traefik/README.md
+https://doc.traefik.io/traefik/getting-started/install-traefik/#use-the-helm-chart
+
+https://github.com/traefik/traefik-helm-chart
+
+https://github.com/traefik/traefik-helm-chart/blob/master/EXAMPLES.md
+
+https://github.com/traefik/traefik-helm-chart/blob/master/traefik/values.yaml
 
 ```
-helm repo add traefik https://helm.traefik.io/traefik --force-update
-kubectl create namespace traefik
-helm install traefik-operator traefik/traefik --namespace traefik
+helm repo add traefik https://helm.traefik.io/traefik
+helm install -f ./helm/infra/traefik/values.yml traefik traefik/traefik --create-namespace --namespace traefik
 ```
+
+TLS Cert TODO:
+
+https://github.com/traefik/traefik-helm-chart/blob/master/EXAMPLES.md#use-traefik-native-lets-encrypt-integration-without-cert-manager
+
+Access dashboard
+
+```
+kubectl port-forward $(kubectl -n traefik get pods --selector "app.kubernetes.io/name=traefik" --output=name) 8080:8080
+```
+
+http://127.0.0.1:8080/dashboard/#/
 
 ### Keycloak
 
@@ -160,10 +177,10 @@ helm repo add dapr https://dapr.github.io/helm-charts/
 helm repo update
 ```
 
-2. Install the Dapr chart on your cluster in the dapr-system namespace:
+1. Install the Dapr chart on your cluster in the dapr namespace:
 
 ```
-helm install dapr dapr/dapr --namespace dapr-system --create-namespace --wait
+helm install dapr dapr/dapr --namespace dapr --create-namespace --wait
 ```
 
 ### Debezium

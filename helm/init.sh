@@ -22,7 +22,7 @@ helm install redis-operator ot-helm/redis-operator --create-namespace -n redis
 
 # traefik
 helm repo add traefik https://helm.traefik.io/traefik
-helm install traefik-operator traefik/traefik --create-namespace -n traefik
+helm install -f ./helm/infra/traefik/values.yml traefik traefik/traefik --create-namespace --namespace traefik
 
 # keycloak
 kubectl apply -f https://raw.githubusercontent.com/keycloak/keycloak-k8s-resources/26.0.5/kubernetes/keycloaks.k8s.keycloak.org-v1.yml
@@ -40,13 +40,6 @@ helm install my-debezium-operator debezium/debezium-operator --version 3.0.0-fin
 
 kubectl create namespace myapp
 
-# deploying infra
-kubectl -n myapp apply -f ./helm/infra/secrets.yml
-kubectl -n myapp apply -f ./helm/infra/dapr.yml
-kubectl -n myapp apply -f ./helm/infra/postgres.yml
-kubectl -n myapp apply -f ./helm/infra/rabbitmq.yml
-kubectl -n myapp apply -f ./helm/infra/redis.yml
-
 # Create debezium-secret using --from-literal
 # TODO: research better way to do this
 RABBITMQ_USER=$(kubectl -n myapp get secret rabbitmq-default-user -o jsonpath="{.data.username}" | base64 --decode)
@@ -58,9 +51,14 @@ kubectl -n myapp create secret generic debezium-secret \
   --from-literal=RABBITMQ_PASSWORD="$RABBITMQ_PASSWORD" \
   --from-literal=PG_PASSWORD="$PG_PASSWORD" \
   --from-literal=REDIS_PASSWORD="$REDIS_PASSWORD"
-kubectl -n myapp apply -f ./helm/infra/debezium.yml
 
-kubectl -n myapp apply -f ./helm/infra/traefik.yml
+# deploying infra
+kubectl -n myapp apply -f ./helm/infra/secrets.yml
+kubectl -n myapp apply -f ./helm/infra/dapr.yml
+kubectl -n myapp apply -f ./helm/infra/postgres.yml
+kubectl -n myapp apply -f ./helm/infra/rabbitmq.yml
+kubectl -n myapp apply -f ./helm/infra/redis.yml
+kubectl -n myapp apply -f ./helm/infra/debezium.yml
 kubectl -n myapp apply -f ./helm/infra/keycloak.yml
 
 # TODO: deploy apps

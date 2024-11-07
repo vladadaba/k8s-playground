@@ -1,0 +1,11 @@
+image:
+  repository: traefik
+  tag: v3.1
+ports:
+  web:
+    containerPort: 80
+  ws:
+    containerPort: 3000
+ingressRoute:
+  dashboard:
+    enabled: true
