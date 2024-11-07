@@ -1,63 +1,51 @@
+apiVersion: debezium.io/v1alpha1
+kind: DebeziumServer
+metadata:
+  name: debezium
+  namespace: myapp
+  labels:
+    name: debezium
+    app: myapp
+    type: infra
 spec:
-  version: String
-  image: String # exclusive with version
-  runtime:
-    environment:
-      vars:
-        - name: String
-          value: String
-      from: EnvFromSource array # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#envfromsource-v1-core
-    storage:
-      data:
-        type: persistent | ephemeral # enum
-        claimName: String # only valid and required for "persistent" type
-      external: Volume array # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#volume-v1-core
-    jmx:
-      enabled: boolean
-      port: int # defaults to 1099
-    templates:
-      container:
-        resources: # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#resourcerequirements-v1-core
-        securityContext: # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#securitycontext-v1-core
-      pod:
-        metadata:
-          annotations: Map<String, String>
-          labels: Map<String, String>
-        imagePullSecrets: List # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#localobjectreference-v1-core
-        affinity: # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#affinity-v1-core
-        securityContext: # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#podsecuritycontext-v1-core
+  version: 3.0.1.Final
   quarkus:
     config:
-      # quarkus properties
+      # https://debezium.io/blog/2023/10/19/Debezium-Operator-Takes-off-to-the-Clouds/
+      # The quarkus part of the spec provides Debezium Server with access to the previously deployed postgresql-credentials secret containing the credentials to our database. You can see the POSTGRES_USER and other variables referenced later on in the configuration.
+      log.console.json: false
+      kubernetes-config.enabled: true
+      kubernetes-config.secrets: debezium-secret
   format:
     value:
-      type: String
-      config:
-        # other format properties
+      type: json
     key:
-      type: String
-      config:
-        # other format properties
-    header:
-      type: String
-      config:
-        # other format properties
-  transforms:
-    - type: String
-      predicate: String
-      negate: Boolean
-      config:
-        # other transformation properties
-  predicates:
-    name:
-      type: String
-      config:
-        # other preticate properties
+      type: json
   sink:
-    type: String
+    type: rabbitmq
     config:
-      # other sink properties
+      connection.host: rabbitmq
+      connection.port: 5672
+      connection.username: ${RABBITMQ_USER}
+      connection.password: ${RABBITMQ_PASSWORD}
+      ackTimeout: 3000
+      exchange: users
+      routingKey: users
   source:
-    class: String
+    class: io.debezium.connector.postgresql.PostgresConnector
+    offset:
+      redis:
+        address: redis:6379
+        user: default
+        password: ${REDIS_PASSWORD}
+        key: metadata:debezium:offsets
+        sslEnabled: false
     config:
-      # other source connector properties
+      plugin.name: pgoutput
+      table.include.list: public.user_entity,public.federated_identity,public.user_group_membership,public.keycloak_group,public.realm
+      database.hostname: postgres
+      database.port: 5432
+      database.user: postgres
+      database.password: ${PG_PASSWORD}
+      database.dbname: postgres # TODO:
+      topic.prefix: users

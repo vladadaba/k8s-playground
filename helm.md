@@ -55,6 +55,8 @@ Operators can be searched here https://operatorhub.io/ with their capabilities (
 
 ### Postgres
 
+https://postgres-operator.readthedocs.io/en/latest/user/
+
 https://github.com/zalando/postgres-operator/blob/master/docs/quickstart.md
 
 ```
@@ -71,6 +73,15 @@ helm repo add postgres-operator-ui-charts https://opensource.zalando.com/postgre
 helm install postgres-operator-ui postgres-operator-ui-charts/postgres-operator-ui --create-namespace -n postgres
 ```
 
+Get credentials:
+
+https://postgres-operator.readthedocs.io/en/latest/user/#:~:text=acid%2Dminimal%2Dcluster-,Connect%20to%20PostgreSQL,-With%20a%20port
+
+```
+kubectl get secrets -n myapp
+kubectl get secret postgres.postgres.credentials.postgresql.acid.zalan.do -o 'jsonpath={.data.password}' -n myapp | base64 -d
+```
+
 ### RabbitMQ
 
 https://www.rabbitmq.com/kubernetes/operator/install-operator#helm-chart
@@ -80,7 +91,17 @@ helm repo add bitnami https://charts.bitnami.com/bitnami
 helm install rabbitmq-operator bitnami/rabbitmq-cluster-operator
 ```
 
+Deploy cluster:
+
 https://www.rabbitmq.com/kubernetes/operator/using-operator#create
+
+Get credentials:
+
+https://www.rabbitmq.com/kubernetes/operator/using-operator#creds
+
+```
+kubectl -n myapp get secret rabbitmq-default-user -o jsonpath="{.data.password}" | base64 --decode
+```
 
 ### Redis
 
@@ -92,6 +113,8 @@ helm upgrade redis-operator ot-helm/redis-operator --install
 ```
 
 Example charts are at https://github.com/OT-CONTAINER-KIT/redis-operator/tree/master/charts
+
+https://ot-container-kit.github.io/redis-operator/guide/setup.html#redis-cluster
 
 ### Traefik
 

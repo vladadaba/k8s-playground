@@ -2,7 +2,7 @@ apiVersion: dapr.io/v1alpha1
 kind: Configuration
 metadata:
   name: dapr-config
-  namespace: dapr
+  namespace: myapp
 spec:
   tracing:
     samplingRate: "1"
@@ -15,7 +15,7 @@ apiVersion: dapr.io/v1alpha1
 kind: Component
 metadata:
   name: actorbackend
-  namespace: dapr
+  namespace: myapp
 spec:
   type: workflowbackend.actor
   version: v1
@@ -33,7 +33,7 @@ apiVersion: dapr.io/v1alpha1
 kind: Resiliency
 metadata:
   name: app1-to-app2-resiliency
-  namespace: dapr
+  namespace: myapp
 scopes:
   - app1
 spec:

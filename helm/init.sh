@@ -38,15 +38,29 @@ helm install dapr dapr/dapr --create-namespace -n dapr
 helm repo add debezium https://charts.debezium.io
 helm install my-debezium-operator debezium/debezium-operator --version 3.0.0-final --create-namespace -n debezium
 
-# deploying infra
-kubectl apply -f ./helm/infra/dapr.yml -n dapr
-kubectl apply -f ./helm/infra/postgres.yml -n postgres
-kubectl apply -f ./helm/infra/rabbitmq.yml -n rabbitmq
-kubectl apply -f ./helm/infra/redis.yml -n redis 
+kubectl create namespace myapp
 
-# TODO:
-kubectl apply -f ./helm/infra/debezium.yml -n debezium
-kubectl apply -f ./helm/infra/traefik.yml -n traefik
-kubectl apply -f ./helm/infra/keycloak.yml -n keycloak
+# deploying infra
+kubectl -n myapp apply -f ./helm/infra/secrets.yml
+kubectl -n myapp apply -f ./helm/infra/dapr.yml
+kubectl -n myapp apply -f ./helm/infra/postgres.yml
+kubectl -n myapp apply -f ./helm/infra/rabbitmq.yml
+kubectl -n myapp apply -f ./helm/infra/redis.yml
+
+# Create debezium-secret using --from-literal
+# TODO: research better way to do this
+RABBITMQ_USER=$(kubectl -n myapp get secret rabbitmq-default-user -o jsonpath="{.data.username}" | base64 --decode)
+RABBITMQ_PASSWORD=$(kubectl -n myapp get secret rabbitmq-default-user -o jsonpath="{.data.password}" | base64 --decode)
+PG_PASSWORD=$(kubectl -n myapp get secret postgres.postgres.credentials.postgresql.acid.zalan.do -o 'jsonpath={.data.password}' -n myapp | base64 -d)
+REDIS_PASSWORD=$(kubectl -n myapp get secret redis-secret -o jsonpath="{.data.password}" | base64 --decode)
+kubectl -n myapp create secret generic debezium-secret \
+  --from-literal=RABBITMQ_USER="$RABBITMQ_USER" \
+  --from-literal=RABBITMQ_PASSWORD="$RABBITMQ_PASSWORD" \
+  --from-literal=PG_PASSWORD="$PG_PASSWORD" \
+  --from-literal=REDIS_PASSWORD="$REDIS_PASSWORD"
+kubectl -n myapp apply -f ./helm/infra/debezium.yml
+
+kubectl -n myapp apply -f ./helm/infra/traefik.yml
+kubectl -n myapp apply -f ./helm/infra/keycloak.yml
 
 # TODO: deploy apps
