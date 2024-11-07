@@ -5,18 +5,20 @@ metadata:
   name: {{ .Values.serviceName }}-deploy
   labels:
     name: {{ .Values.serviceName }}-deploy
-{{- include "backend-app.labels" . | indent 4 }}
+    {{- include "backend-app.labels" . | indent 4 }}
 spec:
   selector:
     matchLabels:
       name: {{ .Values.serviceName }}-pod
-{{- include "backend-app.labels" . | indent 6 }}
+      {{- include "backend-app.labels" . | indent 6 }}
   template:
     metadata:
       name: {{ .Values.serviceName }}-pod
       labels:
         name: {{ .Values.serviceName }}-pod
-{{- include "backend-app.labels" . | indent 8 }}
+        {{- include "backend-app.labels" . | indent 8 }}
+      annotations:
+        {{- include "dapr.annotations" . | indent 8 }}
     spec:
       containers:
         - name: {{ .Values.serviceName }}
@@ -24,44 +26,15 @@ spec:
           imagePullPolicy: Never
           ports:
             - containerPort: 3000
+          {{- if (.Values.envFrom)}}
           envFrom:
-            - configMapRef:
-                name: envvar-configmap
-        - name: {{ .Values.serviceName }}-dapr
-          image: daprio/daprd:1.14.4
-          command: [
-              "./daprd",
-              "--app-id",
-              {{ .Values.serviceName | quote }},
-              "--app-port",
-              {{ .Values.port | quote }},
-              "--placement-host-address",
-              "placement:50006",
-              "--config",
-              "/dapr/config.yaml",
-              "--resources-path",
-              "/dapr/local",
-            ]
+            {{- toYaml .Values.envFrom | nindent 12 -}}
+          {{ end }}
+          {{- if (.Values.env)}}
           env:
-            - name: APP_API_TOKEN
-              valueFrom:
-                configMapKeyRef:
-                  name: envvar-configmap
-                  key: APP_API_TOKEN
-          volumeMounts:
-            - name: dapr-local-volume
-              mountPath: /dapr/local
-            - name: dapr-volume
-              mountPath: /dapr/config.yaml
-              subPath: config.yaml
-      volumes:
-        - name: dapr-volume
-          configMap:
-            name: dapr-configmap
-            items:
-              - key: config.yaml
-                path: config.yaml
-        - name: dapr-local-volume
-          configMap:
-            name: dapr-local-configmap
+            {{- range $k,$v := .Values.env }}
+            - name: {{ $k }}
+              value: {{ $v }}
+            {{- end }}
+          {{ end }}
 {{- end }}

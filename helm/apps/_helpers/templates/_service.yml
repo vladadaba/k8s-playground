@@ -5,11 +5,11 @@ metadata:
   name: {{ .Values.serviceName }}
   labels:
     name: {{ .Values.serviceName }}-service
-{{- include "backend-app.labels" . | indent 4 }}
+    {{- include "backend-app.labels" . | indent 4 }}
 spec:
   selector:
     name: {{ .Values.serviceName }}-pod
-{{- include "backend-app.labels" . | indent 4 }}
+    {{- include "backend-app.labels" . | indent 4 }}
   ports:
     - port: {{ .Values.port }}
       targetPort: {{ .Values.port }}

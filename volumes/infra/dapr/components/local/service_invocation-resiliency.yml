@@ -1,7 +1,7 @@
 apiVersion: dapr.io/v1alpha1
 kind: Resiliency
 metadata:
-  name: app1_to_app2-resiliency
+  name: app1-to-app2-resiliency
 scopes:
   - app1
 spec:

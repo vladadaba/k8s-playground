@@ -1,0 +1,63 @@
+spec:
+  version: String
+  image: String # exclusive with version
+  runtime:
+    environment:
+      vars:
+        - name: String
+          value: String
+      from: EnvFromSource array # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#envfromsource-v1-core
+    storage:
+      data:
+        type: persistent | ephemeral # enum
+        claimName: String # only valid and required for "persistent" type
+      external: Volume array # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#volume-v1-core
+    jmx:
+      enabled: boolean
+      port: int # defaults to 1099
+    templates:
+      container:
+        resources: # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#resourcerequirements-v1-core
+        securityContext: # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#securitycontext-v1-core
+      pod:
+        metadata:
+          annotations: Map<String, String>
+          labels: Map<String, String>
+        imagePullSecrets: List # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#localobjectreference-v1-core
+        affinity: # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#affinity-v1-core
+        securityContext: # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#podsecuritycontext-v1-core
+  quarkus:
+    config:
+      # quarkus properties
+  format:
+    value:
+      type: String
+      config:
+        # other format properties
+    key:
+      type: String
+      config:
+        # other format properties
+    header:
+      type: String
+      config:
+        # other format properties
+  transforms:
+    - type: String
+      predicate: String
+      negate: Boolean
+      config:
+        # other transformation properties
+  predicates:
+    name:
+      type: String
+      config:
+        # other preticate properties
+  sink:
+    type: String
+    config:
+      # other sink properties
+  source:
+    class: String
+    config:
+      # other source connector properties

@@ -1,3 +1,11 @@
+# Minikube
+
+```
+minikube start --cpus 8 --memory 8192 --driver=qemu --network=socket_vmnet
+```
+
+Defaults = cpus: 2, memory: 2048
+
 # Traefik
 
 To use `IngressRoute` custom resource definition, we need to install the following https://doc.traefik.io/traefik/providers/kubernetes-crd/

@@ -1,0 +1,35 @@
+apiVersion: "acid.zalan.do/v1"
+kind: postgresql
+metadata:
+  name: acid-minimal-cluster
+spec:
+  teamId: "acid"
+  volume:
+    size: 1Gi
+  numberOfInstances: 2
+  users:
+    # database owner
+    zalando:
+      - superuser
+      - createdb
+
+    # role for application foo
+    foo_user: # or 'foo_user: []'
+
+  #databases: name->owner
+  databases:
+    foo: zalando
+  postgresql:
+    version: "16"
+    parameters:
+      password_encryption: "scram-sha-256"
+      wal_level: "logical" # needed for Debezium log trailing
+      # log slow queries
+      log_statement: "all"
+      log_duration: "on"
+      log_min_duration_statement: "1s" # configure this as needed
+      pg_store_plans.plan_format: "json"
+      pg_store_plans.max_plan_length: "1048576"
+      pg_store_plans.log_analyze: "true"
+      pg_store_plans.log_buffers: "true"
+      pg_store_plans.log_timing: "true"

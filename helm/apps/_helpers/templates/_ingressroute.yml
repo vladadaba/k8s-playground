@@ -5,7 +5,7 @@ metadata:
   name: {{ .Values.serviceName }}-ingress-route
   labels:
     name: {{ .Values.serviceName }}-ingress-route
-{{- include "backend-app.labels" . | indent 4 }}
+    {{- include "backend-app.labels" . | indent 4 }}
 spec:
   entryPoints:
     - web # same as args in traefik deployment
