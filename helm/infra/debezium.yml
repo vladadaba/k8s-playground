@@ -45,7 +45,7 @@ spec:
       table.include.list: keycloak.user_entity,keycloak.federated_identity,keycloak.user_group_membership,keycloak.keycloak_group,keycloak.realm
       database.hostname: postgres
       database.port: 5432
-      database.user: postgres
+      database.user: ${PG_USER}
       database.password: ${PG_PASSWORD}
       database.dbname: postgres # TODO:
       topic.prefix: users

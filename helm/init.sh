@@ -24,11 +24,14 @@ helm install redis-operator ot-helm/redis-operator --create-namespace -n redis
 helm repo add traefik https://helm.traefik.io/traefik
 helm install -f ./helm/infra/traefik/values.yml traefik traefik/traefik --create-namespace --namespace traefik
 
+kubectl create namespace myapp
+kubectl create namespace keycloak
+
 # keycloak
 kubectl apply -f https://raw.githubusercontent.com/keycloak/keycloak-k8s-resources/26.0.5/kubernetes/keycloaks.k8s.keycloak.org-v1.yml
 kubectl apply -f https://raw.githubusercontent.com/keycloak/keycloak-k8s-resources/26.0.5/kubernetes/keycloakrealmimports.k8s.keycloak.org-v1.yml
-kubectl create namespace keycloak
-kubectl apply -f ./helm/infra/keycloak-operator.yml -n keycloak
+kubectl -n myapp apply -f ./helm/infra/keycloak/keycloak-operator-role-bindings.yml
+kubectl -n keycloak apply -f ./helm/infra/keycloak/keycloak-operator.yml
 
 # dapr
 helm repo add dapr https://dapr.github.io/helm-charts/
@@ -38,32 +41,53 @@ helm install dapr dapr/dapr --create-namespace -n dapr
 helm repo add debezium https://charts.debezium.io
 helm install my-debezium-operator debezium/debezium-operator --version 3.0.0-final --create-namespace -n debezium
 
-kubectl create namespace myapp
+# deploying infra
+kubectl -n myapp apply -f ./helm/infra/postgres.yml
+kubectl -n myapp apply -f ./helm/infra/rabbitmq.yml
+kubectl -n myapp apply -f ./helm/infra/redis.yml
+kubectl -n myapp apply -f ./helm/infra/secrets.yml
+kubectl -n myapp apply -f ./helm/infra/dapr.yml
+
+# TODO: need to create schemas keycloak, users, inventory, orders in database when postgres starts
+# $PG_MASTER=kubectl get pods -o jsonpath={.items..metadata.name} -l cluster-name=postgres -n myapp
+# kubectl port-forward $PG_MASTER 6432:5432 -n myapp
+
+# in another shell run psql `CREATE SCHEMA ___`
+# PGPASSWORD=$(kubectl get secret postgres.postgres.credentials.postgresql.acid.zalan.do -o 'jsonpath={.data.password}' | base64 -d) psql -U postgres -h localhost -p 6432
 
 # Create debezium-secret using --from-literal
 # TODO: research better way to do this
 RABBITMQ_USER=$(kubectl -n myapp get secret rabbitmq-default-user -o jsonpath="{.data.username}" | base64 --decode)
 RABBITMQ_PASSWORD=$(kubectl -n myapp get secret rabbitmq-default-user -o jsonpath="{.data.password}" | base64 --decode)
+PG_USER=$(kubectl -n myapp get secret postgres.postgres.credentials.postgresql.acid.zalan.do -o 'jsonpath={.data.username}' -n myapp | base64 -d)
 PG_PASSWORD=$(kubectl -n myapp get secret postgres.postgres.credentials.postgresql.acid.zalan.do -o 'jsonpath={.data.password}' -n myapp | base64 -d)
 REDIS_PASSWORD=$(kubectl -n myapp get secret redis-secret -o jsonpath="{.data.password}" | base64 --decode)
 kubectl -n myapp create secret generic debezium-secret \
   --from-literal=RABBITMQ_USER="$RABBITMQ_USER" \
   --from-literal=RABBITMQ_PASSWORD="$RABBITMQ_PASSWORD" \
+  --from-literal=PG_USER="$PG_USER" \
   --from-literal=PG_PASSWORD="$PG_PASSWORD" \
   --from-literal=REDIS_PASSWORD="$REDIS_PASSWORD"
 
 kubectl -n myapp create secret tls keycloak-tls-secret --cert ./helm/infra/keycloak/certificate.pem --key ./helm/infra/keycloak/key.pem
 
-# deploying infra
-kubectl -n myapp apply -f ./helm/infra/secrets.yml
-kubectl -n myapp apply -f ./helm/infra/dapr.yml
-kubectl -n myapp apply -f ./helm/infra/postgres.yml
-kubectl -n myapp apply -f ./helm/infra/rabbitmq.yml
-kubectl -n myapp apply -f ./helm/infra/redis.yml
 kubectl -n myapp apply -f ./helm/infra/debezium.yml
-
-kubectl -n keycloak apply -f ./helm/infra/keycloak/keycloak-operator.yml
-kubectl -n myapp apply -f ./helm/infra/keycloak/keycloak-operator-role-bindings.yml
 kubectl -n myapp apply -f ./helm/infra/keycloak.yml
 
-# TODO: deploy apps
+# get keycloak confidential client secret and add it to k8s secret
+kubectl create secret generic keycloak-client-secret --from-literal=CONFIDENTIAL_CLIENT_SECRET=<secret>
+
+# deploy apps
+helm dependency update ./helm/apps/app1
+helm install app1 ./helm/apps/app1
+
+helm dependency update ./helm/apps/app2
+helm install app2 ./helm/apps/app2
+
+helm dependency update ./helm/apps/app3
+helm install app3 ./helm/apps/app3
+
+helm dependency update ./helm/apps/notifications
+helm install notifications ./helm/apps/notifications
+
+# TODO: deploy observability tools

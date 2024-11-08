@@ -23,6 +23,14 @@ spec:
           imagePullPolicy: Never
           ports:
             - containerPort: {{ .Values.port }}
+          {{- if or (.Values.env) (.Values.envRaw)}}
+          env:
+            {{- range $k,$v := .Values.env }}
+            - name: {{ $k }}
+              value: {{ $v | quote}}
+            {{- end }}
+            {{- toYaml .Values.envRaw | nindent 12 -}}
+          {{ end }}
 ---
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute

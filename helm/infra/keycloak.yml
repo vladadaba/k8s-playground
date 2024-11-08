@@ -9,14 +9,16 @@ metadata:
     type: infra
 spec:
   instances: 1
+  # externalAccess:
+  #   enabled: true
   db:
     vendor: postgres
     host: postgres
     port: 5432
     database: postgres
-    # schema: keycloak
-    usernameSecret: # TODO: is there way to use plain username so we dont need to create secret?
-      name: postgres-username
+    schema: keycloak
+    usernameSecret:
+      name: postgres.postgres.credentials.postgresql.acid.zalan.do
       key: username
     passwordSecret:
       name: postgres.postgres.credentials.postgresql.acid.zalan.do
@@ -24,6 +26,46 @@ spec:
   http:
     tlsSecret: keycloak-tls-secret
   hostname:
-    hostname: keycloak
+    hostname: keycloak # TODO:
   # proxy:
   # headers: xforwarded # double check your reverse proxy sets and overwrites the X-Forwarded-* headers
+---
+apiVersion: k8s.keycloak.org/v2alpha1
+kind: KeycloakRealmImport
+metadata:
+  name: keycloak-realm
+spec:
+  keycloakCRName: keycloak
+  realm:
+    realm: test_realm
+    enabled: true
+    registrationAllowed: true
+    rememberMe: true
+    roles:
+      realm:
+        - name: admin
+      client:
+        test_client_public: []
+        test_client_confidential: []
+    clients:
+      - clientId: test_client_confidential
+        enabled: true
+        standardFlowEnabled: false
+        implicitFlowEnabled: false
+        directAccessGrantsEnabled: false
+        serviceAccountsEnabled: true
+        publicClient: false
+      - clientId: test_client_public
+        enabled: true
+        clientAuthenticatorType: client-secret
+        redirectUris:
+          - http://localhost:5173/*
+        webOrigins:
+          - "*"
+        standardFlowEnabled: true
+        implicitFlowEnabled: false
+        publicClient: true
+        frontchannelLogout: true
+        protocol: openid-connect
+---
+

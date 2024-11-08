@@ -1,2 +1,12 @@
 serviceName: app2
 port: 3000
+env:
+  KEYCLOAK_URL: http://keycloak:8080
+  KEYCLOAK_REALM: test_realm
+  KEYCLOAK_CLIENTID: test_client_confidential
+envRaw:
+  - name: KEYCLOAK_SECRET
+    valueFrom:
+      secretKeyRef:
+        name: keycloak-client-secret
+        key: CONFIDENTIAL_CLIENT_SECRET

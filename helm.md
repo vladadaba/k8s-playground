@@ -12,6 +12,14 @@ Command to dry run
 helm install --dry-run --disable-openapi-validation moldy-jaguar ./app1
 ```
 
+Install
+
+```
+docker build -t k8s_playground-notifications . -f apps/notifications/Dockerfile && minikube image load k8s_playground-notifications
+minikube image load k8s_playground-notifications
+helm install app1 ./app1
+```
+
 ### Dapr sidecar injector
 
 When running Dapr in K8s, `dapr-sidecar-injector` deployment is created which monitors pods for annotations and injects Dapr sidecar into pods.
@@ -55,6 +63,10 @@ Operators can be searched here https://operatorhub.io/ with their capabilities (
 
 ### Postgres
 
+Manifest reference:
+
+https://opensource.zalando.com/postgres-operator/docs/reference/cluster_manifest.html
+
 https://postgres-operator.readthedocs.io/en/latest/user/
 
 https://github.com/zalando/postgres-operator/blob/master/docs/quickstart.md
@@ -80,6 +92,18 @@ https://postgres-operator.readthedocs.io/en/latest/user/#:~:text=acid%2Dminimal%
 ```
 kubectl get secrets -n myapp
 kubectl get secret postgres.postgres.credentials.postgresql.acid.zalan.do -o 'jsonpath={.data.password}' -n myapp | base64 -d
+```
+
+Connect to db using `psql`:
+
+https://opensource.zalando.com/postgres-operator/docs/user.html#connect-to-postgresql
+
+```
+PG_MASTER=$(kubectl get pods -o jsonpath={.items..metadata.name} -l cluster-name=postgres -n myapp)
+kubectl port-forward $PG_MASTER 6432:5432 -n myapp
+
+PGSSLMODE=require
+PGPASSWORD=$(kubectl get secret postgres.postgres.credentials.postgresql.acid.zalan.do -o 'jsonpath={.data.password}' | base64 -d) psql -U postgres -h localhost -p 6432
 ```
 
 ### RabbitMQ
@@ -176,6 +200,13 @@ Admin credentials
 https://www.keycloak.org/operator/advanced-configuration
 
 > When you create a new instance the Keycloak CR `spec.bootstrapAdmin` stanza may be used to configure the bootstrap user and/or service account. If you do not specify anything for the `spec.bootstrapAdmin`, the operator will create a Secret named "metadata.name"-initial-admin with a username **temp-admin** and a generated password. If you specify a Secret name for bootstrap admin user, then the Secret will need to contain username and password key value pairs. If you specify a Secret name for bootstrap admin service account, then the Secret will need to contain client-id and client-secret key value pairs.
+
+```
+kubectl get pods
+kubectl port-forward keycloak-0 8443:8433 -n myapp
+kubectl get secret keycloak-initial-admin -o 'jsonpath={.data.username}' -n myapp | base64 -d
+kubectl get secret keycloak-initial-admin -o 'jsonpath={.data.password}' -n myapp | base64 -d
+```
 
 ### Dapr Placement
 

@@ -25,16 +25,13 @@ spec:
           image: k8s_playground-{{ .Values.serviceName }}
           imagePullPolicy: Never
           ports:
-            - containerPort: 3000
-          {{- if (.Values.envFrom)}}
-          envFrom:
-            {{- toYaml .Values.envFrom | nindent 12 -}}
-          {{ end }}
-          {{- if (.Values.env)}}
+            - containerPort: {{ .Values.port }}
+          {{- if or (.Values.env) (.Values.envRaw)}}
           env:
             {{- range $k,$v := .Values.env }}
             - name: {{ $k }}
-              value: {{ $v }}
+              value: {{ $v | quote}}
             {{- end }}
+            {{- toYaml .Values.envRaw | nindent 12 -}}
           {{ end }}
 {{- end }}
