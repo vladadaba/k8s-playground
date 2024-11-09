@@ -29,7 +29,7 @@ spec:
     # tlsSecret: keycloak-tls-secret
 
   hostname:
-    hostname: https://keycloak:8443 # TODO:
+    hostname: https://localhost:8443
     backchannelDynamic: true
     # admin: keycloak/admin
     # strict: false
