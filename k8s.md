@@ -1,7 +1,7 @@
 # Minikube
 
 ```
-minikube start --cpus 8 --memory 8192 --driver=qemu --network=socket_vmnet
+minikube start --cpus 8 --memory 16GB --disk-size 100GB --driver=qemu --network=socket_vmnet
 ```
 
 Defaults = cpus: 2, memory: 2048

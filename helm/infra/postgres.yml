@@ -6,7 +6,7 @@ metadata:
 spec:
   teamId: myapp
   volume:
-    size: 1Gi
+    size: 50Gi
   numberOfInstances: 1
   users:
     # database owner

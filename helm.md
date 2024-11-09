@@ -106,6 +106,12 @@ PGSSLMODE=require
 PGPASSWORD=$(kubectl get secret postgres.postgres.credentials.postgresql.acid.zalan.do -o 'jsonpath={.data.password}' | base64 -d) psql -U postgres -h localhost -p 6432
 ```
 
+Check disk usage:
+
+```
+kubectl exec -it postgres-0 -- df -h /home/postgres/pgdata
+```
+
 ### RabbitMQ
 
 https://www.rabbitmq.com/kubernetes/operator/install-operator#helm-chart
@@ -166,6 +172,17 @@ kubectl -n traefik port-forward $(kubectl -n traefik get pods --selector "app.ku
 ```
 
 http://127.0.0.1:8080/dashboard/#/
+
+Port forward ingressroutes:
+
+```
+kubectl -n traefik port-forward $(kubectl -n traefik get pods --selector "app.kubernetes.io/name=traefik" --output=name) 8000:8000
+
+# test
+curl http://localhost:8000/app1/hello
+```
+
+To find port (8000), click on any router on the dashboard and it will say on which port it is listening for that PathPrefix.
 
 ### Keycloak
 
@@ -236,7 +253,20 @@ helm install my-debezium-operator debezium/debezium-operator --version 3.0.0-fin
 
 # Troubleshooting
 
-> Helm release stuck in `uninstalling` state
+### Troubleshooting resource usage
+
+```
+# cpu and memory usage
+minikube addons enable metrics-server
+minikube dashboard # will install metrics api which will allow below command
+kubectl top pods
+
+# disk usage (/home/postgres/pgdata can be found in describe pod)
+kubectl describe pod postgres-0
+kubectl exec -it postgres-0 -- df -h /home/postgres/pgdata
+```
+
+### Helm release stuck in `uninstalling` state
 
 https://stackoverflow.com/questions/74050419/helm-release-stuck-in-uninstalling-state
 

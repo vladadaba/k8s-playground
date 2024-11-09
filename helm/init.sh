@@ -47,13 +47,12 @@ kubectl -n myapp apply -f ./helm/infra/rabbitmq.yml
 kubectl -n myapp apply -f ./helm/infra/redis.yml
 kubectl -n myapp apply -f ./helm/infra/secrets.yml
 kubectl -n myapp apply -f ./helm/infra/dapr.yml
+kubectl -n myapp apply -f ./helm/infra/traefik-cors-middleware.yml
 
 # TODO: need to create schemas keycloak, users, inventory, orders in database when postgres starts
-# $PG_MASTER=kubectl get pods -o jsonpath={.items..metadata.name} -l cluster-name=postgres -n myapp
+# PG_MASTER=$(kubectl get pods -o jsonpath={.items..metadata.name} -l cluster-name=postgres -n myapp)
 # kubectl port-forward $PG_MASTER 6432:5432 -n myapp
-
-# in another shell run psql `CREATE SCHEMA ___`
-# PGPASSWORD=$(kubectl get secret postgres.postgres.credentials.postgresql.acid.zalan.do -o 'jsonpath={.data.password}' | base64 -d) psql -U postgres -h localhost -p 6432
+PGPASSWORD=$(kubectl get secret postgres.postgres.credentials.postgresql.acid.zalan.do -o 'jsonpath={.data.password}' | base64 -d) psql -U postgres -h localhost -p 6432 -c "CREATE SCHEMA keycloak; CREATE SCHEMA users; CREATE SCHEMA inventory; CREATE SCHEMA orders;"
 
 # Create debezium-secret using --from-literal
 # TODO: research better way to do this
@@ -75,7 +74,10 @@ kubectl -n myapp apply -f ./helm/infra/debezium.yml
 kubectl -n myapp apply -f ./helm/infra/keycloak.yml
 
 # get keycloak confidential client secret and add it to k8s secret
-kubectl create secret generic keycloak-client-secret --from-literal=CONFIDENTIAL_CLIENT_SECRET=<secret>
+# kubectl get secret keycloak-initial-admin -o 'jsonpath={.data.username}' -n myapp | base64 -d
+# kubectl get secret keycloak-initial-admin -o 'jsonpath={.data.password}' -n myapp | base64 -d
+# kubectl port-forward keycloak-0 8443:8443 -n myapp
+# kubectl create secret generic keycloak-client-secret --from-literal=CONFIDENTIAL_CLIENT_SECRET=<secret>
 
 # deploy apps
 helm dependency update ./helm/apps/app1
