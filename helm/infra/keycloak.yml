@@ -26,12 +26,13 @@ spec:
       key: password
   http:
     httpEnabled: true
-  #   tlsSecret: keycloak-tls-secret
+    # tlsSecret: keycloak-tls-secret
 
   hostname:
-    hostname: keycloak # TODO:
+    hostname: https://keycloak:8443 # TODO:
+    backchannelDynamic: true
     # admin: keycloak/admin
-    strict: false
+    # strict: false
   proxy:
     headers: xforwarded # double check your reverse proxy sets and overwrites the X-Forwarded-* headers
 ---
