@@ -1,7 +1,7 @@
 serviceName: app1
 port: 3000
 env:
-  KEYCLOAK_URL: https://keycloak-service:8080 # name of keycloak service that exposes this port
+  KEYCLOAK_URL: http://keycloak-service:8080 # name of keycloak service that exposes this port
   KEYCLOAK_REALM: test_realm
   KEYCLOAK_CLIENTID: test_client_confidential
   RABBITMQ_HOST: rabbitmq
