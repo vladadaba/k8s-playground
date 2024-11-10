@@ -20,18 +20,19 @@ spec:
       annotations:
         {{- include "dapr.annotations" . | indent 8 }}
     spec:
+      {{- if .Values.migrationsEnabled }}
+      initContainers:
+        - name: {{ .Values.serviceName }}-db-migrations
+          image: k8s_playground-{{ .Values.serviceName }}-installer
+          imagePullPolicy: Never
+          command: [ 'yarn', 'prisma', 'migrate', 'deploy' ]
+          {{- include "env" . | indent 10}}
+      {{- end }}
       containers:
         - name: {{ .Values.serviceName }}
           image: k8s_playground-{{ .Values.serviceName }}
           imagePullPolicy: Never
           ports:
             - containerPort: {{ .Values.port }}
-          {{- if or (.Values.env) (.Values.envRaw)}}
-          env:
-            {{- range $k,$v := .Values.env }}
-            - name: {{ $k }}
-              value: {{ $v | quote}}
-            {{- end }}
-            {{- toYaml .Values.envRaw | nindent 12 -}}
-          {{ end }}
+          {{- include "env" . | indent 10}}
 {{- end }}

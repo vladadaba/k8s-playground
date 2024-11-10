@@ -1,5 +1,6 @@
 serviceName: app1
 port: 3000
+migrationsEnabled: true
 env:
   KEYCLOAK_URL: http://keycloak-service:8080 # name of keycloak service that exposes this port
   KEYCLOAK_REALM: test_realm
