@@ -3,21 +3,21 @@
 Command to update dependencies. Run it when you update shared library.
 
 ```
-helm dependency update ./app1
+helm dependency update ./orders-svc
 ```
 
 Command to dry run
 
 ```
-helm install --dry-run --disable-openapi-validation moldy-jaguar ./app1
+helm install --dry-run --disable-openapi-validation moldy-jaguar ./orders-svc
 ```
 
 Install
 
 ```
-docker build -t k8s_playground-notifications . -f apps/notifications/Dockerfile && minikube image load k8s_playground-notifications
-minikube image load k8s_playground-notifications
-helm install app1 ./app1
+docker build -t k8s_playground-notifications-svc . -f apps/notifications-svc/Dockerfile && minikube image load k8s_playground-notifications-svc
+minikube image load k8s_playground-notifications-svc
+helm install orders-svc ./orders-svc
 ```
 
 ### Dapr sidecar injector
@@ -179,7 +179,7 @@ Port forward ingressroutes:
 kubectl -n traefik port-forward $(kubectl -n traefik get pods --selector "app.kubernetes.io/name=traefik" --output=name) 8000:8000
 
 # test
-curl http://localhost:8000/app1/hello
+curl http://localhost:8000/orders-svc/hello
 ```
 
 To find port (8000), click on any router on the dashboard and it will say on which port it is listening for that PathPrefix.

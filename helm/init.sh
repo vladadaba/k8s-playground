@@ -57,7 +57,7 @@ PG_USER=$(kubectl get secret postgres.postgres.credentials.postgresql.acid.zalan
 PGPASSWORD=$PG_PASSWORD psql -U postgres -h localhost -p 6432 -c "CREATE SCHEMA keycloak; CREATE SCHEMA users; CREATE SCHEMA inventory; CREATE SCHEMA orders;"
 
 # apply migrations
-cd apps/app1
+cd apps/orders-svc
 DATABASE_URL="postgresql://$PG_USER:$PG_PASSWORD@localhost:6432/postgres?schema=orders" npx prisma db push
 cd ../..
 
@@ -87,17 +87,17 @@ kubectl port-forward keycloak-0 8443:8443 -n myapp
 # kubectl create secret generic keycloak-client-secret --from-literal=CONFIDENTIAL_CLIENT_SECRET=<secret>
 
 # deploy apps
-helm dependency update ./helm/apps/app1
-helm install app1 ./helm/apps/app1
+helm dependency update ./helm/apps/orders-svc
+helm install orders-svc ./helm/apps/orders-svc
 
-helm dependency update ./helm/apps/app2
-helm install app2 ./helm/apps/app2
+helm dependency update ./helm/apps/inventory-svc
+helm install inventory-svc ./helm/apps/inventory-svc
 
-helm dependency update ./helm/apps/app3
-helm install app3 ./helm/apps/app3
+helm dependency update ./helm/apps/users-svc
+helm install users-svc ./helm/apps/users-svc
 
-helm dependency update ./helm/apps/notifications
-helm install notifications ./helm/apps/notifications
+helm dependency update ./helm/apps/notifications-svc
+helm install notifications-svc ./helm/apps/notifications-svc
 
 # TODO: run migrations
 

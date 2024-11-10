@@ -9,5 +9,5 @@ spec:
     rules:
       - path: /rabbitmq_consumer
 scopes:
-  - app2
-  - app3
+  - inventory-svc
+  - users-svc

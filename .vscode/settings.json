@@ -1,9 +1,8 @@
 {
   "eslint.workingDirectories": [
-    "apps/app1",
-    "apps/app2",
-    "apps/app3",
-    "apps/notifications",
-    "apps/frontend"
+    "apps/inventory-svc",
+    "apps/notifications-svc",
+    "apps/orders-svc",
+    "apps/users-svc"
   ]
 }

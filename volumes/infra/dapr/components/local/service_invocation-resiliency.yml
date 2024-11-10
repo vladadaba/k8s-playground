@@ -1,9 +1,9 @@
 apiVersion: dapr.io/v1alpha1
 kind: Resiliency
 metadata:
-  name: app1-to-app2-resiliency
+  name: orders-svc-to-inventory-svc-resiliency
 scopes:
-  - app1
+  - orders-svc
 spec:
   policies:
     retries:
@@ -18,6 +18,6 @@ spec:
         trip: consecutiveFailures >= 3
   targets:
     apps:
-      app2:
+      inventory-svc:
         retry: retryForever
         # circuitBreaker: simpleCB

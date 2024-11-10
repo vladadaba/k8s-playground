@@ -6,11 +6,11 @@ x-logging: &default-logging
     tag: "{{.Name}}-{{.ID}}"
 
 services:
-  ##### App1 & DAPR Sidecar #####
-  app1:
+  ##### orders-svc & DAPR Sidecar #####
+  orders-svc:
     build:
       context: .
-      dockerfile: ./apps/app1/Dockerfile
+      dockerfile: ./apps/orders-svc/Dockerfile
       target: installer
     ports:
       - "3000:3000"
@@ -22,29 +22,29 @@ services:
       - KEYCLOAK_REALM=${KEYCLOAK_REALM}
       - KEYCLOAK_CLIENTID=${KEYCLOAK_CLIENTID}
     volumes:
-      - /usr/src/app/apps/app1/node_modules # dont overwrite node_modules inside container (some packages need to be built for specific platform, so they might be broken if they are mounted, more info on this syntax - https://stackoverflow.com/questions/29181032/add-a-volume-to-docker-but-exclude-a-sub-folder/37898591#37898591)
-      - ./apps/app1:/usr/src/app/apps/app1
+      - /usr/src/app/apps/orders-svc/node_modules # dont overwrite node_modules inside container (some packages need to be built for specific platform, so they might be broken if they are mounted, more info on this syntax - https://stackoverflow.com/questions/29181032/add-a-volume-to-docker-but-exclude-a-sub-folder/37898591#37898591)
+      - ./apps/orders-svc:/usr/src/app/apps/orders-svc
     command: ["yarn", "start:dev"]
     # command: "tail -f /dev/null"
     logging: *default-logging
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.app1.rule=Host(`myapp.localhost`) && PathPrefix(`/app1`)"
-      - "traefik.http.services.app1.loadbalancer.server.port=3000"
-      - "traefik.http.middlewares.app1-stripprefix.stripprefix.prefixes=/app1"
+      - "traefik.http.routers.orders-svc.rule=Host(`myapp.localhost`) && PathPrefix(`/orders-svc`)"
+      - "traefik.http.services.orders-svc.loadbalancer.server.port=3000"
+      - "traefik.http.middlewares.orders-svc-stripprefix.stripprefix.prefixes=/orders-svc"
       - "traefik.http.middlewares.cors.headers.accesscontrolallowmethods=*"
       - "traefik.http.middlewares.cors.headers.accesscontrolalloworiginlist=*"
       - "traefik.http.middlewares.cors.headers.accessControlAllowHeaders=*"
       - "traefik.http.middlewares.cors.headers.accesscontrolmaxage=100"
       - "traefik.http.middlewares.cors.headers.addvaryheader=true"
-      - "traefik.http.routers.app1.middlewares=cors,app1-stripprefix"
+      - "traefik.http.routers.orders-svc.middlewares=cors,orders-svc-stripprefix"
 
-  app1_dapr:
+  orders-svc_dapr:
     image: "daprio/daprd:1.14.4"
     command: [
         "./daprd",
         "--app-id",
-        "app1",
+        "orders-svc",
         "--app-port",
         "3000",
         "--placement-host-address",
@@ -57,40 +57,40 @@ services:
     volumes:
       - "./volumes/infra/dapr/components:/dapr"
     depends_on:
-      - app1
-    network_mode: "service:app1"
+      - orders-svc
+    network_mode: "service:orders-svc"
     environment:
       - APP_API_TOKEN=${APP_API_TOKEN}
     logging: *default-logging
 
-  ##### App2 & DAPR Sidecar #####
-  app2:
+  ##### inventory-svc & DAPR Sidecar #####
+  inventory-svc:
     build:
       context: .
-      dockerfile: ./apps/app2/Dockerfile
+      dockerfile: ./apps/inventory-svc/Dockerfile
       target: installer
     ports:
       - "3001:3000"
     volumes:
-      - /usr/src/app/apps/app2/node_modules # dont overwrite node_modules inside container (some packages need to be built for specific platform, so they might be broken if they are mounted, more info on this syntax - https://stackoverflow.com/questions/29181032/add-a-volume-to-docker-but-exclude-a-sub-folder/37898591#37898591)
-      - ./apps/app2:/usr/src/app/apps/app2
+      - /usr/src/app/apps/inventory-svc/node_modules # dont overwrite node_modules inside container (some packages need to be built for specific platform, so they might be broken if they are mounted, more info on this syntax - https://stackoverflow.com/questions/29181032/add-a-volume-to-docker-but-exclude-a-sub-folder/37898591#37898591)
+      - ./apps/inventory-svc:/usr/src/app/apps/inventory-svc
     command: ["yarn", "start:dev"]
     environment:
       - APP_API_TOKEN=${APP_API_TOKEN}
     logging: *default-logging
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.app2.rule=Host(`myapp.localhost`) && PathPrefix(`/app2`)"
-      - "traefik.http.services.app2.loadbalancer.server.port=3000"
-      - "traefik.http.middlewares.app2-stripprefix.stripprefix.prefixes=/app2"
-      - "traefik.http.routers.app2.middlewares=app2-stripprefix"
+      - "traefik.http.routers.inventory-svc.rule=Host(`myapp.localhost`) && PathPrefix(`/inventory-svc`)"
+      - "traefik.http.services.inventory-svc.loadbalancer.server.port=3000"
+      - "traefik.http.middlewares.inventory-svc-stripprefix.stripprefix.prefixes=/inventory-svc"
+      - "traefik.http.routers.inventory-svc.middlewares=inventory-svc-stripprefix"
 
-  app2_dapr:
+  inventory-svc_dapr:
     image: "daprio/daprd:1.14.4"
     command: [
         "./daprd",
         "--app-id",
-        "app2",
+        "inventory-svc",
         "--app-port",
         "3000",
         "--placement-host-address",
@@ -103,38 +103,38 @@ services:
     volumes:
       - "./volumes/infra/dapr/components:/dapr"
     depends_on:
-      - app2
-    network_mode: "service:app2"
+      - inventory-svc
+    network_mode: "service:inventory-svc"
     environment:
       - APP_API_TOKEN=${APP_API_TOKEN}
     logging: *default-logging
 
-  ##### App3 & DAPR Sidecar #####
-  app3:
+  ##### users-svc & DAPR Sidecar #####
+  users-svc:
     build:
       context: .
-      dockerfile: ./apps/app3/Dockerfile
+      dockerfile: ./apps/users-svc/Dockerfile
       target: installer
     ports:
       - "3002:3000"
     volumes:
-      - /usr/src/app/apps/app3/node_modules # dont overwrite node_modules inside container (some packages need to be built for specific platform, so they might be broken if they are mounted, more info on this syntax - https://stackoverflow.com/questions/29181032/add-a-volume-to-docker-but-exclude-a-sub-folder/37898591#37898591)
-      - ./apps/app3:/usr/src/app/apps/app3
+      - /usr/src/app/apps/users-svc/node_modules # dont overwrite node_modules inside container (some packages need to be built for specific platform, so they might be broken if they are mounted, more info on this syntax - https://stackoverflow.com/questions/29181032/add-a-volume-to-docker-but-exclude-a-sub-folder/37898591#37898591)
+      - ./apps/users-svc:/usr/src/app/apps/users-svc
     command: ["yarn", "start:dev"]
     logging: *default-logging
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.app3.rule=Host(`myapp.localhost`) && PathPrefix(`/app3`)"
-      - "traefik.http.services.app3.loadbalancer.server.port=3000"
-      - "traefik.http.middlewares.app3-stripprefix.stripprefix.prefixes=/app3"
-      - "traefik.http.routers.app3.middlewares=app3-stripprefix"
+      - "traefik.http.routers.users-svc.rule=Host(`myapp.localhost`) && PathPrefix(`/users-svc`)"
+      - "traefik.http.services.users-svc.loadbalancer.server.port=3000"
+      - "traefik.http.middlewares.users-svc-stripprefix.stripprefix.prefixes=/users-svc"
+      - "traefik.http.routers.users-svc.middlewares=users-svc-stripprefix"
 
-  app3_dapr:
+  users-svc_dapr:
     image: "daprio/daprd:1.14.4"
     command: [
         "./daprd",
         "--app-id",
-        "app3",
+        "users-svc",
         "--app-port",
         "3000",
         "--placement-host-address",
@@ -147,32 +147,32 @@ services:
     volumes:
       - "./volumes/infra/dapr/components:/dapr"
     depends_on:
-      - app3
-    network_mode: "service:app3"
+      - users-svc
+    network_mode: "service:users-svc"
     environment:
       - APP_API_TOKEN=${APP_API_TOKEN}
     logging: *default-logging
 
-  ##### App3 & DAPR Sidecar #####
-  notifications:
+  ##### users-svc & DAPR Sidecar #####
+  notifications-svc:
     build:
       context: .
-      dockerfile: ./apps/notifications/Dockerfile
+      dockerfile: ./apps/notifications-svc/Dockerfile
       target: installer
     ports:
       - "3003:3000"
     volumes:
-      - /usr/src/app/apps/notifications/node_modules # dont overwrite node_modules inside container (some packages need to be built for specific platform, so they might be broken if they are mounted, more info on this syntax - https://stackoverflow.com/questions/29181032/add-a-volume-to-docker-but-exclude-a-sub-folder/37898591#37898591)
-      - ./apps/notifications:/usr/src/app/apps/notifications
+      - /usr/src/app/apps/notifications-svc/node_modules # dont overwrite node_modules inside container (some packages need to be built for specific platform, so they might be broken if they are mounted, more info on this syntax - https://stackoverflow.com/questions/29181032/add-a-volume-to-docker-but-exclude-a-sub-folder/37898591#37898591)
+      - ./apps/notifications-svc:/usr/src/app/apps/notifications-svc
     command: ["yarn", "start:dev"]
     # logging: *default-logging
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.notifications.entrypoints=ws"
-      - "traefik.http.routers.notifications.rule=Host(`myapp.localhost`)"
-      - "traefik.http.services.notifications.loadbalancer.server.port=3000"
-      # - "traefik.http.middlewares.notifications-stripprefix.stripprefix.prefixes=/notifications"
-      # - "traefik.http.routers.notifications.middlewares=notifications-stripprefix"
+      - "traefik.http.routers.notifications-svc.entrypoints=ws"
+      - "traefik.http.routers.notifications-svc.rule=Host(`myapp.localhost`)"
+      - "traefik.http.services.notifications-svc.loadbalancer.server.port=3000"
+      # - "traefik.http.middlewares.notifications-svc-stripprefix.stripprefix.prefixes=/notifications-svc"
+      # - "traefik.http.routers.notifications-svc.middlewares=notifications-svc-stripprefix"
 
 networks:
   default:
