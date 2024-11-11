@@ -3,3 +3,4 @@ dist
 volumes/data
 .turbo
 out
+generated

@@ -7,7 +7,7 @@ import {
 } from '@dapr/dapr';
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { PrismaService } from './prisma.service';
-import { Order, OrderStatus } from '@prisma/client';
+import { Order, OrderStatus } from '../generated/prisma-client';
 import { Decimal } from '@prisma/client/runtime/library';
 
 @Injectable()

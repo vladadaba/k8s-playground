@@ -28,6 +28,7 @@
     "@nestjs/platform-socket.io": "^10.4.6",
     "@nestjs/websockets": "^10.4.6",
     "@socket.io/redis-adapter": "^8.3.0",
+    "kafkajs": "^2.2.4",
     "nestjs-cls": "^4.4.1",
     "redis": "^4.7.0",
     "reflect-metadata": "^0.1.13",
