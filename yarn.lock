@@ -757,7 +757,7 @@
     "@types/jsonwebtoken" "9.0.5"
     jsonwebtoken "9.0.2"
 
-"@nestjs/microservices@^10":
+"@nestjs/microservices@^10", "@nestjs/microservices@^10.4.7":
   version "10.4.7"
   resolved "https://registry.npmjs.org/@nestjs/microservices/-/microservices-10.4.7.tgz#b97318866277812898686a4936c1212bd6d10def"
   integrity sha512-xqwFqheyo5c52s8YFf/vZD6felccoB+FpCCTj66jLxKRk3ZITjiENwar0mWjkiiAz9YoTmsDP80bnEoIpgBLWg==

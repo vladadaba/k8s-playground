@@ -53,3 +53,11 @@ Authentication > Flows > first broker login
 # Traefik & Websockets
 
 1. Had to add `127.0.0.1 myapp.localhost` to `/etc/hosts` to make it possible to connect using Postman (Chrome automatically resolves all `*.localhost` domains to loopback, but Postman apparently does not?)
+
+# Debezium
+
+Startup script not registering connectors (permission denied).
+
+```
+chmod 777 volumes/infra/debezium/register-connectors.sh
+```

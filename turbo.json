@@ -9,7 +9,20 @@
     },
     "start:dev": {
       "cache": false,
-      "env": ["DATABASE_URL"]
+      "env": [
+        "DB_USER",
+        "DB_PASSWORD",
+        "DATABASE_URL",
+        "KEYCLOAK_SECRET",
+        "KEYCLOAK_URL",
+        "KEYCLOAK_REALM",
+        "KEYCLOAK_CLIENTID",
+        "REDIS_HOST",
+        "REDIS_PORT",
+        "REDIS_USER",
+        "REDIS_PASSWORD",
+        "KAFKA_BROKERS"
+      ]
     },
     "test:ci": {
       "cache": false

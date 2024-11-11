@@ -14,9 +14,9 @@ echo -e "\n--\n+> Creating Kafka Connect Postgres source"
 response_status=000
 while [[ $response_status != 200 && $response_status != 201 ]] ; do
   response_status="$(curl -s -w %{http_code} -o /dev/null \
-      -X "PUT" "${url}/event-source/config" \
+      -X "PUT" "${url}/keycloak-postgres-connector/config" \
       -H "Content-Type: application/json" \
-      -d "@/scripts/keycloak-postgres-connector.json")"
-  echo -e $(date) " Kafka Connect PUT status: " $response_status " (waiting for 200 or 201)"
+      -d "@/scripts/connectors/keycloak-postgres-connector.json")"
+  echo -e $(date) " Kafka Connect POST status: " $response_status " (waiting for 200 or 201)"
   sleep 5
 done
