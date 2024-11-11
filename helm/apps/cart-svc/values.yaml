@@ -5,22 +5,10 @@ daprEnabled: true
 env:
   KEYCLOAK_URL: http://keycloak-service:8080 # name of keycloak service that exposes this port
   KEYCLOAK_REALM: test_realm
-  RABBITMQ_HOST: rabbitmq
-  RABBITMQ_PORT: 5672
   DB_HOST: postgres
   DB_PORT: 5432
   DB_SCHEMA: cart
 envRaw:
-  - name: RABBITMQ_PASSWORD
-    valueFrom:
-      secretKeyRef:
-        name: rabbitmq-default-user
-        key: password
-  - name: RABBITMQ_USER
-    valueFrom:
-      secretKeyRef:
-        name: rabbitmq-default-user
-        key: username
   - name: DB_USER
     valueFrom:
       secretKeyRef:

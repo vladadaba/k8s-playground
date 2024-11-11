@@ -130,27 +130,6 @@ Check disk usage:
 kubectl exec -it postgres-0 -- df -h /home/postgres/pgdata
 ```
 
-### RabbitMQ
-
-https://www.rabbitmq.com/kubernetes/operator/install-operator#helm-chart
-
-```
-helm repo add bitnami https://charts.bitnami.com/bitnami
-helm install rabbitmq-operator bitnami/rabbitmq-cluster-operator
-```
-
-Deploy cluster:
-
-https://www.rabbitmq.com/kubernetes/operator/using-operator#create
-
-Get credentials:
-
-https://www.rabbitmq.com/kubernetes/operator/using-operator#creds
-
-```
-kubectl -n myapp get secret rabbitmq-default-user -o jsonpath="{.data.password}" | base64 --decode
-```
-
 ### Redis
 
 https://github.com/OT-CONTAINER-KIT/redis-operator

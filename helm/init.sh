@@ -12,9 +12,8 @@ helm install postgres-operator postgres-operator-charts/postgres-operator --crea
 # helm repo add postgres-operator-ui-charts https://opensource.zalando.com/postgres-operator/charts/postgres-operator-ui --create-namespace -n postgres
 # helm install postgres-operator-ui postgres-operator-ui-charts/postgres-operator-ui --create-namespace -n postgres
 
-# rabbitmq-operator
-helm repo add bitnami https://charts.bitnami.com/bitnami
-helm install rabbitmq-operator bitnami/rabbitmq-cluster-operator --create-namespace -n rabbitmq
+# strimzi-operator
+
 
 # redis-operator
 helm repo add ot-helm https://ot-container-kit.github.io/helm-charts/
@@ -43,7 +42,6 @@ helm install my-debezium-operator debezium/debezium-operator --version 3.0.0-fin
 
 # deploying infra
 kubectl -n myapp apply -f ./helm/infra/postgres.yml
-kubectl -n myapp apply -f ./helm/infra/rabbitmq.yml
 
 kubectl create secret generic redis-secret --from-literal=password=somepassword
 kubectl -n myapp apply -f ./helm/infra/redis.yml
@@ -57,20 +55,6 @@ kubectl -n myapp apply -f ./helm/infra/traefik-cors-middleware.yml
 PG_PASSWORD=$(kubectl get secret postgres.postgres.credentials.postgresql.acid.zalan.do -o 'jsonpath={.data.password}' | base64 -d)
 PG_USER=$(kubectl get secret postgres.postgres.credentials.postgresql.acid.zalan.do -o 'jsonpath={.data.username}' | base64 -d)
 PGPASSWORD=$PG_PASSWORD psql -U postgres -h localhost -p 6432 -c "CREATE SCHEMA keycloak; CREATE SCHEMA cart; CREATE SCHEMA users; CREATE SCHEMA inventory; CREATE SCHEMA orders;"
-
-# Create debezium-secret using --from-literal
-# TODO: research better way to do this
-RABBITMQ_USER=$(kubectl -n myapp get secret rabbitmq-default-user -o jsonpath="{.data.username}" | base64 --decode)
-RABBITMQ_PASSWORD=$(kubectl -n myapp get secret rabbitmq-default-user -o jsonpath="{.data.password}" | base64 --decode)
-PG_USER=$(kubectl -n myapp get secret postgres.postgres.credentials.postgresql.acid.zalan.do -o 'jsonpath={.data.username}' -n myapp | base64 -d)
-PG_PASSWORD=$(kubectl -n myapp get secret postgres.postgres.credentials.postgresql.acid.zalan.do -o 'jsonpath={.data.password}' -n myapp | base64 -d)
-REDIS_PASSWORD=$(kubectl -n myapp get secret redis-secret -o jsonpath="{.data.password}" | base64 --decode)
-kubectl -n myapp create secret generic debezium-secret \
-  --from-literal=RABBITMQ_USER="$RABBITMQ_USER" \
-  --from-literal=RABBITMQ_PASSWORD="$RABBITMQ_PASSWORD" \
-  --from-literal=PG_USER="$PG_USER" \
-  --from-literal=PG_PASSWORD="$PG_PASSWORD" \
-  --from-literal=REDIS_PASSWORD="$REDIS_PASSWORD"
 
 kubectl -n myapp create secret tls keycloak-tls-secret --cert ./helm/infra/keycloak/certificate.pem --key ./helm/infra/keycloak/key.pem
 

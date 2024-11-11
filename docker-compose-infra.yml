@@ -22,21 +22,6 @@ services:
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
 
-  ##### Rabbitmq #####
-  rabbitmq:
-    image: "rabbitmq:3.9-management"
-    environment:
-      - RABBITMQ_DEFAULT_USER=demo # these 2 env vars don't do anything because of `volumes/infra/rabbitmq/definitions.json` but it creates the same user
-      - RABBITMQ_DEFAULT_PASS=demo
-      - RABBITMQ_ERLANG_COOKIE=demo_cookie_1234
-    volumes:
-      - ./volumes/infra/rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
-      - ./volumes/infra/rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro
-      - ./volumes/data/rabbitmq:/var/lib/rabbitmq
-    ports:
-      - 5672:5672
-      - 15672:15672
-
   ##### Redis #####
   redis:
     image: "redis:6.2-alpine"
@@ -81,13 +66,6 @@ services:
     volumes:
       - ./volumes/data/postgres:/var/lib/postgresql/data
       - ./volumes/infra/postgres:/docker-entrypoint-initdb.d:ro
-
-  debezium:
-    image: quay.io/debezium/server:3.0.1.Final
-    ports:
-      - "9090:8080"
-    volumes:
-      - ./volumes/infra/debezium:/debezium/config:ro
 
 networks:
   default:
