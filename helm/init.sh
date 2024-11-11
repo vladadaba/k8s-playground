@@ -1,9 +1,13 @@
+kubectl create namespace kafka
+kubectl create namespace myapp
+kubectl create namespace keycloak
+
 # Add kubernetes-dashboard repository
 helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
 # Deploy a Helm Release named "kubernetes-dashboard" using the kubernetes-dashboard chart
 helm upgrade --install kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard --create-namespace --namespace kubernetes-dashboard
 # Create user to access dashboard
-kubectl apply -f ./infra/k8s-dashboard-user
+kubectl apply -f ./helm/infra/k8s-dashboard-user
 
 # postgres-operator
 helm repo add postgres-operator-charts https://opensource.zalando.com/postgres-operator/charts/postgres-operator
@@ -13,7 +17,13 @@ helm install postgres-operator postgres-operator-charts/postgres-operator --crea
 # helm install postgres-operator-ui postgres-operator-ui-charts/postgres-operator-ui --create-namespace -n postgres
 
 # strimzi-operator
+# https://strimzi.io/quickstarts/
+# TODO: deploy operator in its own namespace, need to figure rolebindings
+kubectl create -f 'https://strimzi.io/install/latest?namespace=myapp' -n myapp
+kubectl create -f ./helm/infra/kafka.yml -n myapp
 
+# debezium
+# https://debezium.io/documentation/reference/stable/operations/kubernetes.html
 
 # redis-operator
 helm repo add ot-helm https://ot-container-kit.github.io/helm-charts/
@@ -22,9 +32,6 @@ helm install redis-operator ot-helm/redis-operator --create-namespace -n redis
 # traefik
 helm repo add traefik https://helm.traefik.io/traefik
 helm install -f ./helm/infra/traefik/values.yml traefik traefik/traefik --create-namespace --namespace traefik
-
-kubectl create namespace myapp
-kubectl create namespace keycloak
 
 # keycloak
 kubectl apply -f https://raw.githubusercontent.com/keycloak/keycloak-k8s-resources/26.0.5/kubernetes/keycloaks.k8s.keycloak.org-v1.yml

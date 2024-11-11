@@ -25,7 +25,7 @@ model InventoryItem {
 
 model InventoryItemDetails {
   product   InventoryItem @relation(fields: [productId], references: [id])
-  productId String
+  productId String        @db.Uuid
   version   Int
   name      String
   cost      Decimal       @db.Money
@@ -37,7 +37,7 @@ model InventoryItemDetails {
 model InventoryItemQuantityChange {
   id             String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   product        InventoryItem          @relation(fields: [productId], references: [id])
-  productId      String
+  productId      String                 @db.Uuid
   type           InventoryItemEventType
   quantityChange Int
   createdAt      DateTime               @default(now())

@@ -1,0 +1,116 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaNodePool
+metadata:
+  name: kafka-dual-role
+  namespace: myapp
+  labels:
+    strimzi.io/cluster: kafka
+    name: kafka-dual-role
+    app: myapp
+    type: infra
+spec:
+  replicas: 1
+  roles:
+    - controller
+    - broker
+  storage:
+    type: jbod
+    volumes:
+      - id: 0
+        type: persistent-claim
+        size: 20Gi
+        deleteClaim: false
+        kraftMetadata: shared
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: Kafka
+metadata:
+  name: kafka
+  labels:
+    name: kafka
+    app: myapp
+    type: infra
+  annotations:
+    strimzi.io/node-pools: enabled
+    strimzi.io/kraft: enabled
+spec:
+  kafka:
+    version: 3.8.0
+    metadataVersion: 3.8-IV0
+    listeners:
+      - name: plain
+        port: 9092
+        type: internal
+        tls: false
+      - name: tls
+        port: 9093
+        type: internal
+        tls: true
+    config:
+      offsets.topic.replication.factor: 1
+      transaction.state.log.replication.factor: 1
+      transaction.state.log.min.isr: 1
+      default.replication.factor: 1
+      min.insync.replicas: 1
+  entityOperator:
+    topicOperator: {}
+    userOperator: {}
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: keycloak-users
+  namespace: myapp
+  labels:
+    strimzi.io/cluster: kafka
+spec:
+  partitions: 3
+  replicas: 1
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaConnect
+metadata:
+  name: debezium-connect-cluster
+  namespace: myapp
+  annotations:
+    strimzi.io/use-connector-resources: "true"
+spec:
+  image: debezium/connect:3.0.0.Final
+  replicas: 1
+  bootstrapServers: debezium-cluster-kafka-bootstrap:9092
+  config:
+    config.providers: secrets
+    config.providers.secrets.class: io.strimzi.kafka.KubernetesSecretConfigProvider
+    group.id: connect-cluster
+    offset.storage.topic: connect-cluster-offsets
+    config.storage.topic: connect-cluster-configs
+    status.storage.topic: connect-cluster-status
+    # -1 means it will use the default replication factor configured in the broker
+    config.storage.replication.factor: -1
+    offset.storage.replication.factor: -1
+    status.storage.replication.factor: -1
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaConnector
+metadata:
+  name: debezium-keycloak-connector
+  namespace: myapp
+  labels:
+    strimzi.io/cluster: kafka
+spec:
+  class: io.debezium.connector.postgresql.PostgresConnector
+  tasksMax: 1
+  config:
+    tasks.max: 1
+    database.hostname: postgres
+    database.port: 5432
+    database.user: ${secrets:myapp/postgres.postgres.credentials.postgresql.acid.zalan.do:username}
+    database.password: ${secrets:myapp/postgres.postgres.credentials.postgresql.acid.zalan.do:password}
+    database.server.id: 184054
+    table.include.list: keycloak.user_entity, keycloak.federated_identity, keycloak.user_group_membership, keycloak.keycloak_group, keycloak.realm
+    transforms: route
+    transforms.route.type: org.apache.kafka.connect.transforms.RegexRouter
+    transforms.route.regex: .*
+    transforms.route.replacement: keycloak
+    topic.creation.default.replication.factor: 1
+    topic.creation.default.partitions: 1

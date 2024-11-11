@@ -41,30 +41,20 @@ export class OrderProcessingService implements OnModuleInit {
     _: WorkflowActivityContext,
     { order, approverId }: { order: Order; approverId?: string },
   ) => {
-    await this.prisma.$transaction(async (prisma) => {
-      const affectedRows =
-        await prisma.$executeRaw`update "InventoryItem" set "quantity" = "quantity" - ${order.quantity} where id = uuid(${order.productId})`;
-      if (affectedRows !== 1) {
-        // TODO: wtf?
-      }
-
-      await prisma.order.update({
-        where: { id: order.id },
-        data: { status: OrderStatus.APPROVED, approverId },
-      });
-    });
+    // await this.prisma.$transaction(async (prisma) => {
+    //   const affectedRows =
+    //     await prisma.$executeRaw`update "InventoryItem" set "quantity" = "quantity" - ${order.quantity} where id = uuid(${order.productId})`;
+    //   if (affectedRows !== 1) {
+    //     // TODO: wtf?
+    //   }
+    // });
   };
 
   // Activity function that places an order
   rejectOrder = async (
     _: WorkflowActivityContext,
     { order, approverId }: { order: Order; approverId?: string },
-  ) => {
-    await this.prisma.order.update({
-      where: { id: order.id },
-      data: { status: OrderStatus.REJECTED, approverId },
-    });
-  };
+  ) => {};
 
   // Orchestrator function that represents a purchase order workflow
   purchaseOrderWorkflow: TWorkflow = async function* (
@@ -72,7 +62,7 @@ export class OrderProcessingService implements OnModuleInit {
     order: Order,
   ): any {
     // Orders under 1000 are auto-approved
-    if (new Decimal(order.totalCost).lessThan(1000)) {
+    if (true /*new Decimal(order.cart).lessThan(1000)*/) {
       yield ctx.callActivity('approveOrder', { order });
       return;
     }

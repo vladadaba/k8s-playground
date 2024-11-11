@@ -16,9 +16,9 @@ datasource db {
 model CartQuantityChange {
   id             String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   cart           Cart          @relation(fields: [cartId], references: [id])
-  cartId         String
+  cartId         String        @db.Uuid
   product        InventoryItem @relation(fields: [productId], references: [id])
-  productId      String
+  productId      String        @db.Uuid
   quantityChange Int
   createdAt      DateTime      @default(now())
 

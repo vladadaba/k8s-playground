@@ -10,5 +10,5 @@ envRaw:
   - name: REDIS_PASSWORD
     valueFrom:
       secretKeyRef:
-        name: debezium-secret
-        key: REDIS_PASSWORD
+        name: redis-secret
+        key: password

@@ -1,0 +1,19 @@
+{
+  "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+  "database.hostname": "postgres",
+  "database.port": "5432",
+  "database.user": "postgres",
+  "database.password": "postgres",
+  "database.dbname": "postgres",
+  "database.server.name": "postgres",
+  "table.include.list": "keycloak.user_entity, keycloak.federated_identity, keycloak.user_group_membership, keycloak.keycloak_group, keycloak.realm",
+  "topic.prefix": "keycloak",
+  "plugin.name": "pgoutput",
+  "slot.name": "debezium_slot",
+  "transforms": "route",
+  "transforms.route.type": "org.apache.kafka.connect.transforms.RegexRouter",
+  "transforms.route.regex": ".*",
+  "transforms.route.replacement": "keycloak",
+  "topic.creation.default.replication.factor": 1,
+  "topic.creation.default.partitions": 1
+}
