@@ -1,17 +1,4 @@
 apiVersion: dapr.io/v1alpha1
-kind: Configuration
-metadata:
-  name: dapr-config
-  namespace: myapp
-spec:
-  tracing:
-    samplingRate: "1"
-    zipkin:
-      endpointAddress: "http://zipkin:9411/api/v2/spans"
-  metric:
-    enabled: true
----
-apiVersion: dapr.io/v1alpha1
 kind: Component
 metadata:
   name: actorbackend
@@ -28,30 +15,3 @@ spec:
       value: "1m"
     - name: drainRebalancedActors
       value: true
----
-apiVersion: dapr.io/v1alpha1
-kind: Resiliency
-metadata:
-  name: orders-svc-to-inventory-svc-resiliency
-  namespace: myapp
-scopes:
-  - orders-svc
-spec:
-  policies:
-    retries:
-      retryForever:
-        policy: constant
-        duration: 1s
-        maxRetries: -1
-    circuitBreakers:
-      simpleCB:
-        maxRequests: 1
-        timeout: 5s
-        trip: consecutiveFailures >= 3
-  targets:
-    apps:
-      inventory-svc:
-        retry: retryForever
-        # circuitBreaker: simpleCB
----
-

@@ -1,0 +1,4 @@
+CREATE SCHEMA keycloak;
+CREATE SCHEMA orders;
+CREATE SCHEMA inventory;
+CREATE SCHEMA users;

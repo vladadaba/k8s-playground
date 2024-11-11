@@ -9,7 +9,7 @@
     },
     "start:dev": {
       "cache": false,
-      "env": ["DATABASE_URL", "APP_API_TOKEN"]
+      "env": ["DATABASE_URL"]
     },
     "test:ci": {
       "cache": false

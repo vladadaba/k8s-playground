@@ -1,12 +1,6 @@
 serviceName: inventory-svc
 port: 3000
+migrationsEnabled: true
 env:
   KEYCLOAK_URL: http://keycloak-service:8080/auth
   KEYCLOAK_REALM: test_realm
-  KEYCLOAK_CLIENTID: test_client_confidential
-envRaw:
-  - name: KEYCLOAK_SECRET
-    valueFrom:
-      secretKeyRef:
-        name: keycloak-client-secret
-        key: CONFIDENTIAL_CLIENT_SECRET

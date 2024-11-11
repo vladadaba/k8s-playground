@@ -1,3 +1,21 @@
+# Debugging helm charts
+
+```
+helm template orders-svc -s templates/app.yml -f orders-svc/values.yaml --debug
+```
+
+> While actively working on a chart we can do this
+>
+> If one chart depends on another, you can put an unpacked copy of the dependency into the parent chart's charts subdirectory.
+>
+> This should work with a symlink, too. So if you're actively working on the subchart but need to install it via > the parent, you should be able to
+
+```
+mkdir charts
+cd charts
+ln -s ../../dependency dependency
+```
+
 # Apps
 
 Command to update dependencies. Run it when you update shared library.
@@ -28,7 +46,7 @@ https://docs.dapr.io/concepts/dapr-services/sidecar-injector/
 
 `resource-path` is not supported in annotations, instead we need to use Dapr's CustomResourceDescription and apply them to cluster directly (`helm/infra/dapr.yml`). This includes `config.yaml` as well.
 
-`dapr.io/env` needs `APP_API_TOKEN` some secrets which can be configured like this https://v1-15.docs.dapr.io/operations/configuration/environment-variables-secrets/
+`dapr.io/env` needs `APP_API_TOKEN` (needed for authenticating dapr sidecar calls) some secrets which can be configured like this https://v1-15.docs.dapr.io/operations/configuration/environment-variables-secrets/
 
 # Managing cluster
 

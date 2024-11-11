@@ -19,7 +19,7 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "minikube_build": "minikube image build -t k8s_playground-users-svc ../.. -f apps/users-svc/Dockerfile"
+    "minikube_build": "minikube image build -t k8s_playground-orders-svc-migration ../.. -f apps/orders-svc/Dockerfile --build-opt target=installer && minikube image build -t k8s_playground-users-svc ../.. -f apps/users-svc/Dockerfile"
   },
   "dependencies": {
     "@dapr/dapr": "^3.4.1",

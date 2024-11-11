@@ -9,7 +9,6 @@ services:
       - "3000:3000"
     environment:
       - DATABASE_URL=${DATABASE_URL}
-      - APP_API_TOKEN=${APP_API_TOKEN}
       - KEYCLOAK_SECRET=${KEYCLOAK_SECRET}
       - KEYCLOAK_URL=${KEYCLOAK_URL}
       - KEYCLOAK_REALM=${KEYCLOAK_REALM}
@@ -31,7 +30,7 @@ services:
       - "traefik.http.middlewares.cors.headers.addvaryheader=true"
       - "traefik.http.routers.orders-svc.middlewares=cors,orders-svc-stripprefix"
 
-  orders-svc_dapr:
+  orders-svc-dapr:
     image: "daprio/daprd:1.14.4"
     command: [
         "./daprd",
@@ -51,8 +50,6 @@ services:
     depends_on:
       - orders-svc
     network_mode: "service:orders-svc"
-    environment:
-      - APP_API_TOKEN=${APP_API_TOKEN}
 
   ##### inventory-svc & DAPR Sidecar #####
   inventory-svc:
@@ -66,37 +63,12 @@ services:
       - /usr/src/app/apps/inventory-svc/node_modules # dont overwrite node_modules inside container (some packages need to be built for specific platform, so they might be broken if they are mounted, more info on this syntax - https://stackoverflow.com/questions/29181032/add-a-volume-to-docker-but-exclude-a-sub-folder/37898591#37898591)
       - ./apps/inventory-svc:/usr/src/app/apps/inventory-svc
     command: ["yarn", "start:dev"]
-    environment:
-      - APP_API_TOKEN=${APP_API_TOKEN}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.inventory-svc.rule=Host(`myapp.localhost`) && PathPrefix(`/inventory-svc`)"
       - "traefik.http.services.inventory-svc.loadbalancer.server.port=3000"
       - "traefik.http.middlewares.inventory-svc-stripprefix.stripprefix.prefixes=/inventory-svc"
       - "traefik.http.routers.inventory-svc.middlewares=inventory-svc-stripprefix"
-
-  inventory-svc_dapr:
-    image: "daprio/daprd:1.14.4"
-    command: [
-        "./daprd",
-        "--app-id",
-        "inventory-svc",
-        "--app-port",
-        "3000",
-        "--placement-host-address",
-        "dapr_placement:50006", # Dapr's placement service can be reach via the docker DNS entry
-        "--config",
-        "/dapr/config.yaml",
-        "--resources-path",
-        "/dapr/local",
-      ]
-    volumes:
-      - "./volumes/infra/dapr/components:/dapr"
-    depends_on:
-      - inventory-svc
-    network_mode: "service:inventory-svc"
-    environment:
-      - APP_API_TOKEN=${APP_API_TOKEN}
 
   ##### users-svc & DAPR Sidecar #####
   users-svc:
@@ -116,29 +88,6 @@ services:
       - "traefik.http.services.users-svc.loadbalancer.server.port=3000"
       - "traefik.http.middlewares.users-svc-stripprefix.stripprefix.prefixes=/users-svc"
       - "traefik.http.routers.users-svc.middlewares=users-svc-stripprefix"
-
-  users-svc_dapr:
-    image: "daprio/daprd:1.14.4"
-    command: [
-        "./daprd",
-        "--app-id",
-        "users-svc",
-        "--app-port",
-        "3000",
-        "--placement-host-address",
-        "dapr_placement:50006", # Dapr's placement service can be reach via the docker DNS entry
-        "--config",
-        "/dapr/config.yaml",
-        "--resources-path",
-        "/dapr/local",
-      ]
-    volumes:
-      - "./volumes/infra/dapr/components:/dapr"
-    depends_on:
-      - users-svc
-    network_mode: "service:users-svc"
-    environment:
-      - APP_API_TOKEN=${APP_API_TOKEN}
 
   ##### users-svc & DAPR Sidecar #####
   notifications-svc:

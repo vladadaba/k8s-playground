@@ -44,8 +44,10 @@ helm install my-debezium-operator debezium/debezium-operator --version 3.0.0-fin
 # deploying infra
 kubectl -n myapp apply -f ./helm/infra/postgres.yml
 kubectl -n myapp apply -f ./helm/infra/rabbitmq.yml
+
+kubectl create secret generic redis-secret --from-literal=password=somepassword
 kubectl -n myapp apply -f ./helm/infra/redis.yml
-kubectl -n myapp apply -f ./helm/infra/secrets.yml
+
 kubectl -n myapp apply -f ./helm/infra/dapr.yml
 kubectl -n myapp apply -f ./helm/infra/traefik-cors-middleware.yml
 
@@ -55,11 +57,6 @@ kubectl -n myapp apply -f ./helm/infra/traefik-cors-middleware.yml
 PG_PASSWORD=$(kubectl get secret postgres.postgres.credentials.postgresql.acid.zalan.do -o 'jsonpath={.data.password}' | base64 -d)
 PG_USER=$(kubectl get secret postgres.postgres.credentials.postgresql.acid.zalan.do -o 'jsonpath={.data.username}' | base64 -d)
 PGPASSWORD=$PG_PASSWORD psql -U postgres -h localhost -p 6432 -c "CREATE SCHEMA keycloak; CREATE SCHEMA users; CREATE SCHEMA inventory; CREATE SCHEMA orders;"
-
-# apply migrations
-cd apps/orders-svc
-DATABASE_URL="postgresql://$PG_USER:$PG_PASSWORD@localhost:6432/postgres?schema=orders" npx prisma db push
-cd ../..
 
 # Create debezium-secret using --from-literal
 # TODO: research better way to do this
@@ -83,8 +80,9 @@ kubectl -n myapp apply -f ./helm/infra/keycloak.yml
 # get keycloak confidential client secret and add it to k8s secret
 kubectl get secret keycloak-initial-admin -o 'jsonpath={.data.username}' -n myapp | base64 -d
 kubectl get secret keycloak-initial-admin -o 'jsonpath={.data.password}' -n myapp | base64 -d
-kubectl port-forward keycloak-0 8443:8443 -n myapp
-# kubectl create secret generic keycloak-client-secret --from-literal=CONFIDENTIAL_CLIENT_SECRET=<secret>
+
+# kubectl port-forward keycloak-0 8443:8443 -n myapp
+kubectl create secret generic keycloak-client-secret --from-literal=CONFIDENTIAL_CLIENT_SECRET=TODO_secret_copied_from_keycloak
 
 # deploy apps
 helm dependency update ./helm/apps/orders-svc
@@ -99,6 +97,4 @@ helm install users-svc ./helm/apps/users-svc
 helm dependency update ./helm/apps/notifications-svc
 helm install notifications-svc ./helm/apps/notifications-svc
 
-# TODO: run migrations
-
-# TODO: deploy observability tools
+# TODO: deploy observability tools (Grafana LGTM)
