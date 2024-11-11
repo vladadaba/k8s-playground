@@ -1,5 +1,5 @@
 services:
-  placement: # this is needed for workflow engine to work
+  dapr_placement: # this is needed for workflow engine to work
     image: "daprio/dapr"
     command: ["./placement", "--port", "50006"]
     ports:
@@ -47,43 +47,6 @@ services:
       - ./volumes/infra/redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
       - ./volumes/data/infra/redis:/data
 
-  ##### Zipkin #####
-  zipkin:
-    image: "openzipkin/zipkin:2.23.2"
-    ports:
-      - 9411:9411
-
-  ##### fluent-bit #####
-  fluent-bit:
-    image: fluent/fluent-bit:1.7.2
-    depends_on:
-      - seq-input-gelf
-    ports:
-      - 24224:24224 # Forward input plugin
-      - 24220:24220 # built-in HTTP Server
-    volumes:
-      - "./volumes/infra/fluentbit/fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf:ro"
-
-  ##### Seq #####
-  seq:
-    image: datalust/seq:2021.2
-    environment:
-      - ACCEPT_EULA=Y
-    volumes:
-      - ./volumes/data/seq/data:/data
-    ports:
-      - "8191:80"
-
-  seq-input-gelf:
-    image: datalust/seq-input-gelf:latest
-    depends_on:
-      - seq
-    ports:
-      - "12201:12201/udp"
-    environment:
-      SEQ_ADDRESS: "http://seq:5341"
-    restart: unless-stopped
-
   keycloak:
     image: quay.io/keycloak/keycloak:25.0
     ports:
@@ -116,7 +79,7 @@ services:
       - POSTGRES_PASSWORD=postgres
     command: "--wal_level=logical"
     volumes:
-      - ./volumes/data/postgres2:/var/lib/postgresql/data
+      - ./volumes/data/postgres:/var/lib/postgresql/data
       - ./volumes/infra/postgres:/docker-entrypoint-initdb.d:ro
 
   debezium:
@@ -128,6 +91,6 @@ services:
 
 networks:
   default:
-    name: dapr_network
+    name: k8s_playground_network
     driver: bridge
     external: true

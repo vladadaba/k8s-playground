@@ -2,7 +2,7 @@
 
 ```
 docker compose -f docker-compose-infra.yml -f docker-compose-dapr.yml pull
-docker network create dapr_network
+docker network create k8s_playground_network
 docker compose -f docker-compose-infra.yml up -d
 docker compose up -d
 ```
@@ -20,7 +20,7 @@ Password: `demo`
 Redis UI management console:
 
 ```
-docker run --rm -v redisinsight:/db -p 5540:5540 --network dapr_network redislabs/redisinsight:latest
+docker run --rm -v redisinsight:/db -p 5540:5540 --network k8s_playground_network redislabs/redisinsight:latest
 ```
 
 1. Go to http://localhost:5540

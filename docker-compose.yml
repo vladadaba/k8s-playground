@@ -1,10 +1,3 @@
-x-logging: &default-logging
-  driver: "fluentd"
-  options:
-    fluentd-address: "localhost:24224"
-    fluentd-async-connect: "true"
-    tag: "{{.Name}}-{{.ID}}"
-
 services:
   ##### orders-svc & DAPR Sidecar #####
   orders-svc:
@@ -26,7 +19,6 @@ services:
       - ./apps/orders-svc:/usr/src/app/apps/orders-svc
     command: ["yarn", "start:dev"]
     # command: "tail -f /dev/null"
-    logging: *default-logging
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.orders-svc.rule=Host(`myapp.localhost`) && PathPrefix(`/orders-svc`)"
@@ -48,7 +40,7 @@ services:
         "--app-port",
         "3000",
         "--placement-host-address",
-        "placement:50006", # Dapr's placement service can be reach via the docker DNS entry
+        "dapr_placement:50006", # Dapr's placement service can be reach via the docker DNS entry
         "--config",
         "/dapr/config.yaml",
         "--resources-path",
@@ -61,7 +53,6 @@ services:
     network_mode: "service:orders-svc"
     environment:
       - APP_API_TOKEN=${APP_API_TOKEN}
-    logging: *default-logging
 
   ##### inventory-svc & DAPR Sidecar #####
   inventory-svc:
@@ -77,7 +68,6 @@ services:
     command: ["yarn", "start:dev"]
     environment:
       - APP_API_TOKEN=${APP_API_TOKEN}
-    logging: *default-logging
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.inventory-svc.rule=Host(`myapp.localhost`) && PathPrefix(`/inventory-svc`)"
@@ -94,7 +84,7 @@ services:
         "--app-port",
         "3000",
         "--placement-host-address",
-        "placement:50006", # Dapr's placement service can be reach via the docker DNS entry
+        "dapr_placement:50006", # Dapr's placement service can be reach via the docker DNS entry
         "--config",
         "/dapr/config.yaml",
         "--resources-path",
@@ -107,7 +97,6 @@ services:
     network_mode: "service:inventory-svc"
     environment:
       - APP_API_TOKEN=${APP_API_TOKEN}
-    logging: *default-logging
 
   ##### users-svc & DAPR Sidecar #####
   users-svc:
@@ -121,7 +110,6 @@ services:
       - /usr/src/app/apps/users-svc/node_modules # dont overwrite node_modules inside container (some packages need to be built for specific platform, so they might be broken if they are mounted, more info on this syntax - https://stackoverflow.com/questions/29181032/add-a-volume-to-docker-but-exclude-a-sub-folder/37898591#37898591)
       - ./apps/users-svc:/usr/src/app/apps/users-svc
     command: ["yarn", "start:dev"]
-    logging: *default-logging
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.users-svc.rule=Host(`myapp.localhost`) && PathPrefix(`/users-svc`)"
@@ -138,7 +126,7 @@ services:
         "--app-port",
         "3000",
         "--placement-host-address",
-        "placement:50006", # Dapr's placement service can be reach via the docker DNS entry
+        "dapr_placement:50006", # Dapr's placement service can be reach via the docker DNS entry
         "--config",
         "/dapr/config.yaml",
         "--resources-path",
@@ -151,7 +139,6 @@ services:
     network_mode: "service:users-svc"
     environment:
       - APP_API_TOKEN=${APP_API_TOKEN}
-    logging: *default-logging
 
   ##### users-svc & DAPR Sidecar #####
   notifications-svc:
@@ -165,7 +152,6 @@ services:
       - /usr/src/app/apps/notifications-svc/node_modules # dont overwrite node_modules inside container (some packages need to be built for specific platform, so they might be broken if they are mounted, more info on this syntax - https://stackoverflow.com/questions/29181032/add-a-volume-to-docker-but-exclude-a-sub-folder/37898591#37898591)
       - ./apps/notifications-svc:/usr/src/app/apps/notifications-svc
     command: ["yarn", "start:dev"]
-    # logging: *default-logging
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.notifications-svc.entrypoints=ws"
@@ -176,5 +162,5 @@ services:
 
 networks:
   default:
-    name: dapr_network
+    name: k8s_playground_network
     external: true

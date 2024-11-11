@@ -23,22 +23,6 @@ import { AuthModule } from '@5stones/nest-oidc';
         },
       ],
     }),
-    // KeycloakConnectModule.registerAsync({
-    //   imports: [ConfigModule],
-    //   inject: [ConfigService],
-    //   useFactory: async (config: ConfigService) => ({
-    //     authServerUrl: config.get('KEYCLOAK_URL'),
-    //     realm: config.get('KEYCLOAK_REALM'),
-
-    //     clientId: config.get('KEYCLOAK_CLIENTID'),
-    //     secret: config.get('KEYCLOAK_SECRET'),
-
-    //     tokenValidation: TokenValidation.OFFLINE, // fixed in @vladadaba/nest-keycloak-connect
-    //     // realmPublicKey:
-    //     //   'MIICozCCAYsCBgGTDZYvhzANBgkqhkiG9w0BAQsFADAVMRMwEQYDVQQDDAp0ZXN0X3JlYWxtMB4XDTI0MTEwODIxMDEwNloXDTM0MTEwODIxMDI0NlowFTETMBEGA1UEAwwKdGVzdF9yZWFsbTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMQE9UC9thxkAhBSAaAYDKFHNje1VJvJSE76xRajsb8gFUaRglenJ9Uhp/7iNUbwN7GWoIKdisdx/Sk5Ee+Btid2UboFh0qbIoBlO0daHp5ctifqo04BWyWuQgrIo0LBFYWfCAWtL08453iqIYZYjv6QkuLfjDXI21stPx69XkAV6J14wrM7q6vCrCv35QX+jJ9Fq8I9VxxBsjK0ehGlnZASzaiSgarpiitMJi1ChaCYL4U5x/nFzHmUtC4dDrWqR4R3dtKqS9AUn4JMRRJvAir2RjgRFJAVRn72D3Nstd2QyUsPLr6E69wNQV7/vQnmvllyKiSoAwx9mWBdQFy6DOsCAwEAATANBgkqhkiG9w0BAQsFAAOCAQEAnFF0DDL8qiFGajeboC8aavA62ejEHg3yYy3PdEHkO/MXoIhFaH9B1Mb5WRnIDQWqhk/PSooWgHOmF06UdDbnfRjG5xFGVonWvR/UjdKLjUNPB5LfbtF/zXCSHs3cJkXaM4C3iEV2vJJz2Vvwjywakyrr6r9YKUpX8f8GgzFaeDseLdGeftTHFkswYP4dWinEYcoIs46k7xGqroU/hudvQJ/vRmXZtZ9jEw7VYViz3jBlPzXVs1LG22kiuK3p/0DKBF+LL3yQG3OcXHzNSg9nohTlBL9TLcA4lelPLjnQ9xw9OrB3yC6bbPPyHrwWYZ4t22Wx4CfTks6IJlJId8gJug==',
-    //     // policyEnforcement: PolicyEnforcementMode.PERMISSIVE, // optional
-    //   }),
-    // }),
     ClsModule.forRoot({
       // https://papooch.github.io/nestjs-cls/introduction/quick-start
       // we can use this to save some request context
