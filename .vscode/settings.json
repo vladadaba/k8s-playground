@@ -1,5 +1,6 @@
 {
   "eslint.workingDirectories": [
+    "apps/cart-svc",
     "apps/inventory-svc",
     "apps/notifications-svc",
     "apps/orders-svc",

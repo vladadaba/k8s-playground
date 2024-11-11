@@ -56,7 +56,7 @@ kubectl -n myapp apply -f ./helm/infra/traefik-cors-middleware.yml
 # kubectl port-forward $PG_MASTER 6432:5432 -n myapp
 PG_PASSWORD=$(kubectl get secret postgres.postgres.credentials.postgresql.acid.zalan.do -o 'jsonpath={.data.password}' | base64 -d)
 PG_USER=$(kubectl get secret postgres.postgres.credentials.postgresql.acid.zalan.do -o 'jsonpath={.data.username}' | base64 -d)
-PGPASSWORD=$PG_PASSWORD psql -U postgres -h localhost -p 6432 -c "CREATE SCHEMA keycloak; CREATE SCHEMA users; CREATE SCHEMA inventory; CREATE SCHEMA orders;"
+PGPASSWORD=$PG_PASSWORD psql -U postgres -h localhost -p 6432 -c "CREATE SCHEMA keycloak; CREATE SCHEMA cart; CREATE SCHEMA users; CREATE SCHEMA inventory; CREATE SCHEMA orders;"
 
 # Create debezium-secret using --from-literal
 # TODO: research better way to do this

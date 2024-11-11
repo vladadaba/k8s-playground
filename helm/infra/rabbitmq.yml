@@ -3,6 +3,11 @@ kind: RabbitmqCluster
 metadata:
   name: rabbitmq
   namespace: myapp
+# https://www.rabbitmq.com/kubernetes/operator/using-operator
+spec:
+  replicas: 1 # use odd number
+  persistence:
+    storage: 10Gi
 ---
 apiVersion: rabbitmq.com/v1beta1
 kind: Exchange
@@ -15,17 +20,30 @@ spec:
   autoDelete: false
   durable: true
   rabbitmqClusterReference:
-    name: rabbitmq # name of RabbitmqCluster?
+    name: rabbitmq
 ---
-# apiVersion: rabbitmq.com/v1beta1
-# kind: Binding
-# metadata:
-#   name: binding
-#   namespace: rabbitmq-system
-# spec:
-#   source: test # an existing exchange
-#   destination: test # an existing queue
-#   destinationType: queue # can be 'queue' or 'exchange'
-#   rabbitmqClusterReference:
-#     name: example-rabbit
-
+apiVersion: rabbitmq.com/v1beta1
+kind: Queue
+metadata:
+  name: rabbitmq-users-queue
+  namespace: myapp
+spec:
+  name: users # name of the queue
+  type: stream # without providing a queue type, rabbitmq creates a classic queue
+  durable: true # mandatory for stream queues
+  arguments:
+    x-max-length-bytes: 1000000000 ## setting the retention policy
+  rabbitmqClusterReference:
+    name: rabbitmq
+---
+apiVersion: rabbitmq.com/v1beta1
+kind: Binding
+metadata:
+  name: rabbitmq-users-binding
+  namespace: myapp
+spec:
+  source: users # an existing exchange
+  destination: users # an existing queue
+  destinationType: queue # can be 'queue' or 'exchange'
+  rabbitmqClusterReference:
+    name: rabbitmq

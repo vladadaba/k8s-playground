@@ -1,0 +1,52 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// materialized view from inventory-svc
+model InventoryItem {
+  id                          String                        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  item                        InventoryItemDetails[]
+  quantity                    Int
+  InventoryItemQuantityChange InventoryItemQuantityChange[]
+  createdAt                   DateTime                      @default(now())
+  updatedAt                   DateTime                      @updatedAt
+}
+
+model InventoryItemDetails {
+  product   InventoryItem @relation(fields: [productId], references: [id])
+  productId String
+  version   Int
+  name      String
+  cost      Decimal       @db.Money
+  createdAt DateTime      @default(now())
+
+  @@unique([productId, version])
+}
+
+model InventoryItemQuantityChange {
+  id             String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  product        InventoryItem          @relation(fields: [productId], references: [id])
+  productId      String
+  type           InventoryItemEventType
+  quantityChange Int
+  createdAt      DateTime               @default(now())
+}
+
+enum InventoryItemEventType {
+  RESERVATION
+  RESERVATION_EXPIRED
+  ORDER_APPROVED
+  ORDER_CANCELED
+  RESTOCK
+}

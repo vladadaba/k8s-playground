@@ -13,45 +13,53 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id         String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name       String
-  role       Role
-  orders     Order[]
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
-}
-
 model Order {
-  id         String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  product    InventoryItem @relation(fields: [productId], references: [id])
-  productId  String @db.Uuid
-  quantity   Int
-  totalCost  Decimal @db.Money
-  status     OrderStatus
-  approver   User? @relation(fields: [approverId], references: [id])
-  approverId String? @db.Uuid
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
+  id        String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  status    OrderStatus[]
+  cart      Json
+  createdAt DateTime      @default(now())
 }
 
-model InventoryItem {
-  id         String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name       String
-  cost       Decimal @db.Money
-  quantity   Int
-  orders     Order[]
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
+model OrderStatus {
+  id          String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  Order       Order           @relation(fields: [orderId], references: [id])
+  orderId     String          @db.Uuid
+  createdAt   DateTime        @default(now())
+  status      OrderStatusEnum
+  changedBy   User?           @relation(fields: [changedById], references: [id])
+  changedById String?
+
+  @@index([orderId])
+}
+
+enum OrderStatusEnum {
+  WAITING_FOR_APPROVAL
+  REJECTED
+  APPROVED
+  CANCELED
+}
+
+model OrderAssignment {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  assagnie   User?    @relation(fields: [assigneeId], references: [id])
+  assigneeId String?  @db.Uuid
+  createdAt  DateTime @default(now())
+}
+
+// materialized view from users-svc
+model User {
+  id              String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name            String
+  role            Role
+  OrderAssignment OrderAssignment[]
+  createdAt       DateTime
+  updatedAt       DateTime
+  isDeleted       Boolean
+  OrderStatus     OrderStatus[]
 }
 
 enum Role {
   USER
   MANAGER
-}
-
-enum OrderStatus {
-  WAITING_FOR_APPROVAL
-  REJECTED
-  APPROVED
+  ADMIN
 }

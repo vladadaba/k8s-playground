@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { Ctx, EventPattern, Payload, RmqContext } from '@nestjs/microservices';
 import { Roles, JwtAuthGuard, CurrentUser } from '@5stones/nest-oidc';
 import { AppService } from './app.service';
@@ -17,36 +17,6 @@ export class AppController {
     } catch (err) {
       context.getChannelRef().reject(context.getMessage(), false); // this will dlq our message
     }
-  }
-
-  @Get('hello')
-  hello() {
-    return this.appService.hello();
-  }
-
-  @Get('hello_with_failures')
-  helloWithFailures() {
-    return this.appService.helloWithFailures();
-  }
-
-  @Post('publish_redis')
-  async redisPublish(@Body() body) {
-    await this.appService.redisPublish(body);
-  }
-
-  @Post('publish_rabbitmq')
-  async rabbitmqPublish(@Body() body) {
-    await this.appService.rabbitmqPublish(body);
-  }
-
-  @Post('state')
-  async setState(@Body('key') key: string, @Body('value') value: string) {
-    await this.appService.setState(key, value);
-  }
-
-  @Get('state')
-  getState(@Query('key') key: string) {
-    return this.appService.getState(key);
   }
 
   @Post('start-workflow')

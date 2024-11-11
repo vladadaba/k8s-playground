@@ -1,6 +1,7 @@
-serviceName: inventory-svc
+serviceName: cart-svc
 port: 3000
 migrationsEnabled: true
+daprEnabled: true
 env:
   KEYCLOAK_URL: http://keycloak-service:8080 # name of keycloak service that exposes this port
   KEYCLOAK_REALM: test_realm
@@ -8,7 +9,7 @@ env:
   RABBITMQ_PORT: 5672
   DB_HOST: postgres
   DB_PORT: 5432
-  DB_SCHEMA: orders
+  DB_SCHEMA: cart
 envRaw:
   - name: RABBITMQ_PASSWORD
     valueFrom:

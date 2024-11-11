@@ -1,12 +1,26 @@
 serviceName: notifications-svc
 port: 3000
 env:
+  KEYCLOAK_URL: http://keycloak-service:8080 # name of keycloak service that exposes this port
+  KEYCLOAK_REALM: test_realm
   REDIS_HOST: redis
-  REDIS_PORT: "6379"
+  REDIS_PORT: 6379
   REDIS_USER: default
+  RABBITMQ_HOST: rabbitmq
+  RABBITMQ_PORT: 5672
 envRaw:
   - name: REDIS_PASSWORD
     valueFrom:
       secretKeyRef:
         name: debezium-secret
         key: REDIS_PASSWORD
+  - name: RABBITMQ_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: rabbitmq-default-user
+        key: password
+  - name: RABBITMQ_USER
+    valueFrom:
+      secretKeyRef:
+        name: rabbitmq-default-user
+        key: username

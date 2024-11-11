@@ -8,11 +8,13 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - DATABASE_URL=${DATABASE_URL}
-      - KEYCLOAK_SECRET=${KEYCLOAK_SECRET}
+      - DATABASE_URL=${DATABASE_URL}orders
+      - RABBITMQ_HOST=${RABBITMQ_HOST}
+      - RABBITMQ_PORT=${RABBITMQ_PORT}
+      - RABBITMQ_USER=${RABBITMQ_USER}
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
       - KEYCLOAK_URL=${KEYCLOAK_URL}
       - KEYCLOAK_REALM=${KEYCLOAK_REALM}
-      - KEYCLOAK_CLIENTID=${KEYCLOAK_CLIENTID}
     volumes:
       - /usr/src/app/apps/orders-svc/node_modules # dont overwrite node_modules inside container (some packages need to be built for specific platform, so they might be broken if they are mounted, more info on this syntax - https://stackoverflow.com/questions/29181032/add-a-volume-to-docker-but-exclude-a-sub-folder/37898591#37898591)
       - ./apps/orders-svc:/usr/src/app/apps/orders-svc
@@ -51,7 +53,61 @@ services:
       - orders-svc
     network_mode: "service:orders-svc"
 
-  ##### inventory-svc & DAPR Sidecar #####
+  ##### cart-svc & DAPR Sidecar #####
+  cart-svc:
+    build:
+      context: .
+      dockerfile: ./apps/cart-svc/Dockerfile
+      target: installer
+    ports:
+      - "3004:3000"
+    environment:
+      - DATABASE_URL=${DATABASE_URL}cart
+      - RABBITMQ_HOST=${RABBITMQ_HOST}
+      - RABBITMQ_PORT=${RABBITMQ_PORT}
+      - RABBITMQ_USER=${RABBITMQ_USER}
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
+      - KEYCLOAK_URL=${KEYCLOAK_URL}
+      - KEYCLOAK_REALM=${KEYCLOAK_REALM}
+    volumes:
+      - /usr/src/app/apps/cart-svc/node_modules # dont overwrite node_modules inside container (some packages need to be built for specific platform, so they might be broken if they are mounted, more info on this syntax - https://stackoverflow.com/questions/29181032/add-a-volume-to-docker-but-exclude-a-sub-folder/37898591#37898591)
+      - ./apps/cart-svc:/usr/src/app/apps/cart-svc
+    command: ["yarn", "start:dev"]
+    # command: "tail -f /dev/null"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.cart-svc.rule=Host(`myapp.localhost`) && PathPrefix(`/cart-svc`)"
+      - "traefik.http.services.cart-svc.loadbalancer.server.port=3000"
+      - "traefik.http.middlewares.cart-svc-stripprefix.stripprefix.prefixes=/cart-svc"
+      - "traefik.http.middlewares.cors.headers.accesscontrolallowmethods=*"
+      - "traefik.http.middlewares.cors.headers.accesscontrolalloworiginlist=*"
+      - "traefik.http.middlewares.cors.headers.accessControlAllowHeaders=*"
+      - "traefik.http.middlewares.cors.headers.accesscontrolmaxage=100"
+      - "traefik.http.middlewares.cors.headers.addvaryheader=true"
+      - "traefik.http.routers.cart-svc.middlewares=cors,cart-svc-stripprefix"
+
+  cart-svc-dapr:
+    image: "daprio/daprd:1.14.4"
+    command: [
+        "./daprd",
+        "--app-id",
+        "cart-svc",
+        "--app-port",
+        "3000",
+        "--placement-host-address",
+        "dapr_placement:50006", # Dapr's placement service can be reach via the docker DNS entry
+        "--config",
+        "/dapr/config.yaml",
+        "--resources-path",
+        "/dapr/local",
+      ]
+    volumes:
+      - "./volumes/infra/dapr/components:/dapr"
+    depends_on:
+      - cart-svc
+    network_mode: "service:cart-svc"
+
+  ##### inventory-svc #####
   inventory-svc:
     build:
       context: .
@@ -59,6 +115,14 @@ services:
       target: installer
     ports:
       - "3001:3000"
+    environment:
+      - DATABASE_URL=${DATABASE_URL}inventory
+      - RABBITMQ_HOST=${RABBITMQ_HOST}
+      - RABBITMQ_PORT=${RABBITMQ_PORT}
+      - RABBITMQ_USER=${RABBITMQ_USER}
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
+      - KEYCLOAK_URL=${KEYCLOAK_URL}
+      - KEYCLOAK_REALM=${KEYCLOAK_REALM}
     volumes:
       - /usr/src/app/apps/inventory-svc/node_modules # dont overwrite node_modules inside container (some packages need to be built for specific platform, so they might be broken if they are mounted, more info on this syntax - https://stackoverflow.com/questions/29181032/add-a-volume-to-docker-but-exclude-a-sub-folder/37898591#37898591)
       - ./apps/inventory-svc:/usr/src/app/apps/inventory-svc
@@ -70,7 +134,7 @@ services:
       - "traefik.http.middlewares.inventory-svc-stripprefix.stripprefix.prefixes=/inventory-svc"
       - "traefik.http.routers.inventory-svc.middlewares=inventory-svc-stripprefix"
 
-  ##### users-svc & DAPR Sidecar #####
+  ##### users-svc #####
   users-svc:
     build:
       context: .
@@ -78,6 +142,16 @@ services:
       target: installer
     ports:
       - "3002:3000"
+    environment:
+      - DATABASE_URL=${DATABASE_URL}users
+      - RABBITMQ_HOST=${RABBITMQ_HOST}
+      - RABBITMQ_PORT=${RABBITMQ_PORT}
+      - RABBITMQ_USER=${RABBITMQ_USER}
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
+      - KEYCLOAK_SECRET=${KEYCLOAK_SECRET}
+      - KEYCLOAK_URL=${KEYCLOAK_URL}
+      - KEYCLOAK_REALM=${KEYCLOAK_REALM}
+      - KEYCLOAK_CLIENTID=${KEYCLOAK_CLIENTID}
     volumes:
       - /usr/src/app/apps/users-svc/node_modules # dont overwrite node_modules inside container (some packages need to be built for specific platform, so they might be broken if they are mounted, more info on this syntax - https://stackoverflow.com/questions/29181032/add-a-volume-to-docker-but-exclude-a-sub-folder/37898591#37898591)
       - ./apps/users-svc:/usr/src/app/apps/users-svc
@@ -97,6 +171,17 @@ services:
       target: installer
     ports:
       - "3003:3000"
+    environment:
+      - RABBITMQ_HOST=${RABBITMQ_HOST}
+      - RABBITMQ_PORT=${RABBITMQ_PORT}
+      - RABBITMQ_USER=${RABBITMQ_USER}
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_USER=${REDIS_USER}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - KEYCLOAK_URL=${KEYCLOAK_URL}
+      - KEYCLOAK_REALM=${KEYCLOAK_REALM}
     volumes:
       - /usr/src/app/apps/notifications-svc/node_modules # dont overwrite node_modules inside container (some packages need to be built for specific platform, so they might be broken if they are mounted, more info on this syntax - https://stackoverflow.com/questions/29181032/add-a-volume-to-docker-but-exclude-a-sub-folder/37898591#37898591)
       - ./apps/notifications-svc:/usr/src/app/apps/notifications-svc

@@ -1,4 +1,5 @@
 CREATE SCHEMA keycloak;
 CREATE SCHEMA orders;
+CREATE SCHEMA cart;
 CREATE SCHEMA inventory;
 CREATE SCHEMA users;
