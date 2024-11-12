@@ -13,9 +13,10 @@ WORKDIR /usr/src/app
 COPY --from=builder /usr/src/app/out/json/ .
 COPY --from=builder /usr/src/app/out/yarn.lock ./yarn.lock
 COPY --from=builder /usr/src/app/turbo.json ./turbo.json
-COPY --from=builder /usr/src/app/apps/inventory-svc/prisma ./prisma
 RUN yarn install --frozen-lockfile
-RUN yarn prisma generate 
+COPY --from=builder /usr/src/app/apps/inventory-svc/prisma ./apps/inventory-svc/prisma
+WORKDIR /usr/src/app/apps/inventory-svc
+RUN npx prisma generate
 
 
 FROM node:20-alpine AS sourcer

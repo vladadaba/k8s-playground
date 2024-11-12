@@ -1,10 +1,16 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { KeycloakModule } from './keycloak/keycloak.module';
+import { KeycloakService } from './keycloak/keycloak.service';
+import { PrismaService } from './prisma.service';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({ isGlobal: true }), // Make the ConfigModule global to use in any module
+    KeycloakModule,
     ClientsModule.register([
       {
         name: 'KAFKA_CLIENT',
@@ -20,6 +26,6 @@ import { AppService } from './app.service';
     ]),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, KeycloakService, PrismaService],
 })
 export class AppModule {}

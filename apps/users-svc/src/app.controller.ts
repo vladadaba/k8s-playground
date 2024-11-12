@@ -1,9 +1,9 @@
-import { Controller, Inject } from '@nestjs/common';
-import { ClientKafka, EventPattern, Payload } from '@nestjs/microservices';
+import { Controller } from '@nestjs/common';
+import { EventPattern, Payload } from '@nestjs/microservices';
 
 @Controller()
 export class AppController {
-  constructor(@Inject('KAFKA_CLIENT') readonly kafkaClient: ClientKafka) {}
+  constructor() {}
 
   @EventPattern('keycloak')
   async onKeycloakUpdate(@Payload() message: any) {

@@ -17,6 +17,7 @@ async function bootstrap() {
     },
   });
 
+  await app.init(); // make sure KeycloakModule's onModuleInit gets called before we subscribe to topics
   await app.startAllMicroservices();
   await app.listen(3000);
 }

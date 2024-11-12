@@ -13,6 +13,7 @@ services:
       - KEYCLOAK_REALM=${KEYCLOAK_REALM}
     volumes:
       - /usr/src/app/apps/orders-svc/node_modules # dont overwrite node_modules inside container (some packages need to be built for specific platform, so they might be broken if they are mounted, more info on this syntax - https://stackoverflow.com/questions/29181032/add-a-volume-to-docker-but-exclude-a-sub-folder/37898591#37898591)
+      - /usr/src/app/apps/orders-svc/generated
       - ./apps/orders-svc:/usr/src/app/apps/orders-svc
     command: ["yarn", "start:dev"]
     # command: "tail -f /dev/null"
@@ -63,6 +64,7 @@ services:
       - KEYCLOAK_REALM=${KEYCLOAK_REALM}
     volumes:
       - /usr/src/app/apps/cart-svc/node_modules # dont overwrite node_modules inside container (some packages need to be built for specific platform, so they might be broken if they are mounted, more info on this syntax - https://stackoverflow.com/questions/29181032/add-a-volume-to-docker-but-exclude-a-sub-folder/37898591#37898591)
+      - /usr/src/app/apps/cart-svc/generated
       - ./apps/cart-svc:/usr/src/app/apps/cart-svc
     command: ["yarn", "start:dev"]
     # command: "tail -f /dev/null"
@@ -113,6 +115,7 @@ services:
       - KEYCLOAK_REALM=${KEYCLOAK_REALM}
     volumes:
       - /usr/src/app/apps/inventory-svc/node_modules # dont overwrite node_modules inside container (some packages need to be built for specific platform, so they might be broken if they are mounted, more info on this syntax - https://stackoverflow.com/questions/29181032/add-a-volume-to-docker-but-exclude-a-sub-folder/37898591#37898591)
+      - /usr/src/app/apps/inventory-svc/generated
       - ./apps/inventory-svc:/usr/src/app/apps/inventory-svc
     command: ["yarn", "start:dev"]
     labels:
@@ -139,8 +142,10 @@ services:
       - KAFKA_BROKERS=${KAFKA_BROKERS}
     volumes:
       - /usr/src/app/apps/users-svc/node_modules # dont overwrite node_modules inside container (some packages need to be built for specific platform, so they might be broken if they are mounted, more info on this syntax - https://stackoverflow.com/questions/29181032/add-a-volume-to-docker-but-exclude-a-sub-folder/37898591#37898591)
+      - /usr/src/app/apps/users-svc/generated
       - ./apps/users-svc:/usr/src/app/apps/users-svc
     command: ["yarn", "start:dev"]
+    # command: "tail -f /dev/null"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.users-svc.rule=Host(`myapp.localhost`) && PathPrefix(`/users-svc`)"
@@ -165,6 +170,7 @@ services:
       - KEYCLOAK_REALM=${KEYCLOAK_REALM}
     volumes:
       - /usr/src/app/apps/notifications-svc/node_modules # dont overwrite node_modules inside container (some packages need to be built for specific platform, so they might be broken if they are mounted, more info on this syntax - https://stackoverflow.com/questions/29181032/add-a-volume-to-docker-but-exclude-a-sub-folder/37898591#37898591)
+      - /usr/src/app/apps/notifications-svc/generated
       - ./apps/notifications-svc:/usr/src/app/apps/notifications-svc
     command: ["yarn", "start:dev"]
     labels:
