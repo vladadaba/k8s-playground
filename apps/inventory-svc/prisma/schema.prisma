@@ -18,21 +18,20 @@ datasource db {
 model InventoryItem {
   id                          String                        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   item                        InventoryItemDetails[]
-  quantity                    Int
   InventoryItemQuantityChange InventoryItemQuantityChange[]
   createdAt                   DateTime                      @default(now())
   updatedAt                   DateTime                      @updatedAt
 }
 
 model InventoryItemDetails {
+  id        String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   product   InventoryItem @relation(fields: [productId], references: [id])
   productId String        @db.Uuid
-  version   Int
   name      String
   cost      Decimal       @db.Money
   createdAt DateTime      @default(now())
 
-  @@unique([productId, version])
+  @@index([productId])
 }
 
 model InventoryItemQuantityChange {
@@ -45,8 +44,6 @@ model InventoryItemQuantityChange {
 }
 
 enum InventoryItemEventType {
-  RESERVATION
-  RESERVATION_EXPIRED
   ORDER_APPROVED
   ORDER_CANCELED
   RESTOCK

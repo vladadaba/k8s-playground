@@ -2,7 +2,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ClientKafka } from '@nestjs/microservices';
 import { KeycloakService } from './keycloak/keycloak.service';
 import { PrismaService } from './prisma.service';
-import { Role, User } from 'generated/prisma-client';
+import { Prisma, Role, User } from 'generated/prisma-client';
 
 @Injectable()
 export class AppService {
@@ -18,7 +18,7 @@ export class AppService {
     const table = payload.source?.table;
     const operation = payload?.op;
     const data = payload?.after || payload?.before;
-    const timestamp = payload?.ts_ms;
+    const timestamp = new Date(payload?.ts_ms);
     let updatedUser: User;
 
     if (table === 'user_entity') {
@@ -39,8 +39,8 @@ export class AppService {
         id: userId,
         username: data?.username as string,
         updatedAt: timestamp,
+        createdAt: new Date(data.created_timestamp),
         isDeleted: false,
-        createdAt: operation === 'c' ? timestamp : undefined,
       };
 
       if (operation === 'd') {
@@ -48,20 +48,11 @@ export class AppService {
         userData.isDeleted = true;
       }
 
-      updatedUser = await this.prismaService.$transaction(async (prisma) => {
-        // return value is created entity OR count of updated entities
-        await prisma.user.upsert({
-          where: { id: userId, updatedAt: { lt: timestamp } },
-          create: userData,
-          update: userData,
-        });
-
-        return prisma.user.findUnique({
-          where: { id: userId },
-        });
+      updatedUser = await this.prismaService.user.upsert({
+        where: { id: userId },
+        create: userData,
+        update: userData,
       });
-
-      this.logger.log(`User updated: ${userId}`);
     } else if (table === 'user_role_mapping') {
       const role = this.getRoleEnum(data?.role_id);
       const userId = data?.user_id;
@@ -70,20 +61,17 @@ export class AppService {
       }
 
       updatedUser = await this.prismaService.$transaction(async (prisma) => {
-        const user = await prisma.user.findUnique({
-          where: { id: userId },
-        });
+        let [{ roles }] = await prisma.$queryRawUnsafe<{ roles: Role[] }[]>(
+          `select ${prisma.user.fields.roles.name} from "${Prisma.ModelName.User}" where id = '${userId}' for update`,
+        );
 
-        let roles;
-        if (operation === 'c') {
-          roles = user.roles.concat(role);
-        } else if (operation === 'd') {
+        if (operation === 'd') {
           roles = roles.filter((r) => r !== role);
         } else {
-          return; // ?
+          roles = roles.concat(role);
         }
 
-        return await prisma.user.update({
+        return prisma.user.update({
           where: { id: userId },
           data: {
             roles,
@@ -92,11 +80,13 @@ export class AppService {
       });
     }
 
+    // TODO: outbox table with debezium
     this.kafkaClient.emit('users', {
       key: updatedUser.id,
       value: updatedUser,
     });
   }
+
   getRoleEnum(role_id: string) {
     if (role_id === this.keycloakService.adminRoleId) {
       return Role.ADMIN;

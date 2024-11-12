@@ -61,3 +61,11 @@ Startup script not registering connectors (permission denied).
 ```
 chmod 777 volumes/infra/debezium/register-connectors.sh
 ```
+
+# Debugging Kafka
+
+```
+docker run --rm -p 9000:9000 -e KAFKA_BROKERCONNECT=kafka:9092 --network k8s_playground_network obsidiandynamics/kafdrop
+```
+
+http://localhost:9000

@@ -113,6 +113,10 @@ services:
       - DATABASE_URL=${DATABASE_URL}inventory
       - KEYCLOAK_URL=${KEYCLOAK_URL}
       - KEYCLOAK_REALM=${KEYCLOAK_REALM}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_USER=${REDIS_USER}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
     volumes:
       - /usr/src/app/apps/inventory-svc/node_modules # dont overwrite node_modules inside container (some packages need to be built for specific platform, so they might be broken if they are mounted, more info on this syntax - https://stackoverflow.com/questions/29181032/add-a-volume-to-docker-but-exclude-a-sub-folder/37898591#37898591)
       - /usr/src/app/apps/inventory-svc/generated
@@ -133,6 +137,7 @@ services:
       target: installer
     ports:
       - "3002:3000"
+      - "9229:9229"
     environment:
       - DATABASE_URL=${DATABASE_URL}users
       - KEYCLOAK_SECRET=${KEYCLOAK_SECRET}
@@ -144,7 +149,8 @@ services:
       - /usr/src/app/apps/users-svc/node_modules # dont overwrite node_modules inside container (some packages need to be built for specific platform, so they might be broken if they are mounted, more info on this syntax - https://stackoverflow.com/questions/29181032/add-a-volume-to-docker-but-exclude-a-sub-folder/37898591#37898591)
       - /usr/src/app/apps/users-svc/generated
       - ./apps/users-svc:/usr/src/app/apps/users-svc
-    command: ["yarn", "start:dev"]
+    # command: ["yarn", "start:dev"]
+    command: ["yarn", "start:debug"]
     # command: "tail -f /dev/null"
     labels:
       - "traefik.enable=true"

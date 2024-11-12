@@ -1,18 +1,17 @@
 import { Controller } from '@nestjs/common';
 import { EventPattern, Payload } from '@nestjs/microservices';
+import { AppService } from './app.service';
 
 @Controller()
 export class AppController {
-  constructor() {}
+  constructor(private readonly appService: AppService) {}
 
   @EventPattern('keycloak')
   async onKeycloakUpdate(@Payload() message: any) {
-    console.log('KAFKA MESSAGE:', JSON.stringify(message, null, 2));
+    if (!message.payload) {
+      return;
+    }
 
-    // TODO: queue is not created
-    // this.kafkaClient.emit('users', { hello: 'world' });
-
-    // insert into database
-    // emit to `users` topic
+    await this.appService.handleKeycloakEvent(message.payload);
   }
 }

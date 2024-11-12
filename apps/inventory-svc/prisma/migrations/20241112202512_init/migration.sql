@@ -1,10 +1,9 @@
 -- CreateEnum
-CREATE TYPE "InventoryItemEventType" AS ENUM ('RESERVATION', 'RESERVATION_EXPIRED', 'ORDER_APPROVED', 'ORDER_CANCELED', 'RESTOCK');
+CREATE TYPE "InventoryItemEventType" AS ENUM ('ORDER_APPROVED', 'ORDER_CANCELED', 'RESTOCK');
 
 -- CreateTable
 CREATE TABLE "InventoryItem" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
-    "quantity" INTEGER NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -13,11 +12,13 @@ CREATE TABLE "InventoryItem" (
 
 -- CreateTable
 CREATE TABLE "InventoryItemDetails" (
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "productId" UUID NOT NULL,
-    "version" INTEGER NOT NULL,
     "name" TEXT NOT NULL,
     "cost" MONEY NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "InventoryItemDetails_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -32,7 +33,7 @@ CREATE TABLE "InventoryItemQuantityChange" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "InventoryItemDetails_productId_version_key" ON "InventoryItemDetails"("productId", "version");
+CREATE INDEX "InventoryItemDetails_productId_idx" ON "InventoryItemDetails"("productId");
 
 -- AddForeignKey
 ALTER TABLE "InventoryItemDetails" ADD CONSTRAINT "InventoryItemDetails_productId_fkey" FOREIGN KEY ("productId") REFERENCES "InventoryItem"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
