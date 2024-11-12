@@ -6,6 +6,7 @@ import { DaprClient, DaprWorkflowClient, WorkflowRuntime } from '@dapr/dapr';
 import { PrismaService } from './prisma.service';
 import { ClsModule } from 'nestjs-cls';
 import { AuthModule } from '@5stones/nest-oidc';
+import { RedisModule } from './redis/redis.module';
 
 @Module({
   imports: [
@@ -14,13 +15,6 @@ import { AuthModule } from '@5stones/nest-oidc';
     }),
     AuthModule.forRoot({
       oidcAuthority: `${process.env.KEYCLOAK_URL}/realms/${process.env.KEYCLOAK_REALM}`,
-      roleEvaluators: [
-        {
-          expression:
-            'jwt.realm_access.roles|mapValue[.value == "admin"]|length>0',
-          role: 'admin',
-        },
-      ],
     }),
     ClsModule.forRoot({
       // https://papooch.github.io/nestjs-cls/introduction/quick-start
@@ -28,6 +22,7 @@ import { AuthModule } from '@5stones/nest-oidc';
       global: true,
       middleware: { mount: true },
     }),
+    RedisModule,
   ],
   controllers: [AppController],
   providers: [

@@ -14,50 +14,37 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model CartQuantityChange {
+model CartItemChange {
   id             String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   cart           Cart          @relation(fields: [cartId], references: [id])
   cartId         String        @db.Uuid
   product        InventoryItem @relation(fields: [productId], references: [id])
   productId      String        @db.Uuid
-  quantityChange Int
+  quantity       Int
   createdAt      DateTime      @default(now())
 
   @@index([cartId])
 }
 
-model CartItem {
-  cart      Cart          @relation(fields: [cartId], references: [id])
-  cartId    String        @db.Uuid
-  product   InventoryItem @relation(fields: [productId], references: [id])
-  productId String        @db.Uuid
-  quantity  Int
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
-
-  @@id([cartId, productId])
-}
-
 model Cart {
   id                  String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId              String
-  products            CartItem[]
-  cartQuantityChanges CartQuantityChange[]
+  cartItemChanges     CartItemChange[]
   createdAt           DateTime             @default(now())
+  completedAt         DateTime?
 
   @@index([userId])
 }
 
 // materialized view from inventory-svc
 model InventoryItem {
-  id       String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id       String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name     String
-  cost     Decimal @db.Money
+  cost     Decimal   @db.Money
   quantity Int
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  cartQuantityChanges CartQuantityChange[]
-  CartItem            CartItem[]
+  cartItemChanges    CartItemChange[]
 }
