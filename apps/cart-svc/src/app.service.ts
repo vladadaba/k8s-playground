@@ -65,6 +65,7 @@ ORDER BY
     await this.prismaService.inventoryItem.upsert({
       where: { id: product.id },
       create: {
+        id: product.id,
         cost: product.cost || 0,
         name: product.name || '',
         quantity: product.quantity || 0,

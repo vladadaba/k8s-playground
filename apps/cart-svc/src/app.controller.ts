@@ -24,7 +24,6 @@ export class AppController {
     @CurrentUser() user: any,
     @Body() product: { id: string; quantity: number },
   ) {
-    console.log('useruseruser', user);
     await this.appService.putCartItem(user.sub, product);
   }
 
