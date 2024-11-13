@@ -1,4 +1,5 @@
 serviceName: inventory-svc
+routePrefix: inventory
 port: 3000
 migrationsEnabled: true
 env:

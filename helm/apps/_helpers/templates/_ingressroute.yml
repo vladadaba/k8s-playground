@@ -6,7 +6,7 @@ metadata:
 spec:
   stripPrefix:
     prefixes:
-      - /{{ .Values.serviceName }}
+      - /{{ .Values.routePrefix }}
 ---
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
@@ -19,7 +19,7 @@ spec:
   entryPoints:
     - web # same as args in traefik deployment
   routes:
-    - match: PathPrefix(`/{{ .Values.serviceName }}`)
+    - match: PathPrefix(`/{{ .Values.routePrefix }}`)
       kind: Rule
       services:
         - name: {{ .Values.serviceName }}

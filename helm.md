@@ -283,6 +283,20 @@ helm repo add debezium https://charts.debezium.io
 helm install my-debezium-operator debezium/debezium-operator --version 3.0.0-final
 ```
 
+# Accessing application
+
+```
+kubectl -n traefik port-forward $(kubectl -n traefik get pods --selector "app.kubernetes.io/name=traefik" --output=name) 8000:8000
+
+kubectl -n traefik port-forward $(kubectl -n traefik get pods --selector "app.kubernetes.io/name=traefik" --output=name) 8080:8080
+
+kubectl -n traefik port-forward $(kubectl -n traefik get pods --selector "app.kubernetes.io/name=traefik" --output=name) 8443:8443
+```
+
+Traefik dashboard: http://localhost:8081/dashboard/#/http/routers
+Keycloak: https://localhost:8443/admin (https!)
+Apps: http://localhost:8000/cart
+
 # Troubleshooting
 
 ### Troubleshooting resource usage

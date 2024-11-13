@@ -1,4 +1,5 @@
 serviceName: orders-svc
+routePrefix: orders
 port: 3000
 migrationsEnabled: true
 daprEnabled: true

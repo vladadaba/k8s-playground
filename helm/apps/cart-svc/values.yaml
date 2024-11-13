@@ -1,4 +1,5 @@
 serviceName: cart-svc
+routePrefix: cart
 port: 3000
 migrationsEnabled: true
 daprEnabled: true
