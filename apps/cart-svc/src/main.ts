@@ -12,7 +12,7 @@ async function bootstrap() {
       },
       client: {
         clientId: 'cart-svc-consumer',
-        brokers: [process.env.KAFKA_BROKERS],
+        brokers: process.env.KAFKA_BROKERS.split(','),
       },
     },
   });

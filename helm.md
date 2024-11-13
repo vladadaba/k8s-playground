@@ -306,3 +306,12 @@ helm hist releasename
 kubectl get secrets
 k delete secrets sh.helm.release.v1.name.VERSION-N
 ```
+
+### Pod logs
+
+Check logs from another container
+
+```
+kubectl describe pod <pod-name>
+kubectl logs <pod-name> -c <container-name>
+```

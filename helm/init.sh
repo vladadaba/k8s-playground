@@ -67,8 +67,10 @@ kubectl -n myapp apply -f ./helm/infra/keycloak.yml
 kubectl get secret keycloak-initial-admin -o 'jsonpath={.data.username}' -n myapp | base64 -d
 kubectl get secret keycloak-initial-admin -o 'jsonpath={.data.password}' -n myapp | base64 -d
 
-# kubectl port-forward keycloak-0 8443:8443 -n myapp
+# add roles "view-users" and "view-realm" to user confidential-client-service-account
+# kubectl port-forward keycloak-0 8080:8080 -n myapp
 kubectl create secret generic keycloak-client-secret --from-literal=CONFIDENTIAL_CLIENT_SECRET=TODO_secret_copied_from_keycloak
+kubectl create secret generic dapr-api-token --from-literal=dapr-api-token=$(openssl rand 16 | base64)
 
 # deploy apps
 helm dependency update ./helm/apps/orders-svc
@@ -79,6 +81,9 @@ helm install inventory-svc ./helm/apps/inventory-svc
 
 helm dependency update ./helm/apps/users-svc
 helm install users-svc ./helm/apps/users-svc
+
+helm dependency update ./helm/apps/cart-svc
+helm install cart-svc ./helm/apps/cart-svc
 
 helm dependency update ./helm/apps/notifications-svc
 helm install notifications-svc ./helm/apps/notifications-svc

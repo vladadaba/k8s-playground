@@ -6,8 +6,8 @@ env:
   KEYCLOAK_REALM: test_realm
   DB_HOST: postgres
   DB_PORT: 5432
-  DB_SCHEMA: orders
-  KAFKA_BROKERS: kafka:9092
+  DB_SCHEMA: users
+  KAFKA_BROKERS: kafka-kafka-brokers:9092
 envRaw:
   - name: DB_USER
     valueFrom:
@@ -23,6 +23,6 @@ envRaw:
     value: postgresql://$(DB_USER):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/postgres?schema=$(DB_SCHEMA)
   - name: KEYCLOAK_SECRET
     valueFrom:
-    secretKeyRef:
-      name: keycloak-client-secret
-      key: CONFIDENTIAL_CLIENT_SECRET
+      secretKeyRef:
+        name: keycloak-client-secret
+        key: CONFIDENTIAL_CLIENT_SECRET

@@ -18,7 +18,7 @@ import { PrismaService } from './prisma.service';
         options: {
           client: {
             clientId: 'users-svc-producer',
-            brokers: [process.env.KAFKA_BROKERS],
+            brokers: process.env.KAFKA_BROKERS.split(','),
           },
           producerOnlyMode: true,
         },

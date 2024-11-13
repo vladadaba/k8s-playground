@@ -6,7 +6,7 @@ env:
   KEYCLOAK_REALM: test_realm
   DB_HOST: postgres
   DB_PORT: 5432
-  DB_SCHEMA: orders
+  DB_SCHEMA: inventory
   REDIS_HOST: redis
   REDIS_PORT: 6379
   REDIS_USER: default
