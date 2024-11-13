@@ -16,10 +16,13 @@ helm install postgres-operator postgres-operator-charts/postgres-operator --crea
 # helm repo add postgres-operator-ui-charts https://opensource.zalando.com/postgres-operator/charts/postgres-operator-ui --create-namespace -n postgres
 # helm install postgres-operator-ui postgres-operator-ui-charts/postgres-operator-ui --create-namespace -n postgres
 
+kubectl -n myapp apply -f ./helm/infra/postgres.yml
+
 # strimzi-operator
 # https://strimzi.io/quickstarts/
 # TODO: deploy operator in its own namespace, need to figure rolebindings
 kubectl create -f 'https://strimzi.io/install/latest?namespace=myapp' -n myapp
+# KafkaConnectors might need to wait for KafkaConnect to start before they are applied?
 kubectl create -f ./helm/infra/kafka.yml -n myapp
 
 # debezium
@@ -43,13 +46,6 @@ kubectl -n keycloak apply -f ./helm/infra/keycloak/keycloak-operator.yml
 helm repo add dapr https://dapr.github.io/helm-charts/
 helm install dapr dapr/dapr --create-namespace -n dapr
 
-# debezium
-helm repo add debezium https://charts.debezium.io
-helm install my-debezium-operator debezium/debezium-operator --version 3.0.0-final --create-namespace -n debezium
-
-# deploying infra
-kubectl -n myapp apply -f ./helm/infra/postgres.yml
-
 kubectl create secret generic redis-secret --from-literal=password=somepassword
 kubectl -n myapp apply -f ./helm/infra/redis.yml
 
@@ -65,7 +61,6 @@ PGPASSWORD=$PG_PASSWORD psql -U postgres -h localhost -p 6432 -c "CREATE SCHEMA 
 
 kubectl -n myapp create secret tls keycloak-tls-secret --cert ./helm/infra/keycloak/certificate.pem --key ./helm/infra/keycloak/key.pem
 
-kubectl -n myapp apply -f ./helm/infra/debezium.yml
 kubectl -n myapp apply -f ./helm/infra/keycloak.yml
 
 # get keycloak confidential client secret and add it to k8s secret

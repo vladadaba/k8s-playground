@@ -29,7 +29,7 @@ spec:
     # tlsSecret: keycloak-tls-secret
 
   hostname:
-    hostname: https://localhost:8443
+    hostname: http://localhost:8080
     backchannelDynamic: true
     # admin: keycloak/admin
     # strict: false
@@ -50,6 +50,7 @@ spec:
     roles:
       realm:
         - name: admin
+        - name: manager
       client:
         test_client_public: []
         test_client_confidential: []

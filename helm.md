@@ -246,7 +246,7 @@ https://www.keycloak.org/operator/advanced-configuration
 
 ```
 kubectl get pods
-kubectl port-forward keycloak-0 8443:8433 -n myapp
+kubectl port-forward keycloak-0 8080:8080 -n myapp
 kubectl get secret keycloak-initial-admin -o 'jsonpath={.data.username}' -n myapp | base64 -d
 kubectl get secret keycloak-initial-admin -o 'jsonpath={.data.password}' -n myapp | base64 -d
 ```
