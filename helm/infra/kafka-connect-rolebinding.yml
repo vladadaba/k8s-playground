@@ -16,7 +16,7 @@ metadata:
   namespace: myapp
 subjects:
   - kind: ServiceAccount
-    name: kafka-connect
+    name: debezium-connect-cluster-connect
     namespace: myapp
 roleRef:
   kind: Role

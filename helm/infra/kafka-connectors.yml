@@ -1,0 +1,56 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaConnector
+metadata:
+  name: keycloak-postgres-debezium-connector
+  namespace: myapp
+  labels:
+    strimzi.io/cluster: debezium-connect-cluster
+spec:
+  class: io.debezium.connector.postgresql.PostgresConnector
+  tasksMax: 1
+  config:
+    database.hostname: postgres
+    database.port: 5432
+    database.dbname: postgres
+    database.user: ${secrets:myapp/postgres.postgres.credentials.postgresql.acid.zalan.do:username}
+    database.password: ${secrets:myapp/postgres.postgres.credentials.postgresql.acid.zalan.do:password}
+    slot.name: keycloak_slot
+    topic.prefix: keycloak
+    table.include.list: keycloak.user_entity,keycloak.user_role_mapping
+    transforms: route
+    transforms.route.type: org.apache.kafka.connect.transforms.RegexRouter
+    transforms.route.regex: .*
+    transforms.route.replacement: keycloak.users
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaConnector
+metadata:
+  name: inventory-svc-outbox-debezium-connector
+  namespace: myapp
+  labels:
+    strimzi.io/cluster: debezium-connect-cluster
+spec:
+  class: io.debezium.connector.postgresql.PostgresConnector
+  tasksMax: 1
+  config:
+    database.hostname: postgres
+    database.port: 5432
+    database.user: ${secrets:myapp/postgres.postgres.credentials.postgresql.acid.zalan.do:username}
+    database.password: ${secrets:myapp/postgres.postgres.credentials.postgresql.acid.zalan.do:password}
+    database.dbname: postgres
+    slot.name: inventory_outbox_slot
+    table.include.list: inventory.outbox
+    transforms: outbox
+    transforms.outbox.type: io.debezium.transforms.outbox.EventRouter
+    transforms.outbox.route.topic.replacement: inventory.${routedByValue}
+    transforms.outbox.route.by.field: aggregate_type
+    transforms.outbox.table.field.event.key: aggregate_id
+    transforms.outbox.table.expand.json.payload: true
+    plugin.name: pgoutput
+    topic.prefix: inventory
+    tombstones.on.delete: false
+    transforms.outbox.table.fields.additional.placement: aggregate_type:header:aggregateType,aggregate_id:header:aggregateId,operation:header:operation
+    transforms.outbox.table.fields: id,aggregate_type,aggregate_id,operation,payload,created_at
+    key.converter: org.apache.kafka.connect.storage.StringConverter
+    value.converter: org.apache.kafka.connect.json.JsonConverter
+    value.converter.schemas.enable: false

@@ -5,6 +5,7 @@ migrationsEnabled: true
 env:
   KEYCLOAK_URL: http://keycloak-service:8080 # name of keycloak service that exposes this port
   KEYCLOAK_REALM: test_realm
+  KEYCLOAK_CLIENTID: test_client_confidential
   DB_HOST: postgres
   DB_PORT: 5432
   DB_SCHEMA: users

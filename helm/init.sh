@@ -24,6 +24,10 @@ kubectl -n myapp apply -f ./helm/infra/postgres.yml
 kubectl create -f 'https://strimzi.io/install/latest?namespace=myapp' -n myapp
 # KafkaConnectors might need to wait for KafkaConnect to start before they are applied?
 kubectl create -f ./helm/infra/kafka.yml -n myapp
+kubectl create -f ./helm/infra/kafka-connect-rolebinding.yml -n myapp
+
+# wait for cluster to start then
+kubectl create -f ./helm/infra/kafka-connectors.yml -n myapp
 
 # debezium
 # https://debezium.io/documentation/reference/stable/operations/kubernetes.html
