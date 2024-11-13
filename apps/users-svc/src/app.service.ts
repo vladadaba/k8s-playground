@@ -94,7 +94,7 @@ export class AppService {
     }
 
     // TODO: outbox table with debezium
-    this.kafkaClient.emit('users', {
+    this.kafkaClient.emit('users.users', {
       key: updatedUser.id,
       value: updatedUser,
     });

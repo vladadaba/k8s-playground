@@ -59,7 +59,29 @@ spec:
 apiVersion: kafka.strimzi.io/v1beta2
 kind: KafkaTopic
 metadata:
-  name: keycloak-users
+  name: keycloak.users
+  namespace: myapp
+  labels:
+    strimzi.io/cluster: kafka
+spec:
+  partitions: 1
+  replicas: 1
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: inventory.product
+  namespace: myapp
+  labels:
+    strimzi.io/cluster: kafka
+spec:
+  partitions: 3
+  replicas: 1
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: users.users
   namespace: myapp
   labels:
     strimzi.io/cluster: kafka
@@ -74,10 +96,12 @@ metadata:
   namespace: myapp
   annotations:
     strimzi.io/use-connector-resources: "true"
+  labels:
+    strimzi.io/cluster: kafka
 spec:
-  image: debezium/connect:3.0.0.Final
   replicas: 1
-  bootstrapServers: debezium-cluster-kafka-bootstrap:9092
+  version: 3.8.0
+  bootstrapServers: kafka-kafka-bootstrap:9091,kafka-kafka-bootstrap:9092,kafka-kafka-bootstrap:9093
   config:
     config.providers: secrets
     config.providers.secrets.class: io.strimzi.kafka.KubernetesSecretConfigProvider
@@ -89,14 +113,23 @@ spec:
     config.storage.replication.factor: -1
     offset.storage.replication.factor: -1
     status.storage.replication.factor: -1
+  build:
+    output:
+      type: docker
+      image: 10.100.103.33:80/my-debezium-connect:test # helm.md for steps how to get IP
+    plugins:
+      - name: debezium-plugins
+        artifacts:
+          - type: tgz
+            url: https://repo1.maven.org/maven2/io/debezium/debezium-connector-postgres/3.0.1.Final/debezium-connector-postgres-3.0.1.Final-plugin.tar.gz
 ---
 apiVersion: kafka.strimzi.io/v1beta2
 kind: KafkaConnector
 metadata:
-  name: debezium-keycloak-connector
+  name: keycloak-postgres-debezium-connector
   namespace: myapp
   labels:
-    strimzi.io/cluster: kafka
+    strimzi.io/cluster: debezium-connect-cluster
 spec:
   class: io.debezium.connector.postgresql.PostgresConnector
   tasksMax: 1
@@ -106,11 +139,46 @@ spec:
     database.port: 5432
     database.user: ${secrets:myapp/postgres.postgres.credentials.postgresql.acid.zalan.do:username}
     database.password: ${secrets:myapp/postgres.postgres.credentials.postgresql.acid.zalan.do:password}
-    database.server.id: 184054
-    table.include.list: keycloak.user_entity, keycloak.federated_identity, keycloak.user_group_membership, keycloak.keycloak_group, keycloak.realm
+    slot.name: keycloak_slot
+    table.include.list: keycloak.user_entity, keycloak.user_role_mapping
     transforms: route
     transforms.route.type: org.apache.kafka.connect.transforms.RegexRouter
     transforms.route.regex: .*
-    transforms.route.replacement: keycloak
-    topic.creation.default.replication.factor: 1
-    topic.creation.default.partitions: 1
+    transforms.route.replacement: keycloak.users
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaConnector
+metadata:
+  name: inventory-svc-outbox-debezium-connector
+  namespace: myapp
+  labels:
+    strimzi.io/cluster: debezium-connect-cluster
+spec:
+  class: io.debezium.connector.postgresql.PostgresConnector
+  tasksMax: 1
+  config:
+    tasks.max: 1
+    database.hostname: postgres
+    database.port: 5432
+    database.user: ${secrets:myapp/postgres.postgres.credentials.postgresql.acid.zalan.do:username}
+    database.password: ${secrets:myapp/postgres.postgres.credentials.postgresql.acid.zalan.do:password}
+    database.dbname: postgres
+    slot.name: inventory_outbox_slot
+    table.include.list: inventory.outbox
+    transforms: outbox
+    transforms.outbox.type: io.debezium.transforms.outbox.EventRouter
+    transforms.outbox.route.topic.replacement: inventory.${routedByValue}
+    transforms.outbox.route.by.field: aggregate_type
+    transforms.outbox.table.field.event.key: aggregate_id
+    transforms.outbox.table.expand.json.payload: true
+    plugin.name: pgoutput
+    topic.prefix: inventory
+    tombstones.on.delete: false
+    transforms.outbox.table.fields.additional.placement:
+      - aggregate_type:header:aggregateType
+      - aggregate_id:header:aggregateId
+      - operation:header:operation
+    transforms.outbox.table.fields: id, aggregate_type, aggregate_id, operation, payload, created_at
+    key.converter: org.apache.kafka.connect.storage.StringConverter
+    value.converter: org.apache.kafka.connect.json.JsonConverter
+    value.converter.schemas.enable: false"

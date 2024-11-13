@@ -1,3 +1,32 @@
+# Setup kubectl context
+
+So I don't have to run `-n myapp` every time.
+
+```
+kubectl config set-context --current --namespace=myapp
+```
+
+# Minikube registry
+
+Needed for Kafka connect custom built image with debezium plugin
+
+```
+minikube addons enable registry
+```
+
+Debugging
+
+```
+kubectl port-forward --namespace kube-system service/registry 5000:80
+curl http://localhost:5000/v2/_catalog
+```
+
+to get IP of minikube's local registry run (used in KafkaConnect):
+
+```
+kubectl get svc -n kube-system registry
+```
+
 # Debugging helm charts
 
 ```

@@ -7,6 +7,7 @@ env:
   DB_HOST: postgres
   DB_PORT: 5432
   DB_SCHEMA: orders
+  KAFKA_BROKERS: kafka:9092
 envRaw:
   - name: DB_USER
     valueFrom:

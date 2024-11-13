@@ -6,7 +6,7 @@ import { AppService } from './app.service';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @EventPattern('keycloak')
+  @EventPattern('keycloak.users')
   async onKeycloakUpdate(@Payload() message: any) {
     if (!message.payload) {
       return;

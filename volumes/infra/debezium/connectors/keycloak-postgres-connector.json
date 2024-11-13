@@ -5,15 +5,14 @@
   "database.user": "postgres",
   "database.password": "postgres",
   "database.dbname": "postgres",
-  "database.server.name": "postgres",
   "table.include.list": "keycloak.user_entity, keycloak.user_role_mapping",
   "topic.prefix": "keycloak",
   "plugin.name": "pgoutput",
-  "slot.name": "debezium_slot",
+  "slot.name": "keycloak_slot",
   "transforms": "route",
   "transforms.route.type": "org.apache.kafka.connect.transforms.RegexRouter",
   "transforms.route.regex": ".*",
-  "transforms.route.replacement": "keycloak",
+  "transforms.route.replacement": "keycloak.users",
   "topic.creation.default.replication.factor": 1,
   "topic.creation.default.partitions": 1
 }

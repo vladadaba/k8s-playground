@@ -7,7 +7,15 @@ env:
   DB_HOST: postgres
   DB_PORT: 5432
   DB_SCHEMA: orders
+  REDIS_HOST: redis
+  REDIS_PORT: 6379
+  REDIS_USER: default
 envRaw:
+  - name: REDIS_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: redis-secret
+        key: password
   - name: DB_USER
     valueFrom:
       secretKeyRef:
