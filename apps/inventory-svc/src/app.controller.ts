@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, Put, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Patch,
+  Post,
+  Put,
+  UseGuards,
+} from '@nestjs/common';
 import { JwtAuthGuard, Roles } from '@5stones/nest-oidc';
 import { AppService } from './app.service';
 
@@ -25,7 +33,7 @@ export class AppController {
     await this.appService.updateProduct(data);
   }
 
-  @Post()
+  @Patch('/quantity')
   @UseGuards(JwtAuthGuard)
   @Roles('admin')
   async updateProductStock(@Body() data) {

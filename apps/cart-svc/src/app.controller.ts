@@ -9,29 +9,32 @@ import {
 } from '@nestjs/microservices';
 
 @Controller()
-@UseGuards(JwtAuthGuard)
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Get()
+  @UseGuards(JwtAuthGuard)
   async getCart(@CurrentUser() user: any) {
-    return this.appService.getCart(user.id);
+    return this.appService.getCart(user.sub);
   }
 
   @Put()
+  @UseGuards(JwtAuthGuard)
   async addProductToCart(
     @CurrentUser() user: any,
     @Body() product: { id: string; quantity: number },
   ) {
-    await this.appService.putCartItem(user.id, product);
+    console.log('useruseruser', user);
+    await this.appService.putCartItem(user.sub, product);
   }
 
   @Delete()
+  @UseGuards(JwtAuthGuard)
   async removeProductFromCart(@CurrentUser() user: any, @Body() { productId }) {
-    await this.appService.putCartItem(user.id, { id: productId, quantity: 0 });
+    await this.appService.putCartItem(user.sub, { id: productId, quantity: 0 });
   }
 
-  @EventPattern('product')
+  @EventPattern('inventory.product')
   async onProductUpdate(@Payload() product: any, @Ctx() context: KafkaContext) {
     const headers = context.getMessage().headers;
 

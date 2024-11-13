@@ -12,6 +12,18 @@
       "remoteRoot": "/usr/src/app",
       "protocol": "inspector",
       "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      "name": "Debug: cart-svc",
+      "type": "node",
+      "request": "attach",
+      "restart": true,
+      "port": 9239,
+      "address": "0.0.0.0",
+      "localRoot": "${workspaceFolder}",
+      "remoteRoot": "/usr/src/app",
+      "protocol": "inspector",
+      "skipFiles": ["<node_internals>/**"]
     }
   ]
 }

@@ -20,6 +20,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.orders-svc.rule=Host(`myapp.localhost`) && PathPrefix(`/orders`)"
+      - "traefik.http.routers.orders-svc.entrypoints=web"
       - "traefik.http.services.orders-svc.loadbalancer.server.port=3000"
       - "traefik.http.middlewares.orders-svc-stripprefix.stripprefix.prefixes=/orders"
       - "traefik.http.middlewares.cors.headers.accesscontrolallowmethods=*"
@@ -58,6 +59,7 @@ services:
       target: installer
     ports:
       - "3004:3000"
+      - "9239:9229"
     environment:
       - DATABASE_URL=${DATABASE_URL}cart
       - KEYCLOAK_URL=${KEYCLOAK_URL}
@@ -67,11 +69,13 @@ services:
       - /usr/src/app/apps/cart-svc/node_modules # dont overwrite node_modules inside container (some packages need to be built for specific platform, so they might be broken if they are mounted, more info on this syntax - https://stackoverflow.com/questions/29181032/add-a-volume-to-docker-but-exclude-a-sub-folder/37898591#37898591)
       - /usr/src/app/apps/cart-svc/generated
       - ./apps/cart-svc:/usr/src/app/apps/cart-svc
-    command: ["yarn", "start:dev"]
+    # command: ["yarn", "start:dev"]
+    command: ["yarn", "start:debug"]
     # command: "tail -f /dev/null"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.cart-svc.rule=Host(`myapp.localhost`) && PathPrefix(`/cart`)"
+      - "traefik.http.routers.cart-svc.entrypoints=web"
       - "traefik.http.services.cart-svc.loadbalancer.server.port=3000"
       - "traefik.http.middlewares.cart-svc-stripprefix.stripprefix.prefixes=/cart"
       - "traefik.http.middlewares.cors.headers.accesscontrolallowmethods=*"
@@ -126,6 +130,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.inventory-svc.rule=Host(`myapp.localhost`) && PathPrefix(`/inventory`)"
+      - "traefik.http.routers.inventory-svc.entrypoints=web"
       - "traefik.http.services.inventory-svc.loadbalancer.server.port=3000"
       - "traefik.http.middlewares.inventory-svc-stripprefix.stripprefix.prefixes=/inventory"
       - "traefik.http.routers.inventory-svc.middlewares=inventory-svc-stripprefix"
@@ -156,6 +161,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.users-svc.rule=Host(`myapp.localhost`) && PathPrefix(`/users`)"
+      - "traefik.http.routers.users-svc.entrypoints=web"
       - "traefik.http.services.users-svc.loadbalancer.server.port=3000"
       - "traefik.http.middlewares.users-svc-stripprefix.stripprefix.prefixes=/users"
       - "traefik.http.routers.users-svc.middlewares=users-svc-stripprefix"
@@ -182,8 +188,8 @@ services:
     command: ["yarn", "start:dev"]
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.notifications-svc.entrypoints=ws"
       - "traefik.http.routers.notifications-svc.rule=Host(`myapp.localhost`)"
+      - "traefik.http.routers.notifications-svc.entrypoints=ws"
       - "traefik.http.services.notifications-svc.loadbalancer.server.port=3000"
       # - "traefik.http.middlewares.notifications-svc-stripprefix.stripprefix.prefixes=/notifications"
       # - "traefik.http.routers.notifications-svc.middlewares=notifications-svc-stripprefix"

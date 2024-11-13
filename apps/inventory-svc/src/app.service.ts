@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { PrismaService } from './prisma.service';
 import { RedisService } from './redis/redis.service';
+import { Prisma } from 'generated/prisma-client';
 
 @Injectable()
 export class AppService {
@@ -13,7 +14,9 @@ export class AppService {
     // TODO: add filtering and sorting
     const products = await this.prismaService.$queryRaw<{ id: string }[]>`
   select
-    *
+    item.id,
+    details.name,
+    details.cost
   from
     inventory_item item
   left join inventory_item_details details on
@@ -23,9 +26,13 @@ export class AppService {
     select
       MAX(created_at)
     from
-      inventory_item_details
+      inventory_item_details iid
     where
-      id = item.id)`;
+      iid.product_id = item.id)`;
+
+    if (!products.length) {
+      return [];
+    }
 
     const quantities = await this.redisService.getProductsQuantity(
       products.map((p) => p.id),
@@ -36,6 +43,16 @@ export class AppService {
 
   updateProduct({ id, cost, name }) {
     return this.prismaService.$transaction(async (prisma) => {
+      if (cost === undefined || name === undefined) {
+        const previous = await prisma.inventoryItemDetails.findFirst({
+          where: { productId: id },
+          orderBy: { createdAt: Prisma.SortOrder.desc },
+        });
+
+        cost = cost || previous.cost;
+        name = name || previous.name;
+      }
+
       const retval = await prisma.inventoryItemDetails.create({
         data: {
           productId: id,

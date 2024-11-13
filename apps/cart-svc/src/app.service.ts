@@ -43,7 +43,7 @@ export class AppService {
   async getCart(userId: string) {
     const rows = await this.prismaService.$queryRaw<any[]>`
 SELECT DISTINCT ON (cic.product_id) 
-    ii.product_id as productId,
+    cic.product_id as productId,
     ii.name,
     ii.cost as costPerItem,
     cic.quantity
@@ -51,12 +51,12 @@ FROM
     cart c
 JOIN 
     cart_item_change cic ON c.id = cic.cart_id
-JOIN inventory_item ii ON cic.product_id = ii.product.id
+JOIN inventory_item ii ON cic.product_id = ii.id
 WHERE 
     c.user_id = ${userId}
     AND c.completed_at IS NULL
 ORDER BY 
-    cic.product_id, cic.created_at DESC`;
+    cic.product_id, cic.created_at desc`;
 
     return rows;
   }
@@ -64,7 +64,11 @@ ORDER BY
   async upsertProduct(product: any) {
     await this.prismaService.inventoryItem.upsert({
       where: { id: product.id },
-      create: product,
+      create: {
+        cost: product.cost || 0,
+        name: product.name || '',
+        quantity: product.quantity || 0,
+      },
       update: product,
     });
   }
