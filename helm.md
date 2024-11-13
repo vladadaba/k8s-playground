@@ -1,3 +1,9 @@
+# Start Minikube
+
+```
+minikube start --cpus 8 --memory 16GB --disk-size 100GB --driver=qemu --network=socket_vmnet
+```
+
 # Setup kubectl context
 
 So I don't have to run `-n myapp` every time.

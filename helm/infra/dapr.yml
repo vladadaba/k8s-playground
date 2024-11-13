@@ -15,3 +15,17 @@ spec:
       value: "1m"
     - name: drainRebalancedActors
       value: true
+---
+# TODO: change _helpers.tpl to use this config
+# apiVersion: dapr.io/v1alpha1
+# kind: Configuration
+# metadata:
+#   name: dapr-config
+#   namespace: myapp
+# spec:
+#   tracing:
+#     samplingRate: "1"
+#     zipkin:
+#       endpointAddress: "http://zipkin:9411/api/v2/spans"
+#   metric:
+#     enabled: true
