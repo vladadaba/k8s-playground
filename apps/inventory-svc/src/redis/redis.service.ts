@@ -15,8 +15,8 @@ export class RedisService {
     await this.redisRepository.hset('inventory', 'products', products);
   }
 
-  async updateProductQuantity(id: string, quantityChange: number) {
-    await this.redisRepository.hincrby(
+  updateProductQuantity(id: string, quantityChange: number) {
+    return this.redisRepository.hincrby(
       'inventory',
       'products',
       id,

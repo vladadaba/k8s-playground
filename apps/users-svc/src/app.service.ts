@@ -2,7 +2,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ClientKafka } from '@nestjs/microservices';
 import { KeycloakService } from './keycloak/keycloak.service';
 import { PrismaService } from './prisma.service';
-import { Prisma, Role, User } from 'generated/prisma-client';
+import { Role, User } from 'generated/prisma-client';
 
 @Injectable()
 export class AppService {
@@ -61,9 +61,18 @@ export class AppService {
       }
 
       updatedUser = await this.prismaService.$transaction(async (prisma) => {
-        let [{ roles }] = await prisma.$queryRawUnsafe<{ roles: Role[] }[]>(
-          `select ${prisma.user.fields.roles.name} from "${Prisma.ModelName.User}" where id = '${userId}' for update`,
-        );
+        const rows = await prisma.$queryRaw<
+          { roles: Role[] }[]
+        >`select roles from users where id = ${userId} for update`;
+
+        if (!rows.length) {
+          return;
+        }
+
+        let [{ roles }] = rows;
+        if (!roles) {
+          roles = [];
+        }
 
         if (operation === 'd') {
           roles = roles.filter((r) => r !== role);
@@ -78,6 +87,10 @@ export class AppService {
           },
         });
       });
+    }
+
+    if (!updatedUser) {
+      return;
     }
 
     // TODO: outbox table with debezium

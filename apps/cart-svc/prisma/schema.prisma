@@ -6,7 +6,7 @@
 
 generator client {
   provider = "prisma-client-js"
-  output = "../generated/prisma-client"
+  output   = "../generated/prisma-client"
 }
 
 datasource db {
@@ -15,36 +15,39 @@ datasource db {
 }
 
 model CartItemChange {
-  id             String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  cart           Cart          @relation(fields: [cartId], references: [id])
-  cartId         String        @db.Uuid
-  product        InventoryItem @relation(fields: [productId], references: [id])
-  productId      String        @db.Uuid
-  quantity       Int
-  createdAt      DateTime      @default(now())
+  id        String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  cart      Cart          @relation(fields: [cartId], references: [id])
+  cartId    String        @map("cart_id") @db.Uuid
+  product   InventoryItem @relation(fields: [productId], references: [id])
+  productId String        @map("product_id") @db.Uuid
+  quantity  Int
+  createdAt DateTime      @default(now()) @map("created_at")
 
   @@index([cartId])
+  @@map("cart_item_change")
 }
 
 model Cart {
-  id                  String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId              String
-  cartItemChanges     CartItemChange[]
-  createdAt           DateTime             @default(now())
-  completedAt         DateTime?
+  id              String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId          String           @map("user_id")
+  cartItemChanges CartItemChange[]
+  createdAt       DateTime         @default(now()) @map("created_at")
+  completedAt     DateTime?        @map("completed_at")
 
   @@index([userId])
+  @@map("cart")
 }
 
 // materialized view from inventory-svc
 model InventoryItem {
-  id       String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id       String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name     String
-  cost     Decimal   @db.Money
+  cost     Decimal @db.Money
   quantity Int
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-  cartItemChanges    CartItemChange[]
+  cartItemChanges CartItemChange[]
+  @@map("inventory_item")
 }

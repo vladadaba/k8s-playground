@@ -4,18 +4,20 @@ import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.connectMicroservice<MicroserviceOptions>({
-    transport: Transport.RMQ,
+  await app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.KAFKA,
     options: {
-      urls: [
-        `amqp://${process.env.RABBITMQ_USER}:${process.env.RABBITMQ_PASSWORD}@${process.env.RABBITMQ_HOST}:${process.env.RABBITMQ_PORT}`,
-      ],
-      noAck: false,
-      queue: 'users',
+      consumer: {
+        groupId: 'cart-svc',
+      },
+      client: {
+        clientId: 'cart-svc-consumer',
+        brokers: [process.env.KAFKA_BROKERS],
+      },
     },
   });
 
-  app.startAllMicroservices();
+  await app.startAllMicroservices();
   app.enableCors();
   await app.listen(3000);
 }

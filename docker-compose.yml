@@ -6,7 +6,7 @@ services:
       dockerfile: ./apps/orders-svc/Dockerfile
       target: installer
     ports:
-      - "3000:3000"
+      - "3005:3000"
     environment:
       - DATABASE_URL=${DATABASE_URL}orders
       - KEYCLOAK_URL=${KEYCLOAK_URL}
@@ -19,9 +19,9 @@ services:
     # command: "tail -f /dev/null"
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.orders-svc.rule=Host(`myapp.localhost`) && PathPrefix(`/orders-svc`)"
+      - "traefik.http.routers.orders-svc.rule=Host(`myapp.localhost`) && PathPrefix(`/orders`)"
       - "traefik.http.services.orders-svc.loadbalancer.server.port=3000"
-      - "traefik.http.middlewares.orders-svc-stripprefix.stripprefix.prefixes=/orders-svc"
+      - "traefik.http.middlewares.orders-svc-stripprefix.stripprefix.prefixes=/orders"
       - "traefik.http.middlewares.cors.headers.accesscontrolallowmethods=*"
       - "traefik.http.middlewares.cors.headers.accesscontrolalloworiginlist=*"
       - "traefik.http.middlewares.cors.headers.accessControlAllowHeaders=*"
@@ -62,6 +62,7 @@ services:
       - DATABASE_URL=${DATABASE_URL}cart
       - KEYCLOAK_URL=${KEYCLOAK_URL}
       - KEYCLOAK_REALM=${KEYCLOAK_REALM}
+      - KAFKA_BROKERS=${KAFKA_BROKERS}
     volumes:
       - /usr/src/app/apps/cart-svc/node_modules # dont overwrite node_modules inside container (some packages need to be built for specific platform, so they might be broken if they are mounted, more info on this syntax - https://stackoverflow.com/questions/29181032/add-a-volume-to-docker-but-exclude-a-sub-folder/37898591#37898591)
       - /usr/src/app/apps/cart-svc/generated
@@ -70,9 +71,9 @@ services:
     # command: "tail -f /dev/null"
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.cart-svc.rule=Host(`myapp.localhost`) && PathPrefix(`/cart-svc`)"
+      - "traefik.http.routers.cart-svc.rule=Host(`myapp.localhost`) && PathPrefix(`/cart`)"
       - "traefik.http.services.cart-svc.loadbalancer.server.port=3000"
-      - "traefik.http.middlewares.cart-svc-stripprefix.stripprefix.prefixes=/cart-svc"
+      - "traefik.http.middlewares.cart-svc-stripprefix.stripprefix.prefixes=/cart"
       - "traefik.http.middlewares.cors.headers.accesscontrolallowmethods=*"
       - "traefik.http.middlewares.cors.headers.accesscontrolalloworiginlist=*"
       - "traefik.http.middlewares.cors.headers.accessControlAllowHeaders=*"
@@ -124,9 +125,9 @@ services:
     command: ["yarn", "start:dev"]
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.inventory-svc.rule=Host(`myapp.localhost`) && PathPrefix(`/inventory-svc`)"
+      - "traefik.http.routers.inventory-svc.rule=Host(`myapp.localhost`) && PathPrefix(`/inventory`)"
       - "traefik.http.services.inventory-svc.loadbalancer.server.port=3000"
-      - "traefik.http.middlewares.inventory-svc-stripprefix.stripprefix.prefixes=/inventory-svc"
+      - "traefik.http.middlewares.inventory-svc-stripprefix.stripprefix.prefixes=/inventory"
       - "traefik.http.routers.inventory-svc.middlewares=inventory-svc-stripprefix"
 
   ##### users-svc #####
@@ -149,14 +150,14 @@ services:
       - /usr/src/app/apps/users-svc/node_modules # dont overwrite node_modules inside container (some packages need to be built for specific platform, so they might be broken if they are mounted, more info on this syntax - https://stackoverflow.com/questions/29181032/add-a-volume-to-docker-but-exclude-a-sub-folder/37898591#37898591)
       - /usr/src/app/apps/users-svc/generated
       - ./apps/users-svc:/usr/src/app/apps/users-svc
-    # command: ["yarn", "start:dev"]
-    command: ["yarn", "start:debug"]
+    command: ["yarn", "start:dev"]
+    # command: ["yarn", "start:debug"]
     # command: "tail -f /dev/null"
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.users-svc.rule=Host(`myapp.localhost`) && PathPrefix(`/users-svc`)"
+      - "traefik.http.routers.users-svc.rule=Host(`myapp.localhost`) && PathPrefix(`/users`)"
       - "traefik.http.services.users-svc.loadbalancer.server.port=3000"
-      - "traefik.http.middlewares.users-svc-stripprefix.stripprefix.prefixes=/users-svc"
+      - "traefik.http.middlewares.users-svc-stripprefix.stripprefix.prefixes=/users"
       - "traefik.http.routers.users-svc.middlewares=users-svc-stripprefix"
 
   ##### users-svc & DAPR Sidecar #####
@@ -184,7 +185,7 @@ services:
       - "traefik.http.routers.notifications-svc.entrypoints=ws"
       - "traefik.http.routers.notifications-svc.rule=Host(`myapp.localhost`)"
       - "traefik.http.services.notifications-svc.loadbalancer.server.port=3000"
-      # - "traefik.http.middlewares.notifications-svc-stripprefix.stripprefix.prefixes=/notifications-svc"
+      # - "traefik.http.middlewares.notifications-svc-stripprefix.stripprefix.prefixes=/notifications"
       # - "traefik.http.routers.notifications-svc.middlewares=notifications-svc-stripprefix"
 
 networks:

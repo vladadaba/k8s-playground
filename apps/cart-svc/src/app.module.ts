@@ -6,7 +6,6 @@ import { DaprClient, DaprWorkflowClient, WorkflowRuntime } from '@dapr/dapr';
 import { PrismaService } from './prisma.service';
 import { ClsModule } from 'nestjs-cls';
 import { AuthModule } from '@5stones/nest-oidc';
-import { RedisModule } from './redis/redis.module';
 
 @Module({
   imports: [
@@ -22,7 +21,6 @@ import { RedisModule } from './redis/redis.module';
       global: true,
       middleware: { mount: true },
     }),
-    RedisModule,
   ],
   controllers: [AppController],
   providers: [
