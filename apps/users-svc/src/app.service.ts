@@ -22,6 +22,11 @@ export class AppService {
     let updatedUser: User;
 
     if (table === 'user_entity') {
+      const isServiceAccount = data?.service_account_client_link != null;
+      if (isServiceAccount) {
+        return;
+      }
+
       const realmId = data?.realm_id;
       const userId = data?.id;
 

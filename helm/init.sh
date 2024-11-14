@@ -1,3 +1,7 @@
+# minikube plugins
+minikube addons enable metrics-server
+minikube addons enable registry # needed for kafka-connect image with debezium postgresql connector (need to use strimzi kafka-connect image because of some startup script)
+
 kubectl create namespace kafka
 kubectl create namespace myapp
 kubectl create namespace keycloak
