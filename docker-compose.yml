@@ -188,11 +188,9 @@ services:
     command: ["yarn", "start:dev"]
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.notifications-svc.rule=Host(`myapp.localhost`)"
-      - "traefik.http.routers.notifications-svc.entrypoints=ws"
+      - "traefik.http.routers.notifications-svc.rule=Host(`myapp.localhost`) && PathPrefix(`/socket.io`)"
+      - "traefik.http.routers.notifications-svc.entrypoints=web"
       - "traefik.http.services.notifications-svc.loadbalancer.server.port=3000"
-      # - "traefik.http.middlewares.notifications-svc-stripprefix.stripprefix.prefixes=/notifications"
-      # - "traefik.http.routers.notifications-svc.middlewares=notifications-svc-stripprefix"
 
 networks:
   default:

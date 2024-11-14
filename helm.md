@@ -333,7 +333,6 @@ helm template orders-svc -s templates/app.yml -f orders-svc/values.yaml --debug
 > This should work with a symlink, too. So if you're actively working on the subchart but need to install it via > the parent, you should be able to
 
 ```
-mkdir charts
 cd charts
-ln -s ../../dependency dependency
+ln -s ../../_helpers helpers-0.1.0
 ```

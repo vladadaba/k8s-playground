@@ -1,4 +1,5 @@
-{{- define "app.ingressroute" }}
+{{ define "app.ingressroute" }}
+{{ if not .Values.keepPrefix }}
 apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
@@ -8,6 +9,7 @@ spec:
     prefixes:
       - /{{ .Values.routePrefix }}
 ---
+{{ end }}
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
@@ -25,6 +27,8 @@ spec:
         - name: {{ .Values.serviceName }}
           port: {{ .Values.port }}
       middlewares:
-        - name: {{ .Values.serviceName }}-stripprefix-middleware
         - name: cors-middleware
-{{- end }}
+        {{- if .Values.stripPrefix }}
+        - name: {{ .Values.serviceName }}-stripprefix-middleware
+        {{- end }}
+{{ end }}

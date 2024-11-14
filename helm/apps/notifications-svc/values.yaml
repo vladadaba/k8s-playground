@@ -1,4 +1,6 @@
 serviceName: notifications-svc
+routePrefix: socket.io
+keepPrefix: true # for example: /socket.io/?EIO=4&transport=websocket
 port: 3000
 env:
   KEYCLOAK_URL: http://keycloak-service:8080 # name of keycloak service that exposes this port
