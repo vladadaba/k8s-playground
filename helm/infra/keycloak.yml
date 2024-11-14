@@ -42,6 +42,11 @@ metadata:
   name: keycloak-realm
 spec:
   keycloakCRName: keycloak
+  placeholders:
+    CONFIDENTIAL_CLIENT_SECRET:
+      secret:
+        name: keycloak-confidential-client-secret
+        key: secret
   realm:
     realm: test_realm
     enabled: true
@@ -60,8 +65,10 @@ spec:
         standardFlowEnabled: false
         implicitFlowEnabled: false
         directAccessGrantsEnabled: false
-        serviceAccountsEnabled: true
         publicClient: false
+        serviceAccountsEnabled: true
+        clientAuthenticatorType: client-secret
+        secret: ${CONFIDENTIAL_CLIENT_SECRET}
       - clientId: test_client_public
         enabled: true
         clientAuthenticatorType: client-secret
@@ -74,5 +81,15 @@ spec:
         publicClient: true
         frontchannelLogout: true
         protocol: openid-connect
+    users:
+      - username: service-account-test_client_confidential
+        enabled: true
+        serviceAccountClientId: test_client_confidential
+        realmRoles:
+          - default-roles-test_realm
+        clientRoles:
+          realm-management:
+            - view-realm
+            - view-users
 ---
 

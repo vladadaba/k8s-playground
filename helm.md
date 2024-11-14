@@ -1,10 +1,12 @@
-# Start Minikube
+# Initial setup
+
+### Start Minikube
 
 ```
 minikube start --cpus 8 --memory 16GB --disk-size 100GB --driver=qemu --network=socket_vmnet
 ```
 
-# Setup kubectl context
+### Setup kubectl context
 
 So I don't have to run `-n myapp` every time.
 
@@ -12,7 +14,7 @@ So I don't have to run `-n myapp` every time.
 kubectl config set-context --current --namespace=myapp
 ```
 
-# Minikube registry
+### Minikube registry
 
 Needed for Kafka connect custom built image with debezium plugin
 
@@ -31,24 +33,6 @@ to get IP of minikube's local registry run (used in KafkaConnect):
 
 ```
 kubectl get svc -n kube-system registry
-```
-
-# Debugging helm charts
-
-```
-helm template orders-svc -s templates/app.yml -f orders-svc/values.yaml --debug
-```
-
-> While actively working on a chart we can do this
->
-> If one chart depends on another, you can put an unpacked copy of the dependency into the parent chart's charts subdirectory.
->
-> This should work with a symlink, too. So if you're actively working on the subchart but need to install it via > the parent, you should be able to
-
-```
-mkdir charts
-cd charts
-ln -s ../../dependency dependency
 ```
 
 # Apps
@@ -251,10 +235,10 @@ https://www.keycloak.org/operator/advanced-configuration
 > When you create a new instance the Keycloak CR `spec.bootstrapAdmin` stanza may be used to configure the bootstrap user and/or service account. If you do not specify anything for the `spec.bootstrapAdmin`, the operator will create a Secret named "metadata.name"-initial-admin with a username **temp-admin** and a generated password. If you specify a Secret name for bootstrap admin user, then the Secret will need to contain username and password key value pairs. If you specify a Secret name for bootstrap admin service account, then the Secret will need to contain client-id and client-secret key value pairs.
 
 ```
-kubectl get pods
-kubectl port-forward keycloak-0 8080:8080 -n myapp
 kubectl get secret keycloak-initial-admin -o 'jsonpath={.data.username}' -n myapp | base64 -d
 kubectl get secret keycloak-initial-admin -o 'jsonpath={.data.password}' -n myapp | base64 -d
+kubectl get pods
+kubectl port-forward keycloak-0 8080:8080 -n myapp
 ```
 
 ### Dapr Placement
@@ -334,4 +318,22 @@ Check logs from another container
 ```
 kubectl describe pod <pod-name>
 kubectl logs <pod-name> -c <container-name>
+```
+
+### Debugging helm charts
+
+```
+helm template orders-svc -s templates/app.yml -f orders-svc/values.yaml --debug
+```
+
+> While actively working on a chart we can do this
+>
+> If one chart depends on another, you can put an unpacked copy of the dependency into the parent chart's charts subdirectory.
+>
+> This should work with a symlink, too. So if you're actively working on the subchart but need to install it via > the parent, you should be able to
+
+```
+mkdir charts
+cd charts
+ln -s ../../dependency dependency
 ```

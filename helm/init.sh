@@ -29,9 +29,6 @@ kubectl create -f ./helm/infra/kafka-connect-rolebinding.yml -n myapp
 # wait for cluster to start then
 kubectl create -f ./helm/infra/kafka-connectors.yml -n myapp
 
-# debezium
-# https://debezium.io/documentation/reference/stable/operations/kubernetes.html
-
 # redis-operator
 helm repo add ot-helm https://ot-container-kit.github.io/helm-charts/
 helm install redis-operator ot-helm/redis-operator --create-namespace -n redis
@@ -50,7 +47,7 @@ kubectl -n keycloak apply -f ./helm/infra/keycloak/keycloak-operator.yml
 helm repo add dapr https://dapr.github.io/helm-charts/
 helm install dapr dapr/dapr --create-namespace -n dapr
 
-kubectl create secret generic redis-secret --from-literal=password=somepassword
+kubectl create secret generic redis-secret --from-literal=password=$(openssl rand 18 | base64)
 kubectl -n myapp apply -f ./helm/infra/redis.yml
 
 kubectl -n myapp apply -f ./helm/infra/dapr.yml
@@ -64,16 +61,9 @@ PG_USER=$(kubectl get secret postgres.postgres.credentials.postgresql.acid.zalan
 PGPASSWORD=$PG_PASSWORD psql -U postgres -h localhost -p 6432 -c "CREATE SCHEMA keycloak; CREATE SCHEMA cart; CREATE SCHEMA users; CREATE SCHEMA inventory; CREATE SCHEMA orders;"
 
 kubectl -n myapp create secret tls keycloak-tls-secret --cert ./helm/infra/keycloak/certificate.pem --key ./helm/infra/keycloak/key.pem
-
+kubectl create secret generic keycloak-confidential-client-secret --from-literal=secret=$(openssl rand 30 | base64)
 kubectl -n myapp apply -f ./helm/infra/keycloak.yml
 
-# get keycloak confidential client secret and add it to k8s secret
-kubectl get secret keycloak-initial-admin -o 'jsonpath={.data.username}' -n myapp | base64 -d
-kubectl get secret keycloak-initial-admin -o 'jsonpath={.data.password}' -n myapp | base64 -d
-
-# add roles "view-users" and "view-realm" to user confidential-client-service-account
-# kubectl port-forward keycloak-0 8080:8080 -n myapp
-kubectl create secret generic keycloak-client-secret --from-literal=CONFIDENTIAL_CLIENT_SECRET=TODO_secret_copied_from_keycloak
 kubectl create secret generic dapr-api-token --from-literal=dapr-api-token=$(openssl rand 16 | base64)
 
 # deploy apps

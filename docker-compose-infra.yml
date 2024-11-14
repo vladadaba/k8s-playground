@@ -31,7 +31,7 @@ services:
       - ./volumes/data/infra/redis:/data
 
   keycloak:
-    image: quay.io/keycloak/keycloak:25.0
+    image: quay.io/keycloak/keycloak:26.0
     ports:
       - 8080:8080
     command: start-dev
