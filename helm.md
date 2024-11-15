@@ -57,16 +57,6 @@ minikube image load k8s_playground-notifications-svc
 helm install orders-svc ./orders-svc
 ```
 
-### Dapr sidecar injector
-
-When running Dapr in K8s, `dapr-sidecar-injector` deployment is created which monitors pods for annotations and injects Dapr sidecar into pods.
-
-https://docs.dapr.io/concepts/dapr-services/sidecar-injector/
-
-`resource-path` is not supported in annotations, instead we need to use Dapr's CustomResourceDescription and apply them to cluster directly (`helm/infra/dapr.yml`). This includes `config.yaml` as well.
-
-`dapr.io/env` needs `APP_API_TOKEN` (needed for authenticating dapr sidecar calls) some secrets which can be configured like this https://v1-15.docs.dapr.io/operations/configuration/environment-variables-secrets/
-
 # Managing cluster
 
 ### k8s dashboard
@@ -239,23 +229,6 @@ kubectl get secret keycloak-initial-admin -o 'jsonpath={.data.username}' -n myap
 kubectl get secret keycloak-initial-admin -o 'jsonpath={.data.password}' -n myapp | base64 -d
 kubectl get pods
 kubectl port-forward keycloak-0 8080:8080 -n myapp
-```
-
-### Dapr Placement
-
-https://github.com/dapr/dapr/blob/master/charts/dapr/README.md
-
-1. Add dapr.github.io as an helm repo
-
-```
-helm repo add dapr https://dapr.github.io/helm-charts/
-helm repo update
-```
-
-1. Install the Dapr chart on your cluster in the dapr namespace:
-
-```
-helm install dapr dapr/dapr --namespace dapr --create-namespace --wait
 ```
 
 ### Debezium

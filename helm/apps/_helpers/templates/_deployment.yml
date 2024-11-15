@@ -1,4 +1,4 @@
-{{- define "dapr-app.deployment" }}
+{{- define "app.deployment" }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -17,11 +17,8 @@ spec:
       labels:
         name: {{ .Values.serviceName }}-pod
         {{- include "backend-app.labels" . | indent 8 }}
-    {{- if or (.Values.daprEnabled) (.Values.annotations) }}
+    {{- if .Values.annotations }}
       annotations:
-      {{- if .Values.daprEnabled }}
-        {{- include "dapr.annotations" . | indent 8 }}
-      {{- end }}
       {{- if .Values.annotations }}
         {{- toYaml .Values.annotations | nindent 8 }}
       {{- end }}

@@ -1,7 +1,7 @@
 # Startup
 
 ```
-docker compose -f docker-compose-infra.yml -f docker-compose-dapr.yml pull
+docker compose -f docker-compose-infra.yml -f pull
 docker network create k8s_playground_network
 docker compose -f docker-compose-infra.yml up -d
 docker compose up -d

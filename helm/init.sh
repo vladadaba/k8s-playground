@@ -47,14 +47,9 @@ kubectl apply -f https://raw.githubusercontent.com/keycloak/keycloak-k8s-resourc
 kubectl -n myapp apply -f ./helm/infra/keycloak/keycloak-operator-role-bindings.yml
 kubectl -n keycloak apply -f ./helm/infra/keycloak/keycloak-operator.yml
 
-# dapr
-helm repo add dapr https://dapr.github.io/helm-charts/
-helm install dapr dapr/dapr --create-namespace -n dapr
-
 kubectl create secret generic redis-secret --from-literal=password=$(openssl rand 18 | base64)
 kubectl -n myapp apply -f ./helm/infra/redis.yml
 
-kubectl -n myapp apply -f ./helm/infra/dapr.yml
 kubectl -n myapp apply -f ./helm/infra/traefik-cors-middleware.yml
 
 # TODO: need to create schemas keycloak, users, inventory, orders in database when postgres starts
@@ -67,8 +62,6 @@ PGPASSWORD=$PG_PASSWORD psql -U postgres -h localhost -p 6432 -c "CREATE SCHEMA 
 # kubectl -n myapp create secret tls keycloak-tls-secret --cert ./helm/infra/keycloak/certificate.pem --key ./helm/infra/keycloak/key.pem
 kubectl create secret generic keycloak-confidential-client-secret --from-literal=secret=$(openssl rand 30 | base64)
 kubectl -n myapp apply -f ./helm/infra/keycloak.yml
-
-kubectl create secret generic dapr-api-token --from-literal=dapr-api-token=$(openssl rand 16 | base64)
 
 # deploy apps
 helm dependency update ./helm/apps/orders-svc

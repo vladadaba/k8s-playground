@@ -1,5 +1,4 @@
 services:
-  ##### orders-svc & DAPR Sidecar #####
   orders-svc:
     build:
       context: .
@@ -30,28 +29,6 @@ services:
       - "traefik.http.middlewares.cors.headers.addvaryheader=true"
       - "traefik.http.routers.orders-svc.middlewares=cors,orders-svc-stripprefix"
 
-  orders-svc-dapr:
-    image: "daprio/daprd:1.14.4"
-    command: [
-        "./daprd",
-        "--app-id",
-        "orders-svc",
-        "--app-port",
-        "3000",
-        "--placement-host-address",
-        "dapr_placement:50006", # Dapr's placement service can be reach via the docker DNS entry
-        "--config",
-        "/dapr/config.yaml",
-        "--resources-path",
-        "/dapr/local",
-      ]
-    volumes:
-      - "./volumes/infra/dapr/components:/dapr"
-    depends_on:
-      - orders-svc
-    network_mode: "service:orders-svc"
-
-  ##### cart-svc & DAPR Sidecar #####
   cart-svc:
     build:
       context: .
@@ -69,8 +46,8 @@ services:
       - /usr/src/app/apps/cart-svc/node_modules # dont overwrite node_modules inside container (some packages need to be built for specific platform, so they might be broken if they are mounted, more info on this syntax - https://stackoverflow.com/questions/29181032/add-a-volume-to-docker-but-exclude-a-sub-folder/37898591#37898591)
       - /usr/src/app/apps/cart-svc/generated
       - ./apps/cart-svc:/usr/src/app/apps/cart-svc
-    # command: ["yarn", "start:dev"]
-    command: ["yarn", "start:debug"]
+    command: ["yarn", "start:dev"]
+    # command: ["yarn", "start:debug"]
     # command: "tail -f /dev/null"
     labels:
       - "traefik.enable=true"
@@ -85,28 +62,6 @@ services:
       - "traefik.http.middlewares.cors.headers.addvaryheader=true"
       - "traefik.http.routers.cart-svc.middlewares=cors,cart-svc-stripprefix"
 
-  cart-svc-dapr:
-    image: "daprio/daprd:1.14.4"
-    command: [
-        "./daprd",
-        "--app-id",
-        "cart-svc",
-        "--app-port",
-        "3000",
-        "--placement-host-address",
-        "dapr_placement:50006", # Dapr's placement service can be reach via the docker DNS entry
-        "--config",
-        "/dapr/config.yaml",
-        "--resources-path",
-        "/dapr/local",
-      ]
-    volumes:
-      - "./volumes/infra/dapr/components:/dapr"
-    depends_on:
-      - cart-svc
-    network_mode: "service:cart-svc"
-
-  ##### inventory-svc #####
   inventory-svc:
     build:
       context: .
@@ -135,7 +90,6 @@ services:
       - "traefik.http.middlewares.inventory-svc-stripprefix.stripprefix.prefixes=/inventory"
       - "traefik.http.routers.inventory-svc.middlewares=inventory-svc-stripprefix"
 
-  ##### users-svc #####
   users-svc:
     build:
       context: .
@@ -166,7 +120,6 @@ services:
       - "traefik.http.middlewares.users-svc-stripprefix.stripprefix.prefixes=/users"
       - "traefik.http.routers.users-svc.middlewares=users-svc-stripprefix"
 
-  ##### users-svc & DAPR Sidecar #####
   notifications-svc:
     build:
       context: .
