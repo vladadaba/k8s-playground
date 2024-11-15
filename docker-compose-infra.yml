@@ -102,6 +102,26 @@ services:
         /scripts/register-connectors.sh connect 8083 &
         /docker-entrypoint.sh start
 
+  # TODO: https://github.com/temporalio/docker-compose/blob/main/docker-compose-cass-es.yml
+  temporal:
+    depends_on:
+      - postgres
+    environment:
+      - DB=postgres12
+      - DB_PORT=5432
+      - DBNAME=temporal # also needs temporal_visibility db, check 001_create_temporal_db.sql
+      # - SKIP_DB_CREATE=true # we will make them ourselves
+      # - SKIP_SCHEMA_SETUP=true
+      - POSTGRES_USER=postgres
+      - POSTGRES_PWD=postgres
+      - POSTGRES_SEEDS=postgres
+      - DYNAMIC_CONFIG_FILE_PATH=config/dynamicconfig/dynamic-config.yaml
+    image: temporalio/auto-setup:latest
+    ports:
+      - 7233:7233
+    volumes:
+      - ./volumes/infra/temporal:/etc/temporal/config/dynamicconfig
+
 networks:
   default:
     name: k8s_playground_network

@@ -9,19 +9,9 @@ docker compose up -d
 
 # URLs
 
-Redis UI management console:
-
-```
-docker run --rm -v redisinsight:/db -p 5540:5540 --network k8s_playground_network redislabs/redisinsight:latest
-```
-
-1. Go to http://localhost:5540
-2. Add Redis Database
-3. Host: `redis`
-4. Port: 6379
-5. Password: `somepassword`
-
 Keycloak - http://localhost:8080/admin/master/console/
+
+Temporal UI - http://localhost:8082
 
 # Debezium log trailing Keycloak
 
@@ -62,10 +52,33 @@ Startup script not registering connectors (permission denied).
 chmod 777 volumes/infra/debezium/register-connectors.sh
 ```
 
+# Temporal admin tools
+
+```
+docker compose -f docker-compose-tools.yml up -d temporal-admin-tools
+docker exec temporal-admin-tools tctl
+# The following is an example of how to register a new namespace `test-namespace` with 1 day of retention (full docs at https://docs.temporal.io/docs/system-tools/tctl/)
+tctl --ns test-namespace namespace register -rd 1
+```
+
 # Debugging Kafka
 
 ```
-docker run --rm -p 9000:9000 -e KAFKA_BROKERCONNECT=kafka:9092 --network k8s_playground_network obsidiandynamics/kafdrop
+docker compose -f docker-compose-tools.yml up -d kafdrop
 ```
 
 http://localhost:9000
+
+# Redis UI
+
+Redis UI management console:
+
+```
+docker compose -f docker-compose-tools.yml up -d redisinsights
+```
+
+1. Go to http://localhost:5540
+2. Add Redis Database
+3. Host: `redis`
+4. Port: 6379
+5. Password: `somepassword`

@@ -1,0 +1,32 @@
+services:
+  temporal-admin-tools:
+    environment:
+      - TEMPORAL_ADDRESS=temporal:7233
+      - TEMPORAL_CLI_ADDRESS=temporal:7233
+    image: temporalio/admin-tools
+    stdin_open: true
+    tty: true
+  temporal-ui:
+    environment:
+      - TEMPORAL_ADDRESS=temporal:7233
+      - TEMPORAL_CORS_ORIGINS=http://localhost:3000 # TODO: test this url?
+    image: temporalio/ui
+    ports:
+      - 8082:8080
+
+  kafdrop:
+    image: obsidiandynamics/kafdrop
+    ports:
+      - 9000:9000
+    environment:
+      - KAFKA_BROKERCONNECT=kafka:9092
+
+  redisinsights:
+    image: redislabs/redisinsight
+    ports:
+      - 5540:5540
+networks:
+  default:
+    name: k8s_playground_network
+    driver: bridge
+    external: true
