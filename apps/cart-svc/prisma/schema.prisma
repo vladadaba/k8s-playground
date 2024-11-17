@@ -49,5 +49,21 @@ model InventoryItem {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   cartItemChanges CartItemChange[]
+
   @@map("inventory_item")
+}
+
+model Outbox {
+  id String @id @default(uuid()) // UUID primary key
+
+  // Type of entity (this will kafka topic name)
+  // "transforms.outbox.route.by.field": "aggregate_type",
+  // "transforms.outbox.route.topic.replacement": "${routedByValue}",
+  aggregateType String   @map("aggregate_type")
+  aggregateId   String   @map("aggregate_id") // UUID of the entity that generated the event
+  operation     String
+  payload       Json // Event data as JSON
+  createdAt     DateTime @default(now()) @map("created_at") // Timestamp of event creation
+
+  @@map("outbox")
 }

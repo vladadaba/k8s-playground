@@ -5,6 +5,10 @@ import { AppService } from './app.service';
 import { PrismaService } from './prisma.service';
 import { ClsModule } from 'nestjs-cls';
 import { AuthModule } from '@5stones/nest-oidc';
+import { WorkflowsModule } from './workflows/workflows.module';
+import { InternalController } from './internal.controller';
+import { WorkflowService } from './workflows/workflow.service';
+import { KafkaController } from './kafka.controller';
 
 @Module({
   imports: [
@@ -27,8 +31,9 @@ import { AuthModule } from '@5stones/nest-oidc';
       global: true,
       middleware: { mount: true },
     }),
+    WorkflowsModule,
   ],
-  controllers: [AppController],
-  providers: [AppService, PrismaService],
+  controllers: [AppController, InternalController, KafkaController],
+  providers: [AppService, PrismaService, WorkflowService],
 })
 export class AppModule {}

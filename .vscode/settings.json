@@ -4,6 +4,7 @@
     "apps/inventory-svc",
     "apps/notifications-svc",
     "apps/orders-svc",
-    "apps/users-svc"
+    "apps/users-svc",
+    "apps/temporal-worker"
   ]
 }

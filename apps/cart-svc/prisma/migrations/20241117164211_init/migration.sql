@@ -31,6 +31,18 @@ CREATE TABLE "inventory_item" (
     CONSTRAINT "inventory_item_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "outbox" (
+    "id" TEXT NOT NULL,
+    "aggregate_type" TEXT NOT NULL,
+    "aggregate_id" TEXT NOT NULL,
+    "operation" TEXT NOT NULL,
+    "payload" JSONB NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "outbox_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE INDEX "cart_item_change_cart_id_idx" ON "cart_item_change"("cart_id");
 

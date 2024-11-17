@@ -5,6 +5,7 @@ import { AppService } from './app.service';
 import { PrismaService } from './prisma.service';
 import { ClsModule } from 'nestjs-cls';
 import { AuthModule } from '@5stones/nest-oidc';
+import { KafkaController } from './kafka.controller';
 
 @Module({
   imports: [
@@ -21,7 +22,7 @@ import { AuthModule } from '@5stones/nest-oidc';
       middleware: { mount: true },
     }),
   ],
-  controllers: [AppController],
+  controllers: [AppController, KafkaController],
   providers: [AppService, PrismaService],
 })
 export class AppModule {}

@@ -40,12 +40,12 @@ export class AppService {
     });
   }
 
-  async getCart(userId: string) {
+  async getCartItems(userId: string) {
     const rows = await this.prismaService.$queryRaw<any[]>`
 SELECT DISTINCT ON (cic.product_id) 
-    cic.product_id as productId,
+    cic.product_id as "productId",
     ii.name,
-    ii.cost as costPerItem,
+    ii.cost as "costPerItem",
     cic.quantity
 FROM 
     cart c
@@ -58,7 +58,10 @@ WHERE
 ORDER BY 
     cic.product_id, cic.created_at desc`;
 
-    return rows;
+    return rows.map((item) => ({
+      ...item,
+      costPerItem: Number(item.costPerItem),
+    }));
   }
 
   async upsertProduct(product: any) {
@@ -71,6 +74,48 @@ ORDER BY
         quantity: product.quantity || 0,
       },
       update: product,
+    });
+  }
+
+  async placeOrderForCurrentCart(userId: string) {
+    await this.prismaService.$transaction(async (prisma) => {
+      const carts = await prisma.cart.findMany({
+        where: { userId, completedAt: null },
+      });
+
+      if (carts.length !== 1) {
+        throw new Error(
+          `TODO: placeOrderForCurrentCart updatedRows (${carts.length}) !== 1`,
+        );
+      }
+
+      const cart = carts[0];
+      await prisma.cart.update({
+        where: { id: cart.id },
+        data: {
+          completedAt: new Date(),
+        },
+      });
+
+      const cartItems = await this.getCartItems(userId);
+
+      await prisma.outbox.create({
+        data: {
+          aggregateId: cart.userId, // TODO: is there a better key to use? cartId?
+          aggregateType: 'order',
+          operation: 'order_placed',
+          payload: {
+            cartId: cart.id,
+            userId: cart.userId,
+            orderItems: cartItems.map((item) => ({
+              productId: item.productId,
+              name: item.name,
+              cost: item.costPerItem,
+              quantity: item.quantity,
+            })),
+          },
+        },
+      });
     });
   }
 }

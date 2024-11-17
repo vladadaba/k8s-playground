@@ -10,6 +10,8 @@ services:
       - DATABASE_URL=${DATABASE_URL}orders
       - KEYCLOAK_URL=${KEYCLOAK_URL}
       - KEYCLOAK_REALM=${KEYCLOAK_REALM}
+      - KAFKA_BROKERS=${KAFKA_BROKERS}
+      - TEMPORAL_HOST=${TEMPORAL_HOST}
     volumes:
       - /usr/src/app/apps/orders-svc/node_modules # dont overwrite node_modules inside container (some packages need to be built for specific platform, so they might be broken if they are mounted, more info on this syntax - https://stackoverflow.com/questions/29181032/add-a-volume-to-docker-but-exclude-a-sub-folder/37898591#37898591)
       - /usr/src/app/apps/orders-svc/generated
@@ -144,6 +146,14 @@ services:
       - "traefik.http.routers.notifications-svc.rule=Host(`myapp.localhost`) && PathPrefix(`/socket.io`)"
       - "traefik.http.routers.notifications-svc.entrypoints=web"
       - "traefik.http.services.notifications-svc.loadbalancer.server.port=3000"
+
+  temporal-worker:
+    build:
+      context: .
+      dockerfile: ./apps/temporal-worker/Dockerfile
+    environment:
+      - ORDERS_SVC_URL=${ORDERS_SVC_URL}
+      - TEMPORAL_HOST=${TEMPORAL_HOST}
 
 networks:
   default:

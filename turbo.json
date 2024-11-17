@@ -27,6 +27,8 @@
     "test:ci": {
       "cache": false
     },
-    "minikube_build": {}
+    "minikube_build": {},
+    "prisma:generate": {},
+    "prisma:migrate:local": {}
   }
 }

@@ -6,7 +6,7 @@
 
 generator client {
   provider = "prisma-client-js"
-  output = "../generated/prisma-client"
+  output   = "../generated/prisma-client"
 }
 
 datasource db {
@@ -15,22 +15,70 @@ datasource db {
 }
 
 model Order {
-  id        String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  status    OrderStatus[]
-  cart      Json
-  createdAt DateTime      @default(now())
+  id         String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId     String
+  cartId     String
+  orderItems OrderItems[]
+  status     OrderStatusChange[]
+  assigments OrderAssignmentChange[]
+  createdAt  DateTime                @default(now()) @map("created_at")
+
+  @@map("orders")
 }
 
-model OrderStatus {
+model OrderItems {
+  id        String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  order     Order   @relation(fields: [orderId], references: [id])
+  orderId   String  @map("order_id") @db.Uuid
+  productId String  @map("product_id") @db.Uuid
+  name      String
+  cost      Decimal @db.Money
+  quantity  Int
+
+  @@map("order_items")
+}
+
+model OrderStatusChange {
   id          String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   Order       Order           @relation(fields: [orderId], references: [id])
-  orderId     String          @db.Uuid
-  createdAt   DateTime        @default(now())
+  orderId     String          @map("order_id") @db.Uuid
+  createdAt   DateTime        @default(now()) @map("created_at")
   status      OrderStatusEnum
   changedBy   User?           @relation(fields: [changedById], references: [id])
-  changedById String?
+  changedById String?         @map("changed_by_id")
 
   @@index([orderId])
+  @@map("order_status_change")
+}
+
+model OrderAssignmentChange {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  order      Order    @relation(fields: [orderId], references: [id])
+  orderId    String   @map("order_id") @db.Uuid
+  assignee   User?    @relation(fields: [assigneeId], references: [id])
+  assigneeId String?  @map("assignee_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@map("order_assignment_changed")
+}
+
+// materialized view from users-svc
+model User {
+  id              String                  @id @default(dbgenerated("gen_random_uuid()"))
+  username        String
+  roles           Role[]
+  OrderAssignment OrderAssignmentChange[]
+  OrderStatus     OrderStatusChange[]
+  createdAt       DateTime                @default(now()) @map("created_at")
+  updatedAt       DateTime                @updatedAt @map("updated_at")
+  isDeleted       Boolean                 @default(false) @map("is_deleted")
+
+  @@map("users")
+}
+
+enum Role {
+  MANAGER
+  ADMIN
 }
 
 enum OrderStatusEnum {
@@ -38,29 +86,4 @@ enum OrderStatusEnum {
   REJECTED
   APPROVED
   CANCELED
-}
-
-model OrderAssignment {
-  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  assagnie   User?    @relation(fields: [assigneeId], references: [id])
-  assigneeId String?
-  createdAt  DateTime @default(now())
-}
-
-// materialized view from users-svc
-model User {
-  id              String            @id @default(dbgenerated("gen_random_uuid()"))
-  name            String
-  role            Role
-  OrderAssignment OrderAssignment[]
-  createdAt       DateTime
-  updatedAt       DateTime
-  isDeleted       Boolean
-  OrderStatus     OrderStatus[]
-}
-
-enum Role {
-  USER
-  MANAGER
-  ADMIN
 }

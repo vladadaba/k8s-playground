@@ -1,5 +1,5 @@
 {
-  "name": "orders-svc",
+  "name": "temporal-worker",
   "version": "0.0.1",
   "description": "",
   "author": "",
@@ -19,9 +19,7 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "minikube_build": "minikube image build -t k8s_playground-orders-svc-migration ../.. -f apps/orders-svc/Dockerfile --build-opt target=installer && minikube image build -t k8s_playground-orders-svc ../.. -f apps/orders-svc/Dockerfile",
-    "prisma:generate": "prisma generate",
-    "prisma:migrate:local": "DATABASE_URL=\"postgresql://postgres:postgres@localhost:5432/postgres?schema=orders\" prisma migrate deploy"
+    "minikube_build": "minikube image build -t k8s_playground-temporal-worker ../.. -f apps/temporal-worker/Dockerfile"
   },
   "dependencies": {
     "@5stones/nest-oidc": "^2.0.0",
@@ -29,9 +27,6 @@
     "@nestjs/common": "^10",
     "@nestjs/config": "^3.3.0",
     "@nestjs/core": "^10",
-    "@nestjs/jwt": "^10.2.0",
-    "@nestjs/microservices": "^10",
-    "@nestjs/passport": "^10.0.3",
     "@nestjs/platform-express": "^10",
     "@prisma/client": "5.22.0",
     "@temporalio/activity": "^1.11.3",
@@ -40,10 +35,6 @@
     "@temporalio/worker": "^1.11.3",
     "@temporalio/workflow": "^1.11.3",
     "axios": "^1.7.7",
-    "kafkajs": "^2.2.4",
-    "nestjs-cls": "^4.4.1",
-    "passport": "^0.7.0",
-    "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7"
@@ -64,7 +55,6 @@
     "eslint-plugin-prettier": "^5.1.3",
     "jest": "^26.6.3",
     "prettier": "^2.2.1",
-    "prisma": "^5.22.0",
     "supertest": "^6.1.3",
     "ts-jest": "^26.5.4",
     "ts-loader": "^8.0.18",

@@ -19,7 +19,9 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "minikube_build": "minikube image build -t k8s_playground-users-svc-migration ../.. -f apps/users-svc/Dockerfile --build-opt target=installer && minikube image build -t k8s_playground-users-svc ../.. -f apps/users-svc/Dockerfile"
+    "minikube_build": "minikube image build -t k8s_playground-users-svc-migration ../.. -f apps/users-svc/Dockerfile --build-opt target=installer && minikube image build -t k8s_playground-users-svc ../.. -f apps/users-svc/Dockerfile",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate:local": "DATABASE_URL=\"postgresql://postgres:postgres@localhost:5432/postgres?schema=users\" prisma migrate deploy"
   },
   "dependencies": {
     "@nestjs/common": "^10",

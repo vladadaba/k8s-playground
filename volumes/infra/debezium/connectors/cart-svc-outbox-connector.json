@@ -1,0 +1,31 @@
+{
+  "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+  "database.hostname": "postgres",
+  "database.port": "5432",
+  "database.user": "postgres",
+  "database.password": "postgres",
+  "database.dbname": "postgres",
+  "table.include.list": "cart.outbox",
+  "slot.name": "cart_outbox_slot",
+  "plugin.name": "pgoutput",
+  "topic.prefix": "cart",
+  "tombstones.on.delete": "false",
+
+  "transforms": "outbox",
+  "transforms.outbox.type": "io.debezium.transforms.outbox.EventRouter",
+
+  "transforms.outbox.route.topic.replacement": "cart.${routedByValue}",
+  "transforms.outbox.route.by.field": "aggregate_type",
+  "transforms.outbox.table.field.event.key": "aggregate_id",
+  "transforms.outbox.table.expand.json.payload": "true",
+
+  "transforms.outbox.table.fields.additional.placement": "aggregate_type:header:aggregateType",
+  "transforms.outbox.table.fields.additional.placement": "aggregate_id:header:aggregateId",
+  "transforms.outbox.table.fields.additional.placement": "operation:header:operation",
+
+  "transforms.outbox.table.fields": "id, aggregate_type, aggregate_id, operation, payload, created_at",
+
+  "key.converter": "org.apache.kafka.connect.storage.StringConverter",
+  "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+  "value.converter.schemas.enable": "false"
+}

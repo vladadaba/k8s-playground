@@ -14,6 +14,7 @@ export class AppService {
     private readonly prismaService: PrismaService,
   ) {}
 
+
   async handleKeycloakEvent(payload: any) {
     const table = payload.source?.table;
     const operation = payload?.op;
