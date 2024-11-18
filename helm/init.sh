@@ -47,10 +47,20 @@ kubectl apply -f https://raw.githubusercontent.com/keycloak/keycloak-k8s-resourc
 kubectl -n myapp apply -f ./helm/infra/keycloak/keycloak-operator-role-bindings.yml
 kubectl -n keycloak apply -f ./helm/infra/keycloak/keycloak-operator.yml
 
+# redis 
 kubectl create secret generic redis-secret --from-literal=password=$(openssl rand 18 | base64)
 kubectl -n myapp apply -f ./helm/infra/redis.yml
 
+# traefik
 kubectl -n myapp apply -f ./helm/infra/traefik-cors-middleware.yml
+
+# temporal
+kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.10.1/cert-manager.yaml
+
+# kubectl get pods --namespace cert-manager # wait until all 3 are running
+kubectl apply --server-side -f https://github.com/alexandrevilain/temporal-operator/releases/latest/download/temporal-operator.crds.yaml
+kubectl apply -f https://github.com/alexandrevilain/temporal-operator/releases/latest/download/temporal-operator.yaml
+kubectl -n myapp apply -f ./helm/infra/temporal.yml
 
 # TODO: need to create schemas keycloak, users, inventory, orders in database when postgres starts
 # PG_MASTER=$(kubectl get pods -o jsonpath={.items..metadata.name} -l cluster-name=postgres -n myapp)
@@ -78,5 +88,9 @@ helm install cart-svc ./helm/apps/cart-svc
 
 helm dependency update ./helm/apps/notifications-svc
 helm install notifications-svc ./helm/apps/notifications-svc
+
+helm dependency update ./helm/apps/temporal-worker
+helm install temporal-worker ./helm/apps/temporal-worker
+
 
 # TODO: deploy observability tools (Grafana LGTM)

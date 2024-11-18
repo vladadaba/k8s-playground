@@ -1,0 +1,6 @@
+dependencies:
+- name: helpers
+  repository: file://../_helpers
+  version: 0.1.0
+digest: sha256:7d55f8ff56ee7423851cfe6476047e29f6695ceba004572151062b8084f6e0ba
+generated: "2024-11-08T12:32:10.885453+01:00"

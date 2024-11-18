@@ -9,6 +9,8 @@ env:
   - name: {{ $k }}
     value: {{ $v | quote}}
 {{- end }}
-{{- toYaml .Values.envRaw | nindent 2 -}}
+{{ with .Values.envRaw }}
+{{- toYaml . | nindent 2 -}}
+{{ end }}
 {{ end }}
 {{- end -}}

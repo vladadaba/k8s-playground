@@ -1,0 +1,5 @@
+serviceName: temporal-worker
+port: 3000
+env:
+  TEMPORAL_HOST: temporal-frontend
+  ORDERS_SVC_URL: http://orders-svc:3000

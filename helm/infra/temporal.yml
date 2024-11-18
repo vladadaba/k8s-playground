@@ -1,0 +1,79 @@
+apiVersion: temporal.io/v1beta1
+kind: TemporalCluster
+metadata:
+  name: temporal
+  namespace: myapp
+  labels:
+    name: temporal
+    app: myapp
+    type: infra
+spec:
+  version: 1.24.3
+  numHistoryShards: 1
+  persistence:
+    defaultStore:
+      sql:
+        user: postgres
+        pluginName: postgres12
+        databaseName: temporal
+        connectAddr: postgres:5432
+        connectProtocol: tcp
+      passwordSecretRef:
+        name: postgres.postgres.credentials.postgresql.acid.zalan.do
+        key: password
+      tls:
+        enabled: true
+        enableHostVerification: false
+    visibilityStore:
+      sql:
+        user: postgres
+        pluginName: postgres12
+        databaseName: temporal_visibility
+        connectAddr: postgres:5432
+        connectProtocol: tcp
+      passwordSecretRef:
+        name: postgres.postgres.credentials.postgresql.acid.zalan.do
+        key: password
+      tls:
+        enabled: true
+        enableHostVerification: false
+  log:
+    level: debug
+  ui:
+    enabled: false
+  admintools:
+    enabled: false
+  # metrics:
+  #   enabled: true
+  #   prometheus:
+  #     listenPort: 9090
+  #     scrapeConfig:
+  #       serviceMonitor:
+  #         enabled: true
+  #         labels:
+  #           release: test
+  #         metricRelabelings:
+  #         - sourceLabels: [__name__]
+  #           targetLabel: __name__
+  #           replacement: temporal_$1
+  dynamicConfig:
+    pollInterval: 10s
+    values:
+      matching.numTaskqueueReadPartitions:
+        - value: 5
+          constraints: {}
+      matching.numTaskqueueWritePartitions:
+        - value: 5
+          constraints: {}
+---
+apiVersion: temporal.io/v1beta1
+kind: TemporalNamespace
+metadata:
+  name: default
+  namespace: myapp
+spec:
+  clusterRef:
+    name: temporal
+  description: Default namespace
+  retentionPeriod: 168h #7 days
+  allowDeletion: true
