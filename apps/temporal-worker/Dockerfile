@@ -17,6 +17,7 @@ FROM node:20-bullseye-slim AS sourcer
 WORKDIR /usr/src/app
 COPY --from=installer /usr/src/app/ .
 COPY --from=builder /usr/src/app/out/full/ .
+COPY --from=builder /usr/src/app/tsconfig.base.json ./tsconfig.base.json
 COPY .gitignore .gitignore
 RUN yarn build --filter=temporal-worker
 

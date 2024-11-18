@@ -22,6 +22,7 @@ FROM node:20-alpine AS sourcer
 WORKDIR /usr/src/app
 COPY --from=installer /usr/src/app/ .
 COPY --from=builder /usr/src/app/out/full/ .
+COPY --from=builder /usr/src/app/tsconfig.base.json ./tsconfig.base.json
 COPY .gitignore .gitignore
 RUN yarn build --filter=notifications-svc
 
