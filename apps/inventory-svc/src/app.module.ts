@@ -6,10 +6,12 @@ import { AppService } from './app.service';
 import { PrismaService } from './prisma.service';
 import { ClsModule } from 'nestjs-cls';
 import { RedisModule } from './redis/redis.module';
+import { validate } from './config/env.validation';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
+      validate,
       isGlobal: true,
     }),
     AuthModule.forRoot({

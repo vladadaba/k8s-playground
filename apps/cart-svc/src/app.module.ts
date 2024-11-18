@@ -6,10 +6,12 @@ import { PrismaService } from './prisma.service';
 import { ClsModule } from 'nestjs-cls';
 import { AuthModule } from '@5stones/nest-oidc';
 import { KafkaController } from './kafka.controller';
+import { validate } from './config/env.validation';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
+      validate,
       isGlobal: true,
     }),
     AuthModule.forRoot({

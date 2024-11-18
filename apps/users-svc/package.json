@@ -30,6 +30,8 @@
     "@nestjs/microservices": "^10",
     "@nestjs/platform-express": "^10",
     "@prisma/client": "5.22.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.1",
     "kafkajs": "^2.2.4",
     "keycloak-admin": "^1.14.22",
     "nestjs-cls": "^4.4.1",

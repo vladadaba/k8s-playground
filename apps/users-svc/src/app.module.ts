@@ -6,10 +6,11 @@ import { AppService } from './app.service';
 import { KeycloakModule } from './keycloak/keycloak.module';
 import { KeycloakService } from './keycloak/keycloak.service';
 import { PrismaService } from './prisma.service';
+import { validate } from './config/env.validation';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }), // Make the ConfigModule global to use in any module
+    ConfigModule.forRoot({ validate, isGlobal: true }),
     KeycloakModule,
     ClientsModule.register([
       {

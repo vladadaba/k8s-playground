@@ -9,10 +9,12 @@ import { WorkflowsModule } from './workflows/workflows.module';
 import { InternalController } from './internal.controller';
 import { WorkflowService } from './workflows/workflow.service';
 import { KafkaController } from './kafka.controller';
+import { validate } from './config/env.validation';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
+      validate,
       isGlobal: true,
     }),
     AuthModule.forRoot({
