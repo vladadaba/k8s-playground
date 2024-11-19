@@ -1,0 +1,27 @@
+{
+  "name": "@repo/avro-serder",
+  "version": "0.0.0",
+  "license": "MIT",
+  "scripts": {
+    "dev": "tsc --watch",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@nestjs/microservices": "^10",
+    "avro-schema-registry": "^2.1.5",
+    "avsc": "^5.7.7"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "*",
+    "typescript": "latest"
+  },
+  "main": "./dist/index.js",
+  "types": "./src/index.ts",
+  "exports": {
+    "import": {
+      "types": "./src/index.ts",
+      "default": "./dist/index.js"
+    },
+    "require": "./dist/index.js"
+  }
+}

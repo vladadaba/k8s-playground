@@ -14,7 +14,6 @@ export class AppService {
     private readonly prismaService: PrismaService,
   ) {}
 
-
   async handleKeycloakEvent(payload: any) {
     const table = payload.source?.table;
     const operation = payload?.op;
@@ -95,11 +94,13 @@ export class AppService {
       });
     }
 
+    // TODO: deep equal to compare before and after value
+
     if (!updatedUser) {
       return;
     }
 
-    // TODO: outbox table with debezium
+    // should be in outbox, but playing with schema-registry here
     this.kafkaClient.emit('users.users', {
       key: updatedUser.id,
       value: updatedUser,

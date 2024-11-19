@@ -107,10 +107,15 @@ services:
       - KEYCLOAK_REALM=${KEYCLOAK_REALM}
       - KEYCLOAK_CLIENTID=${KEYCLOAK_CLIENTID}
       - KAFKA_BROKERS=${KAFKA_BROKERS}
+      - SCHEMA_REGISTRY_URL=${SCHEMA_REGISTRY_URL}
+      # - SCHEMA_REGISTRY_USERNAME=${SCHEMA_REGISTRY_USERNAME}
+      # - SCHEMA_REGISTRY_PASSWORD=${SCHEMA_REGISTRY_PASSWORD}
+
     volumes:
       - /usr/src/app/apps/users-svc/node_modules # dont overwrite node_modules inside container (some packages need to be built for specific platform, so they might be broken if they are mounted, more info on this syntax - https://stackoverflow.com/questions/29181032/add-a-volume-to-docker-but-exclude-a-sub-folder/37898591#37898591)
       - /usr/src/app/apps/users-svc/generated
       - ./apps/users-svc:/usr/src/app/apps/users-svc
+      - ./packages:/usr/src/app/packages
     command: ["yarn", "start:dev"]
     # command: ["yarn", "start:debug"]
     # command: "tail -f /dev/null"

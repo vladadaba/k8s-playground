@@ -79,6 +79,17 @@ services:
     volumes:
       - ./volumes/data/kafka:/var/lib/kafka/data
 
+  schema-registry:
+    image: "confluentinc/cp-schema-registry:7.7.1"
+    depends_on:
+      - kafka
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: kafka:9092
+      SCHEMA_REGISTRY_LISTENERS: "http://0.0.0.0:8085"
+    ports:
+      - "8085:8085"
+
   connect:
     image: debezium/connect:3.0.0.Final
     depends_on:

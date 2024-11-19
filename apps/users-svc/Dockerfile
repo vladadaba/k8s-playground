@@ -10,8 +10,8 @@ RUN turbo prune --scope=users-svc --docker
 FROM node:20-alpine AS installer
 RUN apk update
 WORKDIR /usr/src/app
-COPY --from=builder /usr/src/app/out/json/ .
-COPY --from=builder /usr/src/app/out/yarn.lock ./yarn.lock
+COPY --from=builder /usr/src/app/out/json .
+COPY --from=builder /usr/src/app/out/full/packages ./packages
 COPY --from=builder /usr/src/app/turbo.json ./turbo.json
 RUN yarn install --frozen-lockfile
 COPY --from=builder /usr/src/app/apps/users-svc/prisma ./apps/users-svc/prisma
@@ -22,7 +22,6 @@ FROM node:20-alpine AS sourcer
 WORKDIR /usr/src/app
 COPY --from=installer /usr/src/app/ .
 COPY --from=builder /usr/src/app/out/full/ .
-COPY --from=builder /usr/src/app/tsconfig.base.json ./tsconfig.base.json
 COPY .gitignore .gitignore
 RUN yarn build --filter=users-svc
 

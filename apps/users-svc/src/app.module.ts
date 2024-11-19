@@ -7,6 +7,7 @@ import { KeycloakModule } from './keycloak/keycloak.module';
 import { KeycloakService } from './keycloak/keycloak.service';
 import { PrismaService } from './prisma.service';
 import { validate } from './config/env.validation';
+import { AvroSchemaRegistrySerializer } from '@repo/avro-serder';
 
 @Module({
   imports: [
@@ -22,6 +23,14 @@ import { validate } from './config/env.validation';
             brokers: process.env.KAFKA_BROKERS.split(','),
           },
           producerOnlyMode: true,
+          serializer: new AvroSchemaRegistrySerializer(
+            process.env.SCHEMA_REGISTRY_URL,
+            process.env.SCHEMA_REGISTRY_USERNAME,
+            process.env.SCHEMA_REGISTRY_PASSWORD,
+            {
+              'users.users': '0.0.1',
+            },
+          ),
         },
       },
     ]),

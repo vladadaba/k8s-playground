@@ -1,5 +1,5 @@
 import { plainToInstance } from 'class-transformer';
-import { IsNumber, IsString, IsUrl, validateSync } from 'class-validator';
+import { IsNumber, IsString, validateSync } from 'class-validator';
 
 class EnvironmentVariables {
   @IsString()
@@ -15,7 +15,7 @@ class EnvironmentVariables {
   REDIS_PASSWORD: string;
 
   @IsString()
-  KEYCLOAK_URL: number;
+  KEYCLOAK_URL: string;
 
   @IsString()
   KEYCLOAK_REALM: string;

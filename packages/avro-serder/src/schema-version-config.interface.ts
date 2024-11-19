@@ -1,0 +1,1 @@
+export type ISchemaVersionConfig = Record<string, string>;
