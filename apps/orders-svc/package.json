@@ -54,6 +54,7 @@
     "@nestjs/cli": "^10",
     "@nestjs/schematics": "^10",
     "@nestjs/testing": "^10",
+    "@repo/typescript-config": "*",
     "@temporalio/testing": "^1.11.3",
     "@types/express": "^4.17.11",
     "@types/jest": "^26.0.22",
