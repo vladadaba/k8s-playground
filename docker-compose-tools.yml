@@ -21,6 +21,13 @@ services:
     environment:
       - KAFKA_BROKERCONNECT=kafka:9092
 
+  schema-registry-ui:
+    image: landoop/schema-registry-ui
+    ports:
+      - 8100:8000
+    environment:
+      - SCHEMAREGISTRY_URL=http://localhost:8085
+
   redisinsights:
     image: redislabs/redisinsight
     ports:

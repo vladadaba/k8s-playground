@@ -8,6 +8,7 @@ import { KeycloakService } from './keycloak/keycloak.service';
 import { PrismaService } from './prisma.service';
 import { validate } from './config/env.validation';
 import { AvroSchemaRegistrySerializer } from '@repo/avro-serder';
+import { TestController } from './test.controller';
 
 @Module({
   imports: [
@@ -25,17 +26,15 @@ import { AvroSchemaRegistrySerializer } from '@repo/avro-serder';
           producerOnlyMode: true,
           serializer: new AvroSchemaRegistrySerializer(
             process.env.SCHEMA_REGISTRY_URL,
-            process.env.SCHEMA_REGISTRY_USERNAME,
-            process.env.SCHEMA_REGISTRY_PASSWORD,
             {
-              'users.users': '0.0.1',
+              test: 1,
             },
           ),
         },
       },
     ]),
   ],
-  controllers: [AppController],
+  controllers: [AppController, TestController],
   providers: [AppService, KeycloakService, PrismaService],
 })
 export class AppModule {}

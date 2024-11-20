@@ -1,1 +1,1 @@
-export type ISchemaVersionConfig = Record<string, string>;
+export type ISchemaVersionConfig = Record<string, number>;

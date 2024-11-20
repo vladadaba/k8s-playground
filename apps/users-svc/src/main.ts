@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { AppModule } from './app.module';
+import { AvroSchemaRegistryDeserializer } from '@repo/avro-serder';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -14,6 +15,12 @@ async function bootstrap() {
         clientId: 'users-svc-consumer',
         brokers: process.env.KAFKA_BROKERS.split(','),
       },
+      deserializer: new AvroSchemaRegistryDeserializer(
+        process.env.SCHEMA_REGISTRY_URL,
+        {
+          test: 7,
+        },
+      ),
     },
   });
 
