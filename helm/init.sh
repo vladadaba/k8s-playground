@@ -1,6 +1,17 @@
+kubectl config set-context --current --namespace=myapp
+
 # minikube plugins
 minikube addons enable metrics-server
 minikube addons enable registry # needed for kafka-connect image with debezium postgresql connector (need to use strimzi kafka-connect image because of some startup script)
+
+REGISTRY_IP=$(kubectl get svc -n kube-system registry -o jsonpath='{.spec.clusterIP}')
+yq eval "(select(.kind == \"KafkaConnect\") | .spec.build.output.image = \"$REGISTRY_IP:80/my-debezium-connect:test/\") // ." -i helm/infra/kafka.yml
+
+# for strimzi operator, need to build docker image for arm architecture
+# git clone https://github.com/lsst-sqre/strimzi-registry-operator.git ../strimzi-registry-operator
+cd ../strimzi-registry-operator/minikube
+./buildimage.sh
+cd -
 
 kubectl create namespace kafka
 kubectl create namespace myapp
@@ -31,7 +42,25 @@ kubectl create -f ./helm/infra/kafka.yml -n myapp
 kubectl create -f ./helm/infra/kafka-connect-rolebinding.yml -n myapp
 
 # wait for cluster to start then
+kubectl wait kafka/kafka --for condition=Ready --timeout=360s
+
 kubectl create -f ./helm/infra/kafka-connectors.yml -n myapp
+
+# NOTE: below works for amd64 architecture
+# helm repo add lsstsqre https://lsst-sqre.github.io/charts/
+# helm install ssr lsstsqre/strimzi-registry-operator --set clusterNamespace="myapp",clusterName="kafka"
+
+kubectl -n myapp apply -f ./helm/infra/kafka-schema-registry-crd.yml
+kubectl -n myapp apply -f ./helm/infra/strimzi-schema-registry-operator.yml
+
+# https://github.com/lsst-sqre/strimzi-registry-operator/pkgs/container/strimzi-registry-operator#deploy-a-schema-registry
+kubectl -n myapp apply -f ./helm/infra/kafka-schema-registry-topic-user.yml
+kubectl wait kafkatopic/registry-schemas --for=condition=Ready --timeout=300s
+kubectl wait kafkauser/confluent-schema-registry --for=condition=Ready --timeout=300s
+sleep 5s
+
+# wait for secret confluent-schema-registry to be created from above command
+kubectl -n myapp apply -f ./helm/infra/kafka-schema-registry.yml
 
 # redis-operator
 helm repo add ot-helm https://ot-container-kit.github.io/helm-charts/
@@ -48,7 +77,7 @@ kubectl -n myapp apply -f ./helm/infra/keycloak/keycloak-operator-role-bindings.
 kubectl -n keycloak apply -f ./helm/infra/keycloak/keycloak-operator.yml
 
 # redis 
-kubectl create secret generic redis-secret --from-literal=password=$(openssl rand 18 | base64)
+kubectl -n myapp create secret generic redis-secret --from-literal=password=$(openssl rand 18 | base64)
 kubectl -n myapp apply -f ./helm/infra/redis.yml
 
 # traefik
@@ -57,14 +86,17 @@ kubectl -n myapp apply -f ./helm/infra/traefik-cors-middleware.yml
 # temporal
 kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.10.1/cert-manager.yaml
 
-# kubectl get pods --namespace cert-manager # wait until all 3 are running
+# wait for all cert-manager pods to be ready (I think only webhook is required but it takes the longest to start anyway)
+kubectl wait pods --all --for condition=Ready --namespace=cert-manager --timeout=360s
 kubectl apply --server-side -f https://github.com/alexandrevilain/temporal-operator/releases/latest/download/temporal-operator.crds.yaml
 kubectl apply -f https://github.com/alexandrevilain/temporal-operator/releases/latest/download/temporal-operator.yaml
+
+kubectl wait pods --all --for condition=Ready --namespace=temporal-system --timeout=360s
 kubectl -n myapp apply -f ./helm/infra/temporal.yml
 
-# TODO: need to create schemas keycloak, users, inventory, orders in database when postgres starts
-# PG_MASTER=$(kubectl get pods -o jsonpath={.items..metadata.name} -l cluster-name=postgres -n myapp)
-# kubectl port-forward $PG_MASTER 6432:5432 -n myapp
+PG_MASTER=$(kubectl get pods -o jsonpath={.items..metadata.name} -l cluster-name=postgres -n myapp)
+kubectl port-forward $PG_MASTER 6432:5432 -n myapp &
+sleep 5
 PG_PASSWORD=$(kubectl get secret postgres.postgres.credentials.postgresql.acid.zalan.do -o 'jsonpath={.data.password}' | base64 -d)
 PG_USER=$(kubectl get secret postgres.postgres.credentials.postgresql.acid.zalan.do -o 'jsonpath={.data.username}' | base64 -d)
 PGPASSWORD=$PG_PASSWORD psql -U postgres -h localhost -p 6432 -c "CREATE SCHEMA keycloak; CREATE SCHEMA cart; CREATE SCHEMA users; CREATE SCHEMA inventory; CREATE SCHEMA orders;"
@@ -74,23 +106,23 @@ kubectl create secret generic keycloak-confidential-client-secret --from-literal
 kubectl -n myapp apply -f ./helm/infra/keycloak.yml
 
 # deploy apps
-helm dependency update ./helm/apps/orders-svc
-helm install orders-svc ./helm/apps/orders-svc
+# helm dependency update ./helm/apps/orders-svc
+# helm install orders-svc ./helm/apps/orders-svc
 
-helm dependency update ./helm/apps/inventory-svc
-helm install inventory-svc ./helm/apps/inventory-svc
+# helm dependency update ./helm/apps/inventory-svc
+# helm install inventory-svc ./helm/apps/inventory-svc
 
-helm dependency update ./helm/apps/users-svc
-helm install users-svc ./helm/apps/users-svc
+# helm dependency update ./helm/apps/users-svc
+# helm install users-svc ./helm/apps/users-svc
 
-helm dependency update ./helm/apps/cart-svc
-helm install cart-svc ./helm/apps/cart-svc
+# helm dependency update ./helm/apps/cart-svc
+# helm install cart-svc ./helm/apps/cart-svc
 
-helm dependency update ./helm/apps/notifications-svc
-helm install notifications-svc ./helm/apps/notifications-svc
+# helm dependency update ./helm/apps/notifications-svc
+# helm install notifications-svc ./helm/apps/notifications-svc
 
-helm dependency update ./helm/apps/temporal-worker
-helm install temporal-worker ./helm/apps/temporal-worker
+# helm dependency update ./helm/apps/temporal-worker
+# helm install temporal-worker ./helm/apps/temporal-worker
 
 
 # TODO: deploy observability tools (Grafana LGTM)

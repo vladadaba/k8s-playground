@@ -14,27 +14,6 @@ So I don't have to run `-n myapp` every time.
 kubectl config set-context --current --namespace=myapp
 ```
 
-### Minikube registry
-
-Needed for Kafka connect custom built image with debezium plugin
-
-```
-minikube addons enable registry
-```
-
-Debugging
-
-```
-kubectl port-forward --namespace kube-system service/registry 5000:80
-curl http://localhost:5000/v2/_catalog
-```
-
-to get IP of minikube's local registry run (used in KafkaConnect):
-
-```
-kubectl get svc -n kube-system registry
-```
-
 # Apps
 
 Command to update dependencies. Run it when you update shared library.
@@ -232,6 +211,27 @@ kubectl port-forward keycloak-0 8080:8080 -n myapp
 ```
 
 ### Debezium
+
+Minikube regsitry is needed for Kafka connect custom built image with debezium plugin:
+
+```
+minikube addons enable registry
+```
+
+CRD `KafkaConnect` will build and push image to minikube's rgistry which can be checked like this:
+
+```
+kubectl port-forward --namespace kube-system service/registry 5000:80
+curl http://localhost:5000/v2/_catalog
+
+> {"repositories":["my-debezium-connect"]}
+```
+
+We will need to change IP of minikube's registry when restarting minikube (used in KafkaConnect `build` block, e.g. `10.110.8.103:80:80/my-debezium-connect:test`):
+
+```
+kubectl get svc -n kube-system registry
+```
 
 https://github.com/debezium/debezium-operator?tab=readme-ov-file
 

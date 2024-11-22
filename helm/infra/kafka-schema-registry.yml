@@ -1,0 +1,11 @@
+apiVersion: roundtable.lsst.codes/v1beta1
+kind: StrimziSchemaRegistry
+metadata:
+  name: confluent-schema-registry
+spec:
+  strimziVersion: v1beta2
+  listener: tls
+  securityProtocol: SSL
+  compatibilityLevel: backward
+  registryImage: confluentinc/cp-schema-registry
+  registryImageTag: "7.7.1"

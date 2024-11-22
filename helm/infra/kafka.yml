@@ -37,6 +37,8 @@ spec:
   kafka:
     version: 3.8.0
     metadataVersion: 3.8-IV0
+    # authorization:
+    #   type: simple
     listeners:
       - name: plain
         port: 9092
@@ -116,7 +118,7 @@ spec:
   build:
     output:
       type: docker
-      image: 10.100.103.33:80/my-debezium-connect:test # helm.md for steps how to get IP
+      image: REPLACE_ME # replaced in `init.sh` with $REGISTRY_IP
     plugins:
       - name: debezium-plugins
         artifacts:

@@ -1,0 +1,107 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: strimzi-registry-operator
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: strimzi-registry-operator
+rules:
+  - apiGroups:
+      - apiextensions.k8s.io
+    resources:
+      - customresourcedefinitions
+    verbs:
+      - list
+      - get
+  - apiGroups:
+      - events.k8s.io
+    resources:
+      - events
+    verbs:
+      - create
+  - apiGroups:
+      - ""
+    resources:
+      - events
+    verbs:
+      - create
+  - apiGroups:
+      - roundtable.lsst.codes
+    resources:
+      - strimzischemaregistries
+    verbs:
+      - get
+      - list
+      - watch
+      - patch
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+      - configmaps
+      - services
+    verbs:
+      - get
+      - list
+      - watch
+      - patch
+      - create
+  - apiGroups:
+      - apps
+    resources:
+      - deployments
+    verbs:
+      - get
+      - list
+      - watch
+      - patch
+      - create
+  - apiGroups:
+      - kafka.strimzi.io
+    resources:
+      - kafkausers
+      - kafkas
+    verbs:
+      - list
+      - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: strimzi-registry-operator
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: strimzi-registry-operator
+subjects:
+  - kind: ServiceAccount
+    name: strimzi-registry-operator
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: strimzi-registry-operator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: strimzi-registry-operator
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: strimzi-registry-operator
+    spec:
+      containers:
+        - image: docker.io/vladadaba/strimzi-registry-operator # need build from source https://github.com/lsst-sqre/strimzi-registry-operator/blob/main/minikube/buildimage.sh
+          imagePullPolicy: Never
+          name: operator
+          env:
+            - name: SSR_CLUSTER_NAME
+              value: kafka
+            - name: SSR_NAMESPACE
+              value: myapp
+      serviceAccountName: strimzi-registry-operator
