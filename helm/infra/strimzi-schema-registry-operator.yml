@@ -96,7 +96,7 @@ spec:
         app: strimzi-registry-operator
     spec:
       containers:
-        - image: docker.io/vladadaba/strimzi-registry-operator # need build from source https://github.com/lsst-sqre/strimzi-registry-operator/blob/main/minikube/buildimage.sh
+        - image: docker.io/local/strimzi-registry-operator:latest # need build from source https://github.com/lsst-sqre/strimzi-registry-operator/blob/main/minikube/buildimage.sh
           imagePullPolicy: Never
           name: operator
           env:

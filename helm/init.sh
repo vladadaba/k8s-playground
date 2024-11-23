@@ -5,7 +5,7 @@ minikube addons enable metrics-server
 minikube addons enable registry # needed for kafka-connect image with debezium postgresql connector (need to use strimzi kafka-connect image because of some startup script)
 
 REGISTRY_IP=$(kubectl get svc -n kube-system registry -o jsonpath='{.spec.clusterIP}')
-yq eval "(select(.kind == \"KafkaConnect\") | .spec.build.output.image = \"$REGISTRY_IP:80/my-debezium-connect:test/\") // ." -i helm/infra/kafka.yml
+yq eval "(select(.kind == \"KafkaConnect\") | .spec.build.output.image = \"$REGISTRY_IP:80/my-debezium-connect:test\") // ." -i helm/infra/kafka.yml
 
 # for strimzi operator, need to build docker image for arm architecture
 # git clone https://github.com/lsst-sqre/strimzi-registry-operator.git ../strimzi-registry-operator
@@ -41,8 +41,26 @@ kubectl create -f 'https://strimzi.io/install/latest?namespace=myapp' -n myapp
 kubectl create -f ./helm/infra/kafka.yml -n myapp
 kubectl create -f ./helm/infra/kafka-connect-rolebinding.yml -n myapp
 
+# redis operator
+helm repo add ot-helm https://ot-container-kit.github.io/helm-charts/
+helm install redis-operator ot-helm/redis-operator --create-namespace -n redis
+
+# traefik operator
+helm repo add traefik https://helm.traefik.io/traefik
+helm install -f ./helm/infra/traefik/values.yml traefik traefik/traefik --create-namespace --namespace traefik
+
+# redis 
+kubectl -n myapp create secret generic redis-secret --from-literal=password=$(openssl rand 18 | base64)
+kubectl -n myapp apply -f ./helm/infra/redis.yml
+
+# traefik
+kubectl -n myapp apply -f ./helm/infra/traefik-cors-middleware.yml
+
+# temporal
+kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.10.1/cert-manager.yaml
+
 # wait for cluster to start then
-kubectl wait kafka/kafka --for condition=Ready --timeout=360s
+kubectl wait kafka/kafka --for condition=Ready --timeout=600s
 
 kubectl create -f ./helm/infra/kafka-connectors.yml -n myapp
 
@@ -55,20 +73,12 @@ kubectl -n myapp apply -f ./helm/infra/strimzi-schema-registry-operator.yml
 
 # https://github.com/lsst-sqre/strimzi-registry-operator/pkgs/container/strimzi-registry-operator#deploy-a-schema-registry
 kubectl -n myapp apply -f ./helm/infra/kafka-schema-registry-topic-user.yml
-kubectl wait kafkatopic/registry-schemas --for=condition=Ready --timeout=300s
-kubectl wait kafkauser/confluent-schema-registry --for=condition=Ready --timeout=300s
+kubectl wait kafkatopic/registry-schemas --for=condition=Ready --timeout=600s
+kubectl wait kafkauser/confluent-schema-registry --for=condition=Ready --timeout=600s
 sleep 5s
 
 # wait for secret confluent-schema-registry to be created from above command
 kubectl -n myapp apply -f ./helm/infra/kafka-schema-registry.yml
-
-# redis-operator
-helm repo add ot-helm https://ot-container-kit.github.io/helm-charts/
-helm install redis-operator ot-helm/redis-operator --create-namespace -n redis
-
-# traefik
-helm repo add traefik https://helm.traefik.io/traefik
-helm install -f ./helm/infra/traefik/values.yml traefik traefik/traefik --create-namespace --namespace traefik
 
 # keycloak
 kubectl apply -f https://raw.githubusercontent.com/keycloak/keycloak-k8s-resources/26.0.5/kubernetes/keycloaks.k8s.keycloak.org-v1.yml
@@ -76,22 +86,12 @@ kubectl apply -f https://raw.githubusercontent.com/keycloak/keycloak-k8s-resourc
 kubectl -n myapp apply -f ./helm/infra/keycloak/keycloak-operator-role-bindings.yml
 kubectl -n keycloak apply -f ./helm/infra/keycloak/keycloak-operator.yml
 
-# redis 
-kubectl -n myapp create secret generic redis-secret --from-literal=password=$(openssl rand 18 | base64)
-kubectl -n myapp apply -f ./helm/infra/redis.yml
-
-# traefik
-kubectl -n myapp apply -f ./helm/infra/traefik-cors-middleware.yml
-
-# temporal
-kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.10.1/cert-manager.yaml
-
 # wait for all cert-manager pods to be ready (I think only webhook is required but it takes the longest to start anyway)
-kubectl wait pods --all --for condition=Ready --namespace=cert-manager --timeout=360s
+kubectl wait pods --all --for condition=Ready --namespace=cert-manager --timeout=600s
 kubectl apply --server-side -f https://github.com/alexandrevilain/temporal-operator/releases/latest/download/temporal-operator.crds.yaml
 kubectl apply -f https://github.com/alexandrevilain/temporal-operator/releases/latest/download/temporal-operator.yaml
 
-kubectl wait pods --all --for condition=Ready --namespace=temporal-system --timeout=360s
+kubectl wait pods --all --for condition=Ready --namespace=temporal-system --timeout=600s
 kubectl -n myapp apply -f ./helm/infra/temporal.yml
 
 PG_MASTER=$(kubectl get pods -o jsonpath={.items..metadata.name} -l cluster-name=postgres -n myapp)
