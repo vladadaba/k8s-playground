@@ -1,5 +1,11 @@
 kubectl config set-context --current --namespace=myapp
 
+kubectl create ns arc-runners
+# TODO: run this manually (content of pat.txt is just personal access token)
+# kubectl create secret generic github-pat \
+#    --namespace=arc-runners \
+#    --from-file=github_token=./pat.txt
+
 # minikube plugins
 minikube addons enable metrics-server
 minikube addons enable registry # needed for kafka-connect image with debezium postgresql connector (need to use strimzi kafka-connect image because of some startup script)
@@ -104,6 +110,21 @@ PGPASSWORD=$PG_PASSWORD psql -U postgres -h localhost -p 6432 -c "CREATE SCHEMA 
 # kubectl -n myapp create secret tls keycloak-tls-secret --cert ./helm/infra/keycloak/certificate.pem --key ./helm/infra/keycloak/key.pem
 kubectl create secret generic keycloak-confidential-client-secret --from-literal=secret=$(openssl rand 30 | base64)
 kubectl -n myapp apply -f ./helm/infra/keycloak.yml
+
+
+# github runner controller
+helm install arc --namespace arc-systems --create-namespace oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set-controller
+
+# https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners-with-actions-runner-controller/quickstart-for-actions-runner-controller
+GITHUB_CONFIG_URL="https://github.com/vladadaba-playground"
+# github runner scaleset (?)
+helm install arc-runner-set \
+    --namespace arc-runners \
+    --create-namespace \
+    --set githubConfigUrl="${GITHUB_CONFIG_URL}" \
+    --set githubConfigSecret=github-pat \
+    oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set
+
 
 # deploy apps
 # helm dependency update ./helm/apps/orders-svc
